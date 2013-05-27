@@ -60,15 +60,14 @@ int main(int argc, char** argv)
 {
 	loadMap();
 	
-	// start SDL with audio support
+	//Start SDL with audio support
 	if(SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO)==-1) 
 	{
 		cout << "SDL_Init: " << SDL_GetError() << endl;
 		exit(1);
 	}
 
-	// open 44.1KHz, signed 16bit, system byte order,
-	//      stereo audio, using 1024 byte chunks
+	//Open mixer
 	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1) 
 	{
 		cout << "Mix_OpenAudio: " << Mix_GetError() << endl;

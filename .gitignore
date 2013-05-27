@@ -2,4 +2,7 @@
 *.a
 *.so
 *.d
+map.txt
+*.ogg
+*.mp3
 kissme

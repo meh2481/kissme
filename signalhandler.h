@@ -28,6 +28,8 @@ extern "C"
     G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data);
+
+    G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data);
 }
 
 #endif //GTKMM_EXAMPLEWINDOW_H

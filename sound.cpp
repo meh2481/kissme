@@ -2,6 +2,9 @@
 #include <iostream>
 using namespace std;
 
+//Global variables for use by our functions here
+Mix_Music *music = NULL;
+
 void init_sdl()
 {
 
@@ -21,8 +24,6 @@ void init_sdl()
 	atexit(Mix_CloseAudio);
 }
 
-
-Mix_Music *music = NULL;
 void play_song(string sFilename)
 {
     if(music != NULL)

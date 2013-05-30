@@ -28,6 +28,7 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     gtk_file_filter_add_pattern(filter, "*.wma");
     gtk_file_filter_add_pattern(filter, "*.wav");
     gtk_file_filter_add_pattern(filter, "*.m4a");
+    gtk_file_filter_add_pattern(filter, "*.flac");
     gtk_file_chooser_add_filter(filechooser, filter);
 
     GtkFileFilter* filter2 = gtk_file_filter_new();
@@ -135,6 +136,10 @@ G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
     }
 }
 
-
+G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)
+{
+    //cout << "volume changed: " << value << endl;
+    Mix_VolumeMusic(value*128);
+}
 
 

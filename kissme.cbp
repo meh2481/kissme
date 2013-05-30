@@ -20,6 +20,7 @@
 				<Option object_output="/home/mark/repos/kissme/.objs" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -36,11 +37,11 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="examplewindow.cpp" />
-		<Unit filename="examplewindow.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="sdlsound.cpp" />
-		<Unit filename="sdlsound.h" />
+		<Unit filename="signalhandler.cpp" />
+		<Unit filename="signalhandler.h" />
+		<Unit filename="sound.cpp" />
+		<Unit filename="sound.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -6,43 +6,30 @@
 #include <map>
 #include <list>
 #include <sstream>
-#include <gtkmm/main.h>
+//#include <gtkmm/main.h>
+#include <gtk/gtk.h>
 #include <VFS.h>
 //#include "lame.h"
-#include "examplewindow.h"
-#include "sdlsound.h"
+#include "signalhandler.h"
+#include "sound.h"
 using namespace std;
 
 #define MAPFILE "map.txt"
 
 map<string, string> g_mFileEncodeMap;
 list<string> g_lPlayList;
-SDL_Surface* screen;
+//SDL_Surface* screen;
+GtkBuilder *builder;
 
 void on_button_folder_clicked()
 {
 
 }
 
-void repaint(int32_t w, int32_t h)
+/*void on_button_file_clicked()
 {
-	SDL_Rect rc;
-	rc.x = 5;
-	rc.y = 5;
-	rc.w = w-10;
-	rc.h = h-10;
-	SDL_FillRect(screen, &rc, SDL_MapRGB(screen->format, 128, 0, 0));
 
-	SDL_Flip(screen);
-
-	on_button_folder_clicked();
-}
-
-void resizeWindow(int32_t w, int32_t h)
-{
-	screen = SDL_SetVideoMode(w, h, 0, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE);
-	repaint(w,h);
-}
+}*/
 
 void convert(string sFilename)
 {
@@ -86,27 +73,60 @@ void usage()
 	cout << "Usage: kissme [filenames]" << endl;
 }
 
-
-
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
+    GtkWidget  *window;
+    GError     *error = NULL;
+    ChData     *data;
+
     loadMap();
     init_sdl();
 	atexit(saveMap);
-    Gtk::Main kit(argc, argv);
 
-    ExampleWindow window;
-    //Shows the window and returns when it is closed.
-    Gtk::Main::run(window);
+    // Init GTK+
+    gtk_init( &argc, &argv );
 
-    Sound_Quit();
-    //Mix_CloseAudio();
+    //Create new GtkBuilder object
+    builder = gtk_builder_new();
+    // Load UI from file. If error occurs, report it and quit application.
+    if( ! gtk_builder_add_from_file( builder, "kissme.glade", &error ) )
+    {
+        g_warning( "%s", error->message );
+        g_free( error );
+        return( 1 );
+    }
+
+    // Get main window pointer from UI
+    window = GTK_WIDGET( gtk_builder_get_object( builder, "window1" ) );
+
+    // Connect signals
+    data = g_slice_new( ChData );
+
+    // Get objects from UI
+#define GW( name ) CH_GET_WIDGET( builder, name, data )
+    GW( main_window );
+    //GW( chart_area );
+#undef GW
+
+    // Connect signals
+    gtk_builder_connect_signals( builder, data );
+
+    // Destroy builder, since we don't need it anymore
+    //g_object_unref( G_OBJECT( builder ) );
+
+    // Show window. All other widgets are automatically shown by GtkBuilder
+    gtk_widget_show( window );
+
+    // Start main loop
+    gtk_main();
+
+//    Sound_Quit();
+    Mix_CloseAudio();
     SDL_Quit();
     saveMap();
-    return 0;
+
+    return( 0 );
 }
-
-
 
 
 

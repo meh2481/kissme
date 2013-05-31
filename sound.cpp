@@ -122,7 +122,7 @@ void add_to_playlist(string sFilename)
     string sArtist = "\0";
 
     //Get album
-    cout << "Filename load: " << sFilename << endl;
+    //cout << "Filename load: " << sFilename << endl;
     ID3_Frame* myFrame = mp3Tag.Find(ID3FID_ALBUM);
     char* cs = NULL;
     cs = ID3_GetString(myFrame, ID3FN_TEXT);

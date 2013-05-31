@@ -196,24 +196,39 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
     }
 }
 
+void set_table_data(string sTreeViewName, string sListStoreName, gchar *path, gchar *new_text, gint column)
+{
+    //All this just to set the table value? OH COME ON!
+    GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
+    GtkTreeIter i;
+    GtkTreePath *p = gtk_tree_path_new_from_string(path);
+    gtk_tree_model_get_iter(mod, &i, p);
+    GValue a = G_VALUE_INIT;
+    g_value_init (&a, G_TYPE_STRING);
+    g_value_set_static_string (&a, new_text);
+    gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
+}
+
 G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    cout << "Title edited. Path: " << path << ", new text: " << new_text << endl;
+    set_table_data("treeview2", "Tracks", path, new_text, 1);
+    //TODO: Edit tags or some kinda thing
 }
 
 G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    cout << "Artist edited. Path: " << path << ", new text: " << new_text << endl;
+    set_table_data("treeview2", "Tracks", path, new_text, 2);
 }
 
 G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    cout << "Album edited. Path: " << path << ", new text: " << new_text << endl;
+    set_table_data("treeview2", "Tracks", path, new_text, 3);
 }
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    cout << "Playlist edited. Path: " << path << ", new text: " << new_text << endl;
+    set_table_data("treeview1", "Playlists", path, new_text, 0);
+    //TODO Save under some new name or such
 }
 
 

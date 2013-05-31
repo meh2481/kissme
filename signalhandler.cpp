@@ -4,6 +4,10 @@
 #include <vector>
 using namespace std;
 
+extern GtkBuilder *builder;
+bool bPaused = true;
+int iRepeatMode = REPEAT_NONE;
+
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
     //FIXME: Is this a deprecated way of doing things? Can I use Gtk::FileChooserDialog instead?
@@ -40,7 +44,8 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     {
         char *filename;
         filename = gtk_file_chooser_get_filename(filechooser);
-        play_song(filename);
+        load_song(filename);
+        //play_song(); //Start song playing
         g_free(filename);
         //TODO: Get all filenames
         /*GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
@@ -95,7 +100,7 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
       //for(vector<string>::iterator i = filenames.begin(); i != filenames.end(); i++)
         //std::cout << "File selected: " << *i << std::endl;
 
-      play_song(dialog.get_filename());
+      load_song(dialog.get_filename());
       break;
     }
     case(Gtk::RESPONSE_CANCEL):
@@ -113,33 +118,132 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 {
-    Mix_RewindMusic();  //TODO Song list
+    rewind_song(); //TODO Song list
 }
 
-extern GtkBuilder *builder;
-bool bPaused = true;
 G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
 {
     if(bPaused)
     {
-        gtk_button_set_image(button, GTK_WIDGET( gtk_builder_get_object( builder, "ImgPause" ) ));
-        //SDL_PauseAudio(0);
         bPaused = !bPaused;
-        Mix_ResumeMusic();
+        play_song();
     }
     else
     {
-        gtk_button_set_image(button, GTK_WIDGET( gtk_builder_get_object( builder, "ImgPlay" ) ));
-        //SDL_PauseAudio(1);
         bPaused = !bPaused;
-        Mix_PauseMusic();
+        pause_song();
     }
+}
+
+G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data)
+{
+    iRepeatMode++;
+    if(iRepeatMode > REPEAT_ONE)
+        iRepeatMode = REPEAT_NONE;
+    switch(iRepeatMode)
+    {
+        case REPEAT_ALL:
+            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatAll")));
+            break;
+        case REPEAT_NONE:
+            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOff")));
+            break;
+        case REPEAT_ONE:
+            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOne")));
+            break;
+    }
+}
+
+G_MODULE_EXPORT void button_shuffle_enter(GtkButton *button, ChData *data)
+{
+    gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgShuffle")));
+}
+
+G_MODULE_EXPORT void button_shuffle_leave(GtkButton *button, ChData *data)
+{
+    gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgShuffleOff")));
+}
+
+G_MODULE_EXPORT void button_shuffle_clicked(GtkButton *button, ChData *data)
+{
+    //TODO Shuffle list
 }
 
 G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)
 {
-    //cout << "volume changed: " << value << endl;
-    Mix_VolumeMusic(value*128);
+    setVolume(value);
 }
+
+G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
+{
+    //cout << "path: " << gtk_tree_path_to_string(path) << endl;
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+
+    model = gtk_tree_view_get_model(tree_view);
+
+    if (gtk_tree_model_get_iter(model, &iter, path))
+    {
+        gchar *name;
+
+        gtk_tree_model_get(model, &iter, 0, &name, -1);
+
+        //cout << "Name: " << name << endl;
+        load_song(name);
+        play_song();
+
+        g_free(name);
+    }
+}
+
+G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+{
+    cout << "Title edited. Path: " << path << ", new text: " << new_text << endl;
+}
+
+G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+{
+    cout << "Artist edited. Path: " << path << ", new text: " << new_text << endl;
+}
+
+G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+{
+    cout << "Album edited. Path: " << path << ", new text: " << new_text << endl;
+}
+
+G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+{
+    cout << "Playlist edited. Path: " << path << ", new text: " << new_text << endl;
+}
+
+
+void add_file(string sFilename)
+{
+
+}
+
+void show_play()
+{
+    gtk_button_set_image(GTK_BUTTON(gtk_builder_get_object(builder, "Play")), GTK_WIDGET(gtk_builder_get_object(builder, "ImgPlay")));
+    bPaused = true;
+}
+
+void show_pause()
+{
+    gtk_button_set_image(GTK_BUTTON(gtk_builder_get_object(builder, "Play")), GTK_WIDGET(gtk_builder_get_object(builder, "ImgPause")));
+    bPaused = false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 

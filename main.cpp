@@ -60,6 +60,9 @@ int main(int argc, char **argv)
 
     // Set reasonable defaults //TODO: Read last settings from file
     //gtk_scale_button_set_value(GTK_WIDGET(gtk_builder_get_object(builder, "volumebutton1")), 1.0);
+    //GObject * obj = gtk_builder_get_object(builder, "window1");
+    g_timeout_add(100, check_music_playing, data);
+
 
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );

@@ -1,5 +1,5 @@
 OBJECTS = main.o signalhandler.o sound.o
-LIBS = -L./lib -lttvfs -lopenal -lSDL -lSDL_mixer
+LIBS = -L./lib -lttvfs -lopenal -lSDL -lSDL_mixer -lid3
 HEADER = -I./include
 
 GTKINCLUDE = `pkg-config gtk+-3.0 gmodule-2.0 --cflags`

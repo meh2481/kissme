@@ -16,6 +16,9 @@ void        play_song();                    //Starts playing the last song loade
 void        pause_song();                   //Pauses the currently playing music
 void        rewind_song();                  //Rewinds the currently-playing song to the beginning
 void        setVolume(float fVol);          //Set the current volume (between 0 and 1)
+void        add_to_playlist(string sFilename);  //Add this song to the current playlist
+void        save_playlist();                //Save current playlist to file
+void        load_playlist();                //Load the playlist we saved
 
 //Callbacks (Don't call directly)
 gboolean    check_music_playing(gpointer data); //Callback for every loop to see if we should play_song next song

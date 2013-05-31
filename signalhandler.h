@@ -3,9 +3,6 @@
 
 #include <string>
 #include <gtk/gtk.h>
-//#include <gtkmm/main.h>
-
-//#include <gtkmm.h>
 using namespace std;
 
 #define CH_GET_OBJECT( builder, name, type, data ) \
@@ -54,5 +51,9 @@ extern "C"
     G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
 }
+
+//Helper functions
+void set_table_data(string sTreeViewName, string sListStoreName, gchar *path, gchar *new_text, gint column);
+void add_song(string sFilename, string sTitle, string sArtist, string sAlbum, string sLength);
 
 #endif //GTKMM_EXAMPLEWINDOW_H

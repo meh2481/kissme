@@ -42,78 +42,19 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
-        char *filename;
-        filename = gtk_file_chooser_get_filename(filechooser);
-        load_song(filename);
-        //play_song(); //Start song playing
-        g_free(filename);
-        //TODO: Get all filenames
-        /*GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
+        //Get all filenames and add them
+        GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
         for(GSList* i = filenames; i != NULL; i=i->next)
         {
-            string sFilename = (char*)i->data;
-            //Do something with sFilename
+            string s = (char*)i->data;
+            cout << s << endl;
+            add_to_playlist(s);
             g_free(i->data);
         }
-        g_slist_free(filenames);*/
+        g_slist_free(filenames);
     }
 
     gtk_widget_destroy (dialog);
-  /*Gtk::FileChooserDialog dialog("Please choose a file",
-          Gtk::FILE_CHOOSER_ACTION_OPEN);
-  //dialog.set_transient_for(*GTK_WINDOW(gtk_widget_get_toplevel(data->main_window)));
-  dialog.set_select_multiple(true);
-
-  //Add response buttons the the dialog:
-  dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-  dialog.add_button(Gtk::Stock::OPEN, Gtk::RESPONSE_OK);
-
-  //Add filters, so that only certain file types can be selected:
-
-  Glib::RefPtr<Gtk::FileFilter> filter_songs = Gtk::FileFilter::create();
-  filter_songs->set_name("Song files");
-  filter_songs->add_pattern("*.mp3");
-  filter_songs->add_pattern("*.wav");
-  filter_songs->add_pattern("*.ogg");
-  filter_songs->add_pattern("*.m4a");
-  filter_songs->add_pattern("*.wma");
-  dialog.add_filter(filter_songs);
-
-  Glib::RefPtr<Gtk::FileFilter> filter_any = Gtk::FileFilter::create();
-  filter_any->set_name("All files");
-  filter_any->add_pattern("*");
-  dialog.add_filter(filter_any);
-
-  //Show the dialog and wait for a user response:
-  int result = dialog.run();
-
-  //Handle the response:
-  switch(result)
-  {
-    case(Gtk::RESPONSE_OK):
-    {
-      //std::cout << "Open clicked." << std::endl;
-
-      //Notice that this is a std::string, not a Glib::ustring.
-      vector<string> filenames = dialog.get_filenames();
-      if(filenames.size())
-      //for(vector<string>::iterator i = filenames.begin(); i != filenames.end(); i++)
-        //std::cout << "File selected: " << *i << std::endl;
-
-      load_song(dialog.get_filename());
-      break;
-    }
-    case(Gtk::RESPONSE_CANCEL):
-    {
-      //std::cout << "Cancel clicked." << std::endl;
-      break;
-    }
-    default:
-    {
-      //std::cout << "Unexpected button clicked." << std::endl;
-      break;
-    }
-  }*/
 }
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
@@ -249,7 +190,22 @@ void show_pause()
     bPaused = false;
 }
 
-
+void add_song(string sFilename, string sTitle, string sArtist, string sAlbum, string sLength)
+{
+    //Create new item in the list
+    GtkTreeIter iter;
+    gtk_list_store_append(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
+    GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    GtkTreePath* path = gtk_tree_model_get_path(mod, &iter);
+    //Fill in list data
+    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sFilename.c_str(), 0);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sTitle.c_str(), 1);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sArtist.c_str(), 2);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sAlbum.c_str(), 3);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sLength.c_str(), 4);
+    //Cleanup
+    gtk_tree_path_free(path);
+}
 
 
 

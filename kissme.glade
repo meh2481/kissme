@@ -24,7 +24,7 @@
   </object>
   <object class="GtkListStore" id="Playlists">
     <columns>
-      <!-- column-name Playlist Name -->
+      <!-- column-name Playlist -->
       <column type="gchararray"/>
     </columns>
     <data>
@@ -46,22 +46,6 @@
       <!-- column-name Length -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">ShySt3p.mp3</col>
-        <col id="1" translatable="yes">ShySt3p</col>
-        <col id="2" translatable="yes">Some Brony Dude</col>
-        <col id="3" translatable="yes">MLPFIM</col>
-        <col id="4" translatable="yes">Not sure</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">test.ogg</col>
-        <col id="1" translatable="yes">stuff</col>
-        <col id="2" translatable="yes">all your base</col>
-        <col id="3" translatable="yes">don't forget your towel</col>
-        <col id="4" translatable="yes">FOREVER</col>
-      </row>
-    </data>
   </object>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">100</property>

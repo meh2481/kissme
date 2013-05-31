@@ -67,13 +67,16 @@ int main(int argc, char **argv)
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );
 
+    //Load our last playlist
+    load_playlist();
+
     // Start main loop
     gtk_main();
 
 //    Sound_Quit();
     Mix_CloseAudio();
     SDL_Quit();
-    //saveMap();
+    save_playlist();
 
     return( 0 );
 }

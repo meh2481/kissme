@@ -6,19 +6,15 @@
 #include <map>
 #include <list>
 #include <sstream>
-//#include <gtkmm/main.h>
 #include <gtk/gtk.h>
 #include <VFS.h>
-//#include "lame.h"
 #include "signalhandler.h"
 #include "sound.h"
-using namespace std;
 
 #define MAPFILE "map.txt"
 
-map<string, string> g_mFileEncodeMap;
-list<string> g_lPlayList;
-//SDL_Surface* screen;
+std::map<std::string, std::string> g_mFileEncodeMap;
+std::list<std::string> g_lPlayList;
 GtkBuilder *builder;
 
 int main(int argc, char **argv)
@@ -27,9 +23,8 @@ int main(int argc, char **argv)
     GError     *error = NULL;
     ChData     *data;
 
-    //loadMap();
     init_sdl();
-	//atexit(saveMap);
+    init_signal_handler();
 
     // Init GTK+
     gtk_init( &argc, &argv );
@@ -59,8 +54,6 @@ int main(int argc, char **argv)
     gtk_builder_connect_signals( builder, data );
 
     // Set reasonable defaults //TODO: Read last settings from file
-    //gtk_scale_button_set_value(GTK_WIDGET(gtk_builder_get_object(builder, "volumebutton1")), 1.0);
-    //GObject * obj = gtk_builder_get_object(builder, "window1");
     g_timeout_add(100, check_music_playing, data);
 
 
@@ -73,7 +66,6 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
-//    Sound_Quit();
     Mix_CloseAudio();
     SDL_Quit();
     save_playlist();

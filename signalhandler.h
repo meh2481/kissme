@@ -3,7 +3,7 @@
 
 #include <string>
 #include <gtk/gtk.h>
-using namespace std;
+//using namespace std;
 
 #define CH_GET_OBJECT( builder, name, type, data ) \
     data->name = type( gtk_builder_get_object( builder, #name ) )
@@ -14,10 +14,8 @@ using namespace std;
 #define REPEAT_ALL  1
 #define REPEAT_ONE  2
 
-void load_song(string sFilename);
-void add_file(string sFilename);    //Add filename to widget
-void show_play();   //Show play icon (for when music isn't playing)
-void show_pause();  //Show pause icon (for when music is playing)
+//void load_song(std::string sFilename);
+//void add_file(std::string sFilename);    //Add filename to widget
 
 typedef struct _ChData ChData;
 struct _ChData
@@ -50,10 +48,16 @@ extern "C"
     G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
+
+    //Sorting function callbacks
+    G_MODULE_EXPORT void column_clicked(GtkTreeViewColumn *treeviewcolumn, ChData *data);
 }
 
 //Helper functions
-void set_table_data(string sTreeViewName, string sListStoreName, gchar *path, gchar *new_text, gint column);
-void add_song(string sFilename, string sTitle, string sArtist, string sAlbum, string sLength);
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, gchar *path, gchar *new_text, gint column);
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength);
+void show_play();   //Show play icon (for when music isn't playing)
+void show_pause();  //Show pause icon (for when music is playing)
+void init_signal_handler(); //Initialize variables used by the signal handler functions
 
 #endif //GTKMM_EXAMPLEWINDOW_H

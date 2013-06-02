@@ -2,7 +2,9 @@
 #include "sound.h"
 #include <iostream>
 #include <vector>
-using namespace std;
+//using namespace std;
+
+//#define NUM_ITEMS_IN_TREE_VIEW  5
 
 extern GtkBuilder *builder;
 bool bPaused = true;
@@ -46,8 +48,8 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
         GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
         for(GSList* i = filenames; i != NULL; i=i->next)
         {
-            string s = (char*)i->data;
-            cout << s << endl;
+            std::string s = (char*)i->data;
+            std::cout << s << std::endl;
             add_to_playlist(s);
             g_free(i->data);
         }
@@ -117,7 +119,7 @@ G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChDat
 
 G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
 {
-    //cout << "path: " << gtk_tree_path_to_string(path) << endl;
+    //std::cout << "path: " << gtk_tree_path_to_string(path) << std::endl;
     GtkTreeModel *model;
     GtkTreeIter   iter;
 
@@ -129,7 +131,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         gtk_tree_model_get(model, &iter, 0, &name, -1);
 
-        //cout << "Name: " << name << endl;
+        //std::cout << "Name: " << name << std::endl;
         load_song(name);
         play_song();
 
@@ -137,7 +139,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
     }
 }
 
-void set_table_data(string sTreeViewName, string sListStoreName, gchar *path, gchar *new_text, gint column)
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, gchar *path, gchar *new_text, gint column)
 {
     //All this just to set the table value? OH COME ON!
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
@@ -173,7 +175,7 @@ G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *p
 }
 
 
-void add_file(string sFilename)
+void add_file(std::string sFilename)
 {
 
 }
@@ -190,7 +192,12 @@ void show_pause()
     bPaused = false;
 }
 
-void add_song(string sFilename, string sTitle, string sArtist, string sAlbum, string sLength)
+void init_signal_handler()
+{
+
+}
+
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength)
 {
     //Create new item in the list
     GtkTreeIter iter;
@@ -207,7 +214,33 @@ void add_song(string sFilename, string sTitle, string sArtist, string sAlbum, st
     gtk_tree_path_free(path);
 }
 
+gint dummy_sort(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+    return 0;
+}
 
+G_MODULE_EXPORT void column_clicked(GtkTreeViewColumn *treeviewcolumn, ChData *data)
+{
+    //std::cout << "Clicked" << std::endl;
+    //gtk_tree_sortable_set_default_sort_func
+    //                                                    (GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")),
+    //                                                     dummy_sort,
+    //                                                     NULL,
+    //                                                     NULL);
+    gint sort_column_id = -1;
+    GtkSortType order;
+    gtk_tree_sortable_get_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), &sort_column_id, &order);
+    //std::cout << "Column: " << sort_column_id << std::endl;
+    //sortSettings = model.get_sort_column_id()
+    //gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), dummy_sort, NULL, NULL);
+    //model.set_default_sort_func(lambda *unused: 0) # <-- can also use None but that is slower!
+    //# model.set_default_sort_func(lambda *unused: 1) <-- slow
+    //# model.set_default_sort_func(lambda *unused: -1) <-- crash (access violation in gtk_tree_store_move_after?!)
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+    //model.set_sort_column_id(-1, SORT_ASCENDING)
+    //# change rows
+    //model.set_sort_column_id(*sortSettings)
+}
 
 
 

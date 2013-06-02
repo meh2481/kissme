@@ -2,26 +2,26 @@
 #include "signalhandler.h"
 #include <iostream>
 #include <list>
-using namespace std;
+//using namespace std;
 
 //Global variables for use by our functions here
 Mix_Music       *music = NULL;
 bool            bMusicDone = false;
 extern int      iRepeatMode;
-list<string>    g_lCurPlaylist; //Current list of songs we're playing
+std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
 
 void init_sdl()
 {
 
     if (SDL_Init(SDL_INIT_AUDIO) == -1)
     {
-        cout << "SDL_Init() failed! reason: " << SDL_GetError() << endl;
+        std::cout << "SDL_Init() failed! reason: " << SDL_GetError() << std::endl;
         exit(1);
     }
 
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)
     {
-        cout << "Mix_OpenAudio: " << Mix_GetError() << endl;
+        std::cout << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
         exit(1);
     }
     Mix_HookMusicFinished(music_done);
@@ -29,7 +29,7 @@ void init_sdl()
 	atexit(Mix_CloseAudio);
 }
 
-void load_song(string sFilename)
+void load_song(std::string sFilename)
 {
     if(music != NULL)
     {
@@ -44,11 +44,11 @@ void load_song(string sFilename)
 
 gboolean check_music_playing(gpointer data)
 {
-    //cout << "Hai dood" << endl;
+    //std::cout << "Hai dood" << std::endl;
     if(bMusicDone)
     {
         bMusicDone = false;
-        //cout << "Repeat and stuff" << endl;
+        //std::cout << "Repeat and stuff" << std::endl;
         switch(iRepeatMode)
         {
             case REPEAT_ALL:
@@ -112,17 +112,17 @@ char *ID3_GetString(const ID3_Frame *frame, ID3_FieldID fldName)
     return text;
 }
 
-void add_to_playlist(string sFilename)
+void add_to_playlist(std::string sFilename)
 {
     //Get data for song
     ID3_Tag mp3Tag(sFilename.c_str());
-    string sAlbum = "\0";
-    string sTitle = "\0";
-    string sLength = "\0";
-    string sArtist = "\0";
+    std::string sAlbum = "\0";
+    std::string sTitle = "\0";
+    std::string sLength = "\0";
+    std::string sArtist = "\0";
 
     //Get album
-    //cout << "Filename load: " << sFilename << endl;
+    //std::cout << "Filename load: " << sFilename << std::endl;
     ID3_Frame* myFrame = mp3Tag.Find(ID3FID_ALBUM);
     char* cs = NULL;
     cs = ID3_GetString(myFrame, ID3FN_TEXT);
@@ -151,9 +151,9 @@ void save_playlist()
     //For now, just shove all the data out to the file, without caring about format
     ofstream playlistFile("kissme.last");
     if(playlistFile.fail()) return;
-    for(list<string>::iterator i = g_lCurPlaylist.begin(); i != g_lCurPlaylist.end(); i++)
+    for(std::list<std::string>::iterator i = g_lCurPlaylist.begin(); i != g_lCurPlaylist.end(); i++)
     {
-        playlistFile << *i << endl;
+        playlistFile << *i << std::endl;
     }
     playlistFile.close();
 }
@@ -163,7 +163,7 @@ void load_playlist()
     ifstream playlistFile("kissme.last");
     while(!playlistFile.fail() && !playlistFile.eof())
     {
-        string s;
+        std::string s;
         getline(playlistFile, s);
         if(s.size())
         {

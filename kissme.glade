@@ -795,6 +795,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="model">Tracks</property>
                                 <property name="reorderable">True</property>
+                                <property name="search_column">0</property>
                                 <property name="hover_selection">True</property>
                                 <signal name="row-activated" handler="song_selected" swapped="no"/>
                                 <child internal-child="selection">
@@ -811,6 +812,7 @@
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">0</property>
+                                    <signal name="clicked" handler="column_clicked" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext2">
                                         <property name="ellipsize">end</property>
@@ -831,6 +833,7 @@
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">1</property>
+                                    <signal name="clicked" handler="column_clicked" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext3">
                                         <property name="editable">True</property>
@@ -853,6 +856,7 @@
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">2</property>
+                                    <signal name="clicked" handler="column_clicked" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext4">
                                         <property name="editable">True</property>
@@ -875,6 +879,7 @@
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">3</property>
+                                    <signal name="clicked" handler="column_clicked" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext5">
                                         <property name="editable">True</property>
@@ -897,6 +902,7 @@
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">4</property>
+                                    <signal name="clicked" handler="column_clicked" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext6">
                                         <property name="ellipsize">end</property>

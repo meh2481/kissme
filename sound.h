@@ -6,17 +6,17 @@
 #include <string>
 #include <gtk/gtk.h>
 #include <id3/tag.h>
-using namespace std;
+//using namespace std;
 
 
 //Global functions
 void        init_sdl();                     //Initializes SDL
-void        load_song(string sFilename);    //Loads a song from a filename
+void        load_song(std::string sFilename);    //Loads a song from a filename
 void        play_song();                    //Starts playing the last song loaded into memory
 void        pause_song();                   //Pauses the currently playing music
 void        rewind_song();                  //Rewinds the currently-playing song to the beginning
 void        setVolume(float fVol);          //Set the current volume (between 0 and 1)
-void        add_to_playlist(string sFilename);  //Add this song to the current playlist
+void        add_to_playlist(std::string sFilename);  //Add this song to the current playlist
 void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
 

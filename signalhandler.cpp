@@ -214,37 +214,11 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     gtk_tree_path_free(path);
 }
 
-gint dummy_sort(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data)
 {
-    return 0;
-}
-
-G_MODULE_EXPORT void column_clicked(GtkTreeViewColumn *treeviewcolumn, ChData *data)
-{
-    //std::cout << "Clicked" << std::endl;
-    //gtk_tree_sortable_set_default_sort_func
-    //                                                    (GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")),
-    //                                                     dummy_sort,
-    //                                                     NULL,
-    //                                                     NULL);
-    gint sort_column_id = -1;
-    GtkSortType order;
-    gtk_tree_sortable_get_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), &sort_column_id, &order);
-    //std::cout << "Column: " << sort_column_id << std::endl;
-    //sortSettings = model.get_sort_column_id()
-    //gtk_tree_sortable_set_default_sort_func(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), dummy_sort, NULL, NULL);
-    //model.set_default_sort_func(lambda *unused: 0) # <-- can also use None but that is slower!
-    //# model.set_default_sort_func(lambda *unused: 1) <-- slow
-    //# model.set_default_sort_func(lambda *unused: -1) <-- crash (access violation in gtk_tree_store_move_after?!)
+    //Let the user reorganize the rows by disabling sorting on the columns
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
-    //model.set_sort_column_id(-1, SORT_ASCENDING)
-    //# change rows
-    //model.set_sort_column_id(*sortSettings)
 }
-
-
-
-
 
 
 

@@ -50,7 +50,7 @@ extern "C"
     G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
 
     //Sorting function callbacks
-    G_MODULE_EXPORT void column_clicked(GtkTreeViewColumn *treeviewcolumn, ChData *data);
+    G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data);
 }
 
 //Helper functions

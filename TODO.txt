@@ -11,3 +11,4 @@
 - Draw + allow tagging of album art? Does this violate KISS?
 - Allow MP3 tagging of artist/album/title.
 - Fetch track info? From where? Does this violate KISS?
+- Mark currently-playing track with bg color

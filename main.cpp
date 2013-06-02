@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+//#include <SDL/SDL.h>
 #include <string>
 #include <iostream>
 #include <cstdlib>
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     GError     *error = NULL;
     ChData     *data;
 
-    init_sdl();
+    init_sound();
     init_signal_handler();
 
     // Init GTK+
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     gtk_builder_connect_signals( builder, data );
 
     // Set reasonable defaults //TODO: Read last settings from file
-    g_timeout_add(100, check_music_playing, data);
+    g_timeout_add(10, check_music_playing, data);
 
 
     // Show window. All other widgets are automatically shown by GtkBuilder
@@ -66,8 +66,8 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
-    Mix_CloseAudio();
-    SDL_Quit();
+//    Mix_CloseAudio();
+//    SDL_Quit();
     save_playlist();
 
     return( 0 );

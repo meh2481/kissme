@@ -133,7 +133,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         //std::cout << "Name: " << name << std::endl;
         load_song(name);
-        play_song();
+        //play_song();
 
         g_free(name);
     }

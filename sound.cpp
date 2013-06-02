@@ -5,15 +5,20 @@
 //using namespace std;
 
 //Global variables for use by our functions here
-Mix_Music       *music = NULL;
-bool            bMusicDone = false;
+//Mix_Music       *music = NULL;
+//bool            bMusicDone = false;
+tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
 extern int      iRepeatMode;
 std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
 
-void init_sdl()
+void init_sound()
 {
-
-    if (SDL_Init(SDL_INIT_AUDIO) == -1)
+    if(tyrsound_init(NULL, NULL) != TYRSOUND_ERR_OK)
+    {
+        std::cout << "Failed to init tyrsound." << std::endl;
+        exit(1);
+    }
+    /*if (SDL_Init(SDL_INIT_AUDIO) == -1)
     {
         std::cout << "SDL_Init() failed! reason: " << SDL_GetError() << std::endl;
         exit(1);
@@ -24,20 +29,44 @@ void init_sdl()
         std::cout << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
         exit(1);
     }
-    Mix_HookMusicFinished(music_done);
+//    Mix_HookMusicFinished(music_done);tyrsound_setVolume
 	atexit(SDL_Quit);
-	atexit(Mix_CloseAudio);
+	atexit(Mix_CloseAudio);*/
+	atexit(cleanup_sound);
+}
+
+void cleanup_sound()
+{
+    tyrsound_shutdown();
 }
 
 void load_song(std::string sFilename)
 {
-    if(music != NULL)
+    if(handle != TYRSOUND_NULLHANDLE)
     {
-        Mix_FreeMusic(music);
+        //Mix_FreeMusic(music);
     }
-    music = Mix_LoadMUS(sFilename.c_str());
-    Mix_PlayMusic(music, 0);
-    Mix_PauseMusic();
+
+    tyrsound_Stream strm;
+    if(tyrsound_createFileNameStream(&strm, sFilename.c_str(), "rb") != TYRSOUND_ERR_OK)
+    {
+        std::cout << "File not found: " << sFilename << std::endl;
+        exit(1);
+    }
+
+    handle = tyrsound_load(strm, NULL);
+
+    if(tyrsound_play(handle) != TYRSOUND_ERR_OK)
+    {
+        std::cout << "Failed to start playback." << std::endl;
+        exit(1);
+    }
+
+
+
+    //music = Mix_LoadMUS(sFilename.c_str());
+    //Mix_PlayMusic(music, 0);
+    //Mix_PauseMusic();
 
 
 }
@@ -45,9 +74,9 @@ void load_song(std::string sFilename)
 gboolean check_music_playing(gpointer data)
 {
     //std::cout << "Hai dood" << std::endl;
-    if(bMusicDone)
+    if(!tyrsound_isPlaying(handle))
     {
-        bMusicDone = false;
+//        bMusicDone = false;
         //std::cout << "Repeat and stuff" << std::endl;
         switch(iRepeatMode)
         {
@@ -59,41 +88,50 @@ gboolean check_music_playing(gpointer data)
                 break;
             case REPEAT_ONE:
                 //Mix_RewindMusic();
-                Mix_PlayMusic(music, 0);
+                //Mix_PlayMusic(music, 0);
+                tyrsound_stop(handle);
+                tyrsound_play(handle);
                 break;
         }
     }
-    if(Mix_PlayingMusic() && !Mix_PausedMusic())
+    if(tyrsound_isPlaying(handle))
         show_pause();
     else
         show_play();
 
+    tyrsound_update();  //Update OpenAL
+
     return true;
 }
 
-void music_done()
-{
-    bMusicDone = true;
-}
+//void music_done()
+//{
+//    bMusicDone = true;
+//
 
 void play_song()
 {
-    Mix_ResumeMusic();
+    //Mix_ResumeMusic();
+    tyrsound_play(handle);
 }
 
 void pause_song()
 {
-    Mix_PauseMusic();
+    //Mix_PauseMusic();
+    tyrsound_pause(handle);
 }
 
 void rewind_song()
 {
-    Mix_RewindMusic();
+    //Mix_RewindMusic();
+    tyrsound_stop(handle);
+    tyrsound_play(handle);
 }
 
 void setVolume(float fVol)
 {
-    Mix_VolumeMusic(fVol*128);
+    //Mix_VolumeMusic(fVol*128);
+    tyrsound_setVolume(handle, fVol);
 }
 
 char *ID3_GetString(const ID3_Frame *frame, ID3_FieldID fldName)

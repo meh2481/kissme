@@ -44,7 +44,7 @@ void load_song(std::string sFilename)
 {
     if(handle != TYRSOUND_NULLHANDLE)
     {
-        //Mix_FreeMusic(music);
+        tyrsound_unload(handle);
     }
 
     tyrsound_Stream strm;
@@ -89,7 +89,8 @@ gboolean check_music_playing(gpointer data)
             case REPEAT_ONE:
                 //Mix_RewindMusic();
                 //Mix_PlayMusic(music, 0);
-                tyrsound_stop(handle);
+//                tyrsound_stop(handle);
+                tyrsound_seek(handle, 0.0);
                 tyrsound_play(handle);
                 break;
         }
@@ -100,6 +101,8 @@ gboolean check_music_playing(gpointer data)
         show_play();
 
     tyrsound_update();  //Update OpenAL
+
+    update_play_slider(tyrsound_getPlayPosition(handle), tyrsound_getLength(handle));   //Update the slider to show where our current song is playing
 
     return true;
 }
@@ -124,14 +127,15 @@ void pause_song()
 void rewind_song()
 {
     //Mix_RewindMusic();
-    tyrsound_stop(handle);
-    tyrsound_play(handle);
+    tyrsound_seek(handle, 0.0f);
+    //tyrsound_stop(handle);
+    //tyrsound_play(handle);
 }
 
 void setVolume(float fVol)
 {
     //Mix_VolumeMusic(fVol*128);
-    tyrsound_setVolume(handle, fVol);
+    tyrsound_setVolume(handle, fVol*2.0);   //Loud is awesum
 }
 
 char *ID3_GetString(const ID3_Frame *frame, ID3_FieldID fldName)

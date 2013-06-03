@@ -59,5 +59,6 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
 void show_play();   //Show play icon (for when music isn't playing)
 void show_pause();  //Show pause icon (for when music is playing)
 void init_signal_handler(); //Initialize variables used by the signal handler functions
+void update_play_slider(float fPos, float fLen);  //Update where our current song is playing
 
 #endif //GTKMM_EXAMPLEWINDOW_H

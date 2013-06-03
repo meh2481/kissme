@@ -2,6 +2,9 @@
 #include "sound.h"
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
 //using namespace std;
 
 //#define NUM_ITEMS_IN_TREE_VIEW  5
@@ -195,6 +198,19 @@ void show_pause()
 void init_signal_handler()
 {
 
+}
+
+void update_play_slider(float fPos, float fLen)
+{
+    if(fLen == -1)
+        fLen = 0.0;
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(gtk_builder_get_object(builder, "posadjustment")), fPos/fLen*100.0);
+    std::ostringstream oss;
+    oss.fill('0');
+    oss << (int)floorf(fPos/60.0) << ":" << std::setw(2) << (int)floorf(fPos) % 60 << " of "
+        << std::setw(1) << (int)floorf(fLen/60.0) << ":" << std::setw(2) << (int)floorf(fLen) % 60;
+    //oss << fPos << " of " << fLen;
+    gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playposlabel")), oss.str().c_str());
 }
 
 void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength)

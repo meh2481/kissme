@@ -1,5 +1,5 @@
 OBJECTS = main.o signalhandler.o sound.o
-LIBS = -L./dep/lib -lttvfs -lopenal -lSDL -lSDL_mixer -lid3 -ltyrsound
+LIBS = -L./dep/lib -lttvfs -lid3 -ltyrsound -lopenal -logg -lvorbis -lvorbisfile
 HEADER = -I./dep/include
 
 GTKINCLUDE = `pkg-config gtk+-3.0 gmodule-2.0 --cflags`
@@ -8,10 +8,10 @@ GTKLIB = `pkg-config gtk+-3.0 gmodule-2.0 --libs`
 all : kissme
 
 kissme : $(OBJECTS)
-	g++ -Wall -O2 -o $@ $^ $(LIBS) $(GTKLIB)
+	g++ -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
 
 %.o: %.cpp
-	g++ -c -MMD -o $@ $< $(HEADER) $(GTKINCLUDE)
+	g++ -c -MMD -ggdb -g -o $@ $< $(HEADER) $(GTKINCLUDE)
 
 -include $(OBJECTS:.o=.d)
 

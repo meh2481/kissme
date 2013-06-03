@@ -51,6 +51,9 @@ extern "C"
 
     //Sorting function callbacks
     G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data);
+
+    //For when the user drags on the slider for the current song
+    G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data);
 }
 
 //Helper functions

@@ -1,5 +1,5 @@
 OBJECTS = main.o signalhandler.o sound.o
-LIBS = -L./dep/lib -lttvfs -lid3 -ltyrsound -lopenal -logg -lvorbis -lvorbisfile
+LIBS = -L./dep/lib -lttvfs -ltag -ltyrsound -lopenal -logg -lvorbis -lvorbisfile
 HEADER = -I./dep/include
 
 GTKINCLUDE = `pkg-config gtk+-3.0 gmodule-2.0 --cflags`

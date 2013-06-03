@@ -199,11 +199,10 @@ void init_signal_handler()
 {
 
 }
-
+bool bSlider = false;
 void update_play_slider(float fPos, float fLen)
 {
-    if(fLen == -1)
-        fLen = 0.0;
+    bSlider = true;
     gtk_adjustment_set_value(GTK_ADJUSTMENT(gtk_builder_get_object(builder, "posadjustment")), fPos/fLen*100.0);
     std::ostringstream oss;
     oss.fill('0');
@@ -236,7 +235,16 @@ G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 }
 
-
+G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data)
+{
+    if(bSlider)
+    {
+        bSlider = false;
+        return;
+    }
+    //std::cout << "Seek to: " << gtk_adjustment_get_value(adjustment) << std::endl;
+    //TODO set_music_loc(gtk_adjustment_get_value(adjustment)/100.0);
+}
 
 
 

@@ -5,9 +5,10 @@
 //#include <SDL/SDL_mixer.h>
 #include <string>
 #include <gtk/gtk.h>
-#include <id3/tag.h>
+//#include <id3/tag.h>
+#include <tag.h>
+#include <fileref.h>
 #include <tyrsound.h>
-//using namespace std;
 
 
 //Global functions
@@ -21,6 +22,7 @@ void        setVolume(float fVol);          //Set the current volume (between 0 
 void        add_to_playlist(std::string sFilename);  //Add this song to the current playlist
 void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
+void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
 
 //Callbacks (Don't call directly)
 gboolean    check_music_playing(gpointer data); //Callback for every loop to see if we should play_song next song

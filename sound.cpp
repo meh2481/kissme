@@ -5,8 +5,6 @@
 #include <fstream>
 
 //Global variables for use by our functions here
-//Mix_Music       *music = NULL;
-//bool            bMusicDone = false;
 tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
 extern int      iRepeatMode;
 std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
@@ -18,20 +16,6 @@ void init_sound()
         std::cout << "Failed to init tyrsound." << std::endl;
         exit(1);
     }
-    /*if (SDL_Init(SDL_INIT_AUDIO) == -1)
-    {
-        std::cout << "SDL_Init() failed! reason: " << SDL_GetError() << std::endl;
-        exit(1);
-    }
-
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)
-    {
-        std::cout << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
-        exit(1);
-    }
-//    Mix_HookMusicFinished(music_done);tyrsound_setVolume
-	atexit(SDL_Quit);
-	atexit(Mix_CloseAudio);*/
 	atexit(cleanup_sound);
 }
 
@@ -56,28 +40,26 @@ void load_song(std::string sFilename)
 
     handle = tyrsound_load(strm, NULL);
 
-    if(tyrsound_play(handle) != TYRSOUND_ERR_OK)
+    if(handle == TYRSOUND_NULLHANDLE)
     {
-        std::cout << "Failed to start playback." << std::endl;
+        std::cout << "Invalid handle for song " << sFilename << std::endl;
         exit(1);
     }
 
 
+    tyrsound_Error err = tyrsound_play(handle);
 
-    //music = Mix_LoadMUS(sFilename.c_str());
-    //Mix_PlayMusic(music, 0);
-    //Mix_PauseMusic();
-
-
+    if(err != TYRSOUND_ERR_OK)
+    {
+        std::cout << "Failed to start playback on file " << sFilename << " Err: " << err << std::endl;
+        exit(1);
+    }
 }
 
 gboolean check_music_playing(gpointer data)
 {
-    //std::cout << "Hai dood" << std::endl;
     if(!tyrsound_isPlaying(handle))
     {
-//        bMusicDone = false;
-        //std::cout << "Repeat and stuff" << std::endl;
         switch(iRepeatMode)
         {
             case REPEAT_ALL:
@@ -87,9 +69,6 @@ gboolean check_music_playing(gpointer data)
                 //TODO stop
                 break;
             case REPEAT_ONE:
-                //Mix_RewindMusic();
-                //Mix_PlayMusic(music, 0);
-//                tyrsound_stop(handle);
                 tyrsound_seek(handle, 0.0);
                 tyrsound_play(handle);
                 break;
@@ -108,52 +87,25 @@ gboolean check_music_playing(gpointer data)
     return true;
 }
 
-//void music_done()
-//{
-//    bMusicDone = true;
-//
-
 void play_song()
 {
-    //Mix_ResumeMusic();
     tyrsound_play(handle);
 }
 
 void pause_song()
 {
-    //Mix_PauseMusic();
     tyrsound_pause(handle);
 }
 
 void rewind_song()
 {
-    //Mix_RewindMusic();
     tyrsound_seek(handle, 0.0f);
-    //tyrsound_stop(handle);
-    //tyrsound_play(handle);
 }
 
 void setVolume(float fVol)
 {
-    //Mix_VolumeMusic(fVol*128);
-    tyrsound_setVolume(handle, fVol*2.0);   //Loud is awesum
+    tyrsound_setVolume(handle, fVol);
 }
-
-/*char *ID3_GetString(const ID3_Frame *frame, ID3_FieldID fldName)
-{
-    char *text = NULL;
-    if (NULL != frame)
-    {
-        ID3_Field* fld = frame->GetField(fldName);
-        ID3_TextEnc enc = fld->GetEncoding();
-        fld->SetEncoding(ID3TE_ASCII);
-        size_t nText = fld->Size();
-        text = new char[nText + 1];
-        fld->Get(text, nText + 1);
-        fld->SetEncoding(enc);
-    }
-    return text;
-}*/
 
 void add_to_playlist(std::string sFilename)
 {
@@ -164,27 +116,6 @@ void add_to_playlist(std::string sFilename)
     std::string sTitle = f.tag()->title().to8Bit(true);
 //    std::string sLength = f.tag()->length().to8Bit(true);
     std::string sArtist = f.tag()->artist().to8Bit(true);
-    //std::cout << f.tag()->artist() << endl;
-
-    //Get album
-    //std::cout << "Filename load: " << sFilename << std::endl;
-    /*ID3_Frame* myFrame = mp3Tag.Find(ID3FID_ALBUM);
-    char* cs = NULL;
-    cs = ID3_GetString(myFrame, ID3FN_TEXT);
-    if(cs != NULL)
-        sAlbum = cs;
-    myFrame = mp3Tag.Find(ID3FID_TITLE);
-    cs = ID3_GetString(myFrame, ID3FN_TEXT);
-    if(cs != NULL)
-        sTitle = cs;
-    myFrame = mp3Tag.Find(ID3FID_SONGLEN);
-    cs = ID3_GetString(myFrame, ID3FN_TEXT);
-    if(cs != NULL)
-        sLength = cs;
-    myFrame = mp3Tag.Find(ID3FID_LEADARTIST);
-    cs = ID3_GetString(myFrame, ID3FN_TEXT);
-    if(cs != NULL)
-        sArtist = cs;*/
 
     //Write this all to the proper location in the table
     add_song(sFilename, sTitle, sArtist, sAlbum, "");
@@ -212,7 +143,6 @@ void load_playlist()
         getline(playlistFile, s);
         if(s.size())
         {
-            //g_lCurPlaylist.push_back(s);
             add_to_playlist(s);
         }
     }

@@ -14,15 +14,13 @@
 #define REPEAT_ALL  1
 #define REPEAT_ONE  2
 
-//void load_song(std::string sFilename);
-//void add_file(std::string sFilename);    //Add filename to widget
+#define NUM_COLUMNS 6
 
 typedef struct _ChData ChData;
 struct _ChData
 {
     // Widgets
     GtkWidget *main_window;  // Main application window
-    //GtkWidget *chart_area;   // Chart drawing area
 };
 
 extern "C"
@@ -54,6 +52,9 @@ extern "C"
 
     //For when the user drags on the slider for the current song
     G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data);
+
+    //Misc functions for playlist treeview
+    G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);
 }
 
 //Helper functions

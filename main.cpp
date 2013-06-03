@@ -1,4 +1,3 @@
-//#include <SDL/SDL.h>
 #include <string>
 #include <iostream>
 #include <cstdlib>
@@ -66,8 +65,6 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
-//    Mix_CloseAudio();
-//    SDL_Quit();
     save_playlist();
 
     return( 0 );

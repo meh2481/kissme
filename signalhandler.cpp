@@ -5,9 +5,6 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
-//using namespace std;
-
-//#define NUM_ITEMS_IN_TREE_VIEW  5
 
 extern GtkBuilder *builder;
 bool bPaused = true;
@@ -15,7 +12,7 @@ int iRepeatMode = REPEAT_NONE;
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
-    //FIXME: Is this a deprecated way of doing things? Can I use Gtk::FileChooserDialog instead?
+    //FIXME: Should I be using GTK+ instead of flat GTK?
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new ("Add Files",
                                           GTK_WINDOW(data->main_window),
@@ -122,7 +119,6 @@ G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChDat
 
 G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
 {
-    //std::cout << "path: " << gtk_tree_path_to_string(path) << std::endl;
     GtkTreeModel *model;
     GtkTreeIter   iter;
 
@@ -134,11 +130,24 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         gtk_tree_model_get(model, &iter, 0, &name, -1);
 
-        //std::cout << "Name: " << name << std::endl;
         load_song(name);
         //play_song();
 
         g_free(name);
+
+        //Get track name to display
+        gtk_tree_model_get(model, &iter, 1, &name, -1);
+        std::string sTitle = name;
+        g_free(name);
+        gtk_tree_model_get(model, &iter, 2, &name, -1); //And artist
+        std::ostringstream oss;
+        oss << "<b>" << sTitle << "</b>\n  <i>" << name << "</i>";
+        //Draw artist name and track name
+        gtk_label_set_markup(GTK_LABEL(gtk_builder_get_object(builder, "curtrack")), oss.str().c_str());
+        g_free(name);
+
+        //Also set window title to show we're playing this song
+        gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), ("kissme - " + sTitle).c_str());
     }
 }
 
@@ -204,11 +213,13 @@ void update_play_slider(float fPos, float fLen)
 {
     bSlider = true;
     gtk_adjustment_set_value(GTK_ADJUSTMENT(gtk_builder_get_object(builder, "posadjustment")), fPos/fLen*100.0);
+    gtk_range_set_fill_level(GTK_RANGE(gtk_builder_get_object(builder, "playpos")), fPos/fLen*100.0);
+
+    //Also update our label underneath the slider
     std::ostringstream oss;
     oss.fill('0');
     oss << (int)floorf(fPos/60.0) << ":" << std::setw(2) << (int)floorf(fPos) % 60 << " of "
         << std::setw(1) << (int)floorf(fLen/60.0) << ":" << std::setw(2) << (int)floorf(fLen) % 60;
-    //oss << fPos << " of " << fLen;
     gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playposlabel")), oss.str().c_str());
 }
 
@@ -246,6 +257,21 @@ G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data)
     //TODO set_music_loc(gtk_adjustment_get_value(adjustment)/100.0);
 }
 
+int numColumns(GtkTreeView *tree_view)
+{
+    GList* l = gtk_tree_view_get_columns(tree_view);
+    int num = 0;
+    for(GList* i = l; i != NULL; i = i->next)
+        num++;
+    g_list_free(l);
+    return num;
+}
 
+G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data)
+{
+//    if(gtk_tree_view_get_n_columns(tree_view) == NUM_COLUMNS) //TODO GTK 3.4
+    if(numColumns(tree_view) == NUM_COLUMNS)        //To supress GTK errors (Since the first column is deleted first)
+        gtk_tree_view_move_column_after(tree_view, GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "Playing")), NULL);
+}
 
 

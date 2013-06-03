@@ -1,11 +1,8 @@
 #ifndef SOUND_PLAYBACK_H
 #define SOUND_PLAYBACK_H
 
-//#include <SDL/SDL.h>
-//#include <SDL/SDL_mixer.h>
 #include <string>
 #include <gtk/gtk.h>
-//#include <id3/tag.h>
 #include <tag.h>
 #include <fileref.h>
 #include <tyrsound.h>
@@ -26,7 +23,6 @@ void        set_music_loc(float fPos);      //Set the music to play from pos (0.
 
 //Callbacks (Don't call directly)
 gboolean    check_music_playing(gpointer data); //Callback for every loop to see if we should play_song next song
-//void        music_done();   //Callback for when music finishes
 
 
 

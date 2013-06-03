@@ -21,9 +21,15 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
+				<Option host_application="./run.sh" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
+				<ExtraCommands>
+					<Add before="export LD_LIBRARY_PATH=./dep/lib/" />
+					<Add after="export LD_LIBRARY_PATH=./dep/lib/" />
+					<Mode after="always" />
+				</ExtraCommands>
 				<MakeCommands>
 					<Build command="$make -f $makefile" />
 					<CompileFile command="$make -f $makefile $file" />
@@ -37,6 +43,11 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<ExtraCommands>
+			<Add before="export LD_LIBRARY_PATH=./dep/lib/" />
+			<Add after="./run.sh" />
+			<Mode after="always" />
+		</ExtraCommands>
 		<Unit filename="main.cpp" />
 		<Unit filename="signalhandler.cpp" />
 		<Unit filename="signalhandler.h" />

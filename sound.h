@@ -7,6 +7,11 @@
 #include <fileref.h>
 #include <tyrsound.h>
 
+//For changing audio file tags
+#define CHANGE_TITLE    0
+#define CHANGE_ARTIST   1
+#define CHANGE_ALBUM    2
+typedef uint8_t tagType;
 
 //Global functions
 void        init_sound();                     //Initializes tyrsound
@@ -20,6 +25,7 @@ void        add_to_playlist(std::string sFilename);  //Add this song to the curr
 void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
 void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
+bool        change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag);    //Change the tag in a music file
 
 //Callbacks (Don't call directly)
 gboolean    check_music_playing(gpointer data); //Callback for every loop to see if we should play_song next song

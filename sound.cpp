@@ -160,5 +160,38 @@ void set_music_loc(float fPos)
         tyrsound_seek(handle, fPos*tyrsound_getLength(handle));
 }
 
+bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
+{
+    TagLib::FileRef f(sFilename.c_str());
 
+    if(f.isNull())  //Can't really do anything
+    {
+        std::cout << "Warning: can't change tag on file " << sFilename << std::endl;
+        return false;
+    }
+
+    switch(tagToChange)
+    {
+        case CHANGE_ARTIST:
+            f.tag()->setArtist(sNewTag);
+            break;
+        case CHANGE_ALBUM:
+            f.tag()->setAlbum(sNewTag);
+            break;
+        case CHANGE_TITLE:
+            f.tag()->setTitle(sNewTag);
+            break;
+        default:
+            std::cout << "Err: Unknown tag type " << tagToChange << ". Ignoring..." << std::endl;
+            break;
+    }
+
+    if(!f.save())
+    {
+        std::cout << "Err: Unable to save tag changes to file " << sFilename << "." << std::endl;
+        return false;
+    }
+
+    return true;
+}
 

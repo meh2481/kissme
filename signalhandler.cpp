@@ -271,32 +271,47 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
 }
 
+bool tag_edited(gchar *path, gchar *new_text, tagType change)
+{
+    bool bReturn = false;
+    //Get filename
+    GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    GtkTreeIter iter;
+    GtkTreePath* tp = gtk_tree_path_new_from_string(path);
+    //model = gtk_tree_view_get_model(tree_view);
+    if (gtk_tree_model_get_iter(model, &iter, tp))
+    {
+        gchar *name;
+        gtk_tree_model_get(model, &iter, 0, &name, -1);
+        if(name != NULL)
+            bReturn = change_tag(name, change, new_text);
+    }
+    gtk_tree_path_free(tp);
+    return bReturn;
+}
+
 G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 1);
-    //TODO: Edit tags or some kinda thing
+    if(tag_edited(path, new_text, CHANGE_TITLE))
+        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 1);
 }
 
 G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 2);
+    if(tag_edited(path, new_text, CHANGE_ARTIST))
+        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 2);
 }
 
 G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 3);
+    if(tag_edited(path, new_text, CHANGE_ALBUM))
+        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 3);
 }
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
     set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);
     //TODO Save under some new name or such
-}
-
-
-void add_file(std::string sFilename)
-{
-
 }
 
 void show_play()

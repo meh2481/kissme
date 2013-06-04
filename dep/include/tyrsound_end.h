@@ -1,3 +1,0 @@
-
-} // end namespace tyrsound
-

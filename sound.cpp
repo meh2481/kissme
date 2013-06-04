@@ -112,6 +112,11 @@ void add_to_playlist(std::string sFilename)
     //Get data for song
     //ID3_Tag mp3Tag(sFilename.c_str());
     TagLib::FileRef f(sFilename.c_str());
+    if(f.isNull())
+    {
+        add_song(sFilename, "", "", "", "");
+        return;
+    }
     std::string sAlbum = f.tag()->album().to8Bit(true);
     std::string sTitle = f.tag()->title().to8Bit(true);
 //    std::string sLength = f.tag()->length().to8Bit(true);

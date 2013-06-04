@@ -29,6 +29,7 @@ extern "C"
 {
     //Buttons
     G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data);
 
@@ -60,7 +61,7 @@ extern "C"
 }
 
 //Helper functions
-void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar *new_text, gint column);
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column);
 void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, float fLength);
 void show_play();   //Show play icon (for when music isn't playing)
 void show_pause();  //Show pause icon (for when music is playing)

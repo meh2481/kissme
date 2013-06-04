@@ -68,6 +68,48 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     gtk_widget_destroy (dialog);
 }
 
+G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
+{
+    //TODO See if currently-playing song has been deleted, and stop playing it if so
+
+    GtkTreeModel* model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
+    //Get list of selected songs
+    GList* selected = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedsongs")), &model);
+    //Create list of references out of this list
+    std::list<GtkTreeRowReference*> references;
+    while(selected != NULL)
+    {
+        GtkTreePath* path = ((GtkTreePath*)selected->data);
+        if(path != NULL)
+        {
+            GtkTreeRowReference* ref = gtk_tree_row_reference_new(model, path);
+            references.push_back(ref);
+        }
+        selected = selected->next;
+    }
+    //Delete songs pointed to by these references
+    for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
+    {
+        GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
+        if(path != NULL)
+        {
+            GtkTreeIter iter;
+            if(gtk_tree_model_get_iter(model, &iter, path))
+            {
+                gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
+                //gtk_tree_iter_free(&iter);
+            }
+            gtk_tree_path_free(path);
+        }
+        gtk_tree_row_reference_free(*i);
+    }
+
+    //Free memory
+    g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
+
+    save_playlist();    //Update our changes
+}
+
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 {
     rewind_song(); //TODO Song list
@@ -210,7 +252,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
     }
 }
 
-void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar *new_text, gint column)
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column)
 {
     //All this just to set the table value? OH COME ON!
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
@@ -218,7 +260,7 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     gtk_tree_model_get_iter(mod, &i, path);
     GValue a = G_VALUE_INIT;
     g_value_init (&a, G_TYPE_STRING);
-    g_value_set_static_string (&a, new_text);
+    g_value_set_static_string (&a, new_text.c_str());
     gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
 }
 

@@ -139,6 +139,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="gtk_main_quit" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -460,7 +461,9 @@
                             <property name="can_focus">True</property>
                             <property name="model">Playlists</property>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selection1"/>
+                              <object class="GtkTreeSelection" id="treeview-selection1">
+                                <property name="mode">browse</property>
+                              </object>
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
@@ -657,6 +660,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
+                                <signal name="clicked" handler="button_removesongs_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkHBox" id="hbox3">
                                     <property name="visible">True</property>
@@ -677,7 +681,7 @@
                                       <object class="GtkLabel" id="label8">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Remove Selected Items</property>
+                                        <property name="label" translatable="yes">Remove Selected Songs</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -809,7 +813,7 @@
                                 <signal name="columns-changed" handler="columns_changed" swapped="no"/>
                                 <signal name="drag-begin" handler="drag_begins" swapped="no"/>
                                 <child internal-child="selection">
-                                  <object class="GtkTreeSelection" id="treeview-selection2">
+                                  <object class="GtkTreeSelection" id="selectedsongs">
                                     <property name="mode">multiple</property>
                                   </object>
                                 </child>

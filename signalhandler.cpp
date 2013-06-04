@@ -56,7 +56,6 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
         for(GSList* i = filenames; i != NULL; i=i->next)
         {
             std::string s = (char*)i->data;
-            std::cout << s << std::endl;
             add_to_playlist(s);
             g_free(i->data);
         }
@@ -295,7 +294,23 @@ std::list<std::string> get_cur_playlist()
 {
     std::list<std::string> playlist;
 
+    GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
+    GtkTreeIter iter;
+    if(!gtk_tree_model_get_iter_first(tree_model, &iter))
+        return playlist;
 
+    //Loop through tree model, populating list
+    while(true)
+    {
+        GValue value = G_VALUE_INIT;
+        gtk_tree_model_get_value(tree_model, &iter, 0, &value);
+        const gchar* text = g_value_get_string(&value);
+        if(text != NULL)
+            playlist.push_back(text);
+        g_value_unset(&value);
+        if(!gtk_tree_model_iter_next(tree_model, &iter))
+            break;
+    }
 
     return playlist;
 }

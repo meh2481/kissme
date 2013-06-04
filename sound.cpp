@@ -133,11 +133,9 @@ void save_playlist()
     //For now, just shove all the data out to the file, without caring about format
     std::ofstream playlistFile("kissme.last");
     if(playlistFile.fail()) return;
-    //std::list<std::string> playlist = get_cur_playlist();
-    for(std::list<std::string>::iterator i = g_lCurPlaylist.begin(); i != g_lCurPlaylist.end(); i++)
-    {
+    std::list<std::string> playlist = get_cur_playlist();
+    for(std::list<std::string>::iterator i = playlist.begin(); i != playlist.end(); i++)
         playlistFile << *i << std::endl;
-    }
     playlistFile.close();
 }
 

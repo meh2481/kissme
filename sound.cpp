@@ -115,6 +115,7 @@ void add_to_playlist(std::string sFilename)
     if(f.isNull())
     {
         add_song(sFilename, "", "", "", "");
+        g_lCurPlaylist.push_back(sFilename);
         return;
     }
     std::string sAlbum = f.tag()->album().to8Bit(true);

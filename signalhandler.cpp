@@ -9,6 +9,7 @@
 extern GtkBuilder *builder;
 bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
+GtkTreeRowReference* curPlay = NULL;
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
@@ -35,6 +36,11 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     gtk_file_filter_add_pattern(filter, "*.wav");
     gtk_file_filter_add_pattern(filter, "*.m4a");
     gtk_file_filter_add_pattern(filter, "*.flac");
+    gtk_file_filter_add_pattern(filter, "*.spc");
+    gtk_file_filter_add_pattern(filter, "*.vgm");
+    gtk_file_filter_add_pattern(filter, "*.nsf");
+    gtk_file_filter_add_pattern(filter, "*.opus");
+
     gtk_file_chooser_add_filter(filechooser, filter);
 
     GtkFileFilter* filter2 = gtk_file_filter_new();
@@ -54,6 +60,9 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
             g_free(i->data);
         }
         g_slist_free(filenames);
+
+        //Save list in case of crash
+        save_playlist();
     }
 
     gtk_widget_destroy (dialog);
@@ -147,17 +156,32 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         g_free(name);
 
         //Also set window title to show we're playing this song
-        gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), ("kissme - " + sTitle).c_str());
+        if(sTitle.length())
+            gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), ("kissme - " + sTitle).c_str());
+        else
+            gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), "kissme");
+
+        //And show play icon
+        if(curPlay != NULL) //Hide play icon on previous song
+        {
+            GtkTreePath* oldp = gtk_tree_row_reference_get_path(curPlay);
+            if(oldp != NULL)
+            {
+                set_table_data("treeview2", "Tracks", oldp, "", 5);
+                gtk_tree_path_free(oldp);
+            }
+        }
+        set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
+        curPlay = gtk_tree_row_reference_new(model, path);
     }
 }
 
-void set_table_data(std::string sTreeViewName, std::string sListStoreName, gchar *path, gchar *new_text, gint column)
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar *new_text, gint column)
 {
     //All this just to set the table value? OH COME ON!
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
     GtkTreeIter i;
-    GtkTreePath *p = gtk_tree_path_new_from_string(path);
-    gtk_tree_model_get_iter(mod, &i, p);
+    gtk_tree_model_get_iter(mod, &i, path);
     GValue a = G_VALUE_INIT;
     g_value_init (&a, G_TYPE_STRING);
     g_value_set_static_string (&a, new_text);
@@ -166,23 +190,23 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, gchar
 
 G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", path, new_text, 1);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 1);
     //TODO: Edit tags or some kinda thing
 }
 
 G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", path, new_text, 2);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 2);
 }
 
 G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview2", "Tracks", path, new_text, 3);
+    set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 3);
 }
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
-    set_table_data("treeview1", "Playlists", path, new_text, 0);
+    set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);
     //TODO Save under some new name or such
 }
 
@@ -231,11 +255,13 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
     GtkTreePath* path = gtk_tree_model_get_path(mod, &iter);
     //Fill in list data
-    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sFilename.c_str(), 0);
-    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sTitle.c_str(), 1);
-    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sArtist.c_str(), 2);
-    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sAlbum.c_str(), 3);
-    set_table_data("treeview2", "Tracks", gtk_tree_path_to_string(path), (gchar*)sLength.c_str(), 4);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sFilename.c_str(), 0);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sTitle.c_str(), 1);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sArtist.c_str(), 2);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sLength.c_str(), 4);
+    //set_table_data("treeview2", "Tracks", path), "media-playback-start", 5);
+
     //Cleanup
     gtk_tree_path_free(path);
 }

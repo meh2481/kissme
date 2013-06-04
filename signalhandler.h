@@ -14,7 +14,8 @@
 #define REPEAT_ALL  1
 #define REPEAT_ONE  2
 
-#define NUM_COLUMNS 6
+#define NUM_COLUMNS 7
+#define PLAY_ICON   "media-playback-start"
 
 typedef struct _ChData ChData;
 struct _ChData
@@ -58,7 +59,7 @@ extern "C"
 }
 
 //Helper functions
-void set_table_data(std::string sTreeViewName, std::string sListStoreName, gchar *path, gchar *new_text, gint column);
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar *new_text, gint column);
 void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength);
 void show_play();   //Show play icon (for when music isn't playing)
 void show_pause();  //Show pause icon (for when music is playing)

@@ -9,6 +9,7 @@
 extern GtkBuilder *builder;
 bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
+float g_fTotalPlaylistLength = 0.0;
 //GtkTreeRowReference* curPlay = NULL;
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
@@ -281,7 +282,25 @@ void update_play_slider(float fPos, float fLen)
     gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playposlabel")), oss.str().c_str());
 }
 
-void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength)
+void update_playlist_time()
+{
+    int iNumSongs = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL);
+    int iMinutes = (int)floorf(g_fTotalPlaylistLength/60.0);
+    std::ostringstream oss;
+    oss << iNumSongs << " songs, " << iMinutes << " total minutes";
+    gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playlisttime")), oss.str().c_str());
+}
+
+std::list<std::string> get_cur_playlist()
+{
+    std::list<std::string> playlist;
+
+
+
+    return playlist;
+}
+
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, float fLength)
 {
     //Create new item in the list
     GtkTreeIter iter;
@@ -293,7 +312,10 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     set_table_data("treeview2", "Tracks", path, (gchar*)sTitle.c_str(), 1);
     set_table_data("treeview2", "Tracks", path, (gchar*)sArtist.c_str(), 2);
     set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
-    set_table_data("treeview2", "Tracks", path, (gchar*)sLength.c_str(), 4);
+    //TODO set_table_data("treeview2", "Tracks", path, (gchar*)sLength.c_str(), 4);
+    g_fTotalPlaylistLength += fLength;
+    update_playlist_time();
+
     //set_table_data("treeview2", "Tracks", path), "media-playback-start", 5);
 
     //Cleanup

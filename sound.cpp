@@ -114,7 +114,7 @@ void add_to_playlist(std::string sFilename)
     TagLib::FileRef f(sFilename.c_str());
     if(f.isNull())
     {
-        add_song(sFilename, "", "", "", "");
+        add_song(sFilename, "", "", "", 0.0);
         g_lCurPlaylist.push_back(sFilename);
         return;
     }
@@ -124,7 +124,7 @@ void add_to_playlist(std::string sFilename)
     std::string sArtist = f.tag()->artist().to8Bit(true);
 
     //Write this all to the proper location in the table
-    add_song(sFilename, sTitle, sArtist, sAlbum, "");
+    add_song(sFilename, sTitle, sArtist, sAlbum, 0.0);
     g_lCurPlaylist.push_back(sFilename);
 }
 
@@ -133,6 +133,7 @@ void save_playlist()
     //For now, just shove all the data out to the file, without caring about format
     std::ofstream playlistFile("kissme.last");
     if(playlistFile.fail()) return;
+    //std::list<std::string> playlist = get_cur_playlist();
     for(std::list<std::string>::iterator i = g_lCurPlaylist.begin(); i != g_lCurPlaylist.end(); i++)
     {
         playlistFile << *i << std::endl;

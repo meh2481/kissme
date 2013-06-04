@@ -1040,11 +1040,11 @@ audio-volume-medium</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="label3">
+                          <object class="GtkLabel" id="playlisttime">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0.059999998658895493</property>
-                            <property name="label" translatable="yes">X songs, X total minutes</property>
+                            <property name="margin_left">6</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

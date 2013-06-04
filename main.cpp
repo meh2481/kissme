@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 
     init_sound();
     init_signal_handler();
+    srand(time(NULL));
 
     // Init GTK+
     gtk_init( &argc, &argv );

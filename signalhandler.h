@@ -3,7 +3,8 @@
 
 #include <string>
 #include <gtk/gtk.h>
-//using namespace std;
+#include <list>
+#include <string>
 
 #define CH_GET_OBJECT( builder, name, type, data ) \
     data->name = type( gtk_builder_get_object( builder, #name ) )
@@ -60,10 +61,12 @@ extern "C"
 
 //Helper functions
 void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar *new_text, gint column);
-void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, std::string sLength);
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, float fLength);
 void show_play();   //Show play icon (for when music isn't playing)
 void show_pause();  //Show pause icon (for when music is playing)
 void init_signal_handler(); //Initialize variables used by the signal handler functions
 void update_play_slider(float fPos, float fLen);  //Update where our current song is playing
+void update_playlist_time();    //Update label that says X songs, X total minutes
+std::list<std::string> get_cur_playlist();  //Get the current playlist displayed in the GUI
 
 #endif //GTKMM_EXAMPLEWINDOW_H

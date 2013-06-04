@@ -9,7 +9,7 @@
 extern GtkBuilder *builder;
 bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
-GtkTreeRowReference* curPlay = NULL;
+//GtkTreeRowReference* curPlay = NULL;
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
@@ -118,12 +118,45 @@ G_MODULE_EXPORT void button_shuffle_leave(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_shuffle_clicked(GtkButton *button, ChData *data)
 {
-    //TODO Shuffle list
+    //Disable sorting
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
+    //Shuffle list
+    int iNum = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL); //Get number of items in list
+    gint new_order[iNum+1];
+    //Grab random numbers until we get one that hasn't been used yet. Not the best way to do it, but it works
+    for(int i = 0; i < iNum; i++)
+    {
+        bool bSame = false;
+        do
+        {
+            bSame = false;
+            new_order[i] = rand() % iNum;
+            for(int j = i-1; j >= 0; j--)
+            {
+                if(new_order[i] == new_order[j])
+                {
+                    bSame = true;
+                    break;
+                }
+            }
+        }
+        while(bSame);
+    }
+    new_order[iNum] = 0;
+
+    gtk_list_store_reorder(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), new_order);
 }
 
 G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)
 {
     setVolume(value);
+}
+
+gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+    set_table_data("treeview2", "Tracks", path, "", 5);
+    return false;
 }
 
 G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
@@ -162,7 +195,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
             gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), "kissme");
 
         //And show play icon
-        if(curPlay != NULL) //Hide play icon on previous song
+        /*if(curPlay != NULL) //Hide play icon on previous song
         {
             GtkTreePath* oldp = gtk_tree_row_reference_get_path(curPlay);
             if(oldp != NULL)
@@ -170,9 +203,10 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
                 set_table_data("treeview2", "Tracks", oldp, "", 5);
                 gtk_tree_path_free(oldp);
             }
-        }
+        }*/
+        gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons
         set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
-        curPlay = gtk_tree_row_reference_new(model, path);
+        //curPlay = gtk_tree_row_reference_new(model, path);
     }
 }
 

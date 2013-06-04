@@ -55,7 +55,7 @@ extern "C"
     G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data);
 
     //Misc functions for playlist treeview
-    G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);
+    G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);   //Reorder the playing column to the far left, so it stays there
 }
 
 //Helper functions

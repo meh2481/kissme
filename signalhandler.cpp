@@ -31,16 +31,26 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     //Add filters to our file chooser
     GtkFileFilter* filter = gtk_file_filter_new();
     gtk_file_filter_set_name(filter, "Song Files");
-    gtk_file_filter_add_pattern(filter, "*.mp3");
-    gtk_file_filter_add_pattern(filter, "*.ogg");
-    gtk_file_filter_add_pattern(filter, "*.wma");
-    gtk_file_filter_add_pattern(filter, "*.wav");
-    gtk_file_filter_add_pattern(filter, "*.m4a");
-    gtk_file_filter_add_pattern(filter, "*.flac");
+    gtk_file_filter_add_pattern(filter, "*.mp3");   //TODO
+    gtk_file_filter_add_pattern(filter, "*.ogg");   //Ogg vorbis
+    gtk_file_filter_add_pattern(filter, "*.wma");   //TODO?
+    gtk_file_filter_add_pattern(filter, "*.wav");   //TODO
+    gtk_file_filter_add_pattern(filter, "*.m4a");   //TODO?
+    gtk_file_filter_add_pattern(filter, "*.flac");  //TODO
+    gtk_file_filter_add_pattern(filter, "*.opus");  //Opus
+
+    //libGME supported formats
+    gtk_file_filter_add_pattern(filter, "*.ay");
+    gtk_file_filter_add_pattern(filter, "*.gbs");
+    gtk_file_filter_add_pattern(filter, "*.gym");
+    gtk_file_filter_add_pattern(filter, "*.hes");
+    gtk_file_filter_add_pattern(filter, "*.kss");
+    gtk_file_filter_add_pattern(filter, "*.nsf");
+    gtk_file_filter_add_pattern(filter, "*.nsfe");
+    gtk_file_filter_add_pattern(filter, "*.sap");
     gtk_file_filter_add_pattern(filter, "*.spc");
     gtk_file_filter_add_pattern(filter, "*.vgm");
-    gtk_file_filter_add_pattern(filter, "*.nsf");
-    gtk_file_filter_add_pattern(filter, "*.opus");
+    gtk_file_filter_add_pattern(filter, "*.vgz");
 
     gtk_file_chooser_add_filter(filechooser, filter);
 
@@ -95,10 +105,7 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
         {
             GtkTreeIter iter;
             if(gtk_tree_model_get_iter(model, &iter, path))
-            {
                 gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
-                //gtk_tree_iter_free(&iter);
-            }
             gtk_tree_path_free(path);
         }
         gtk_tree_row_reference_free(*i);

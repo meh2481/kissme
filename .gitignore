@@ -1,9 +1,29 @@
+# Compiler objects
 *.o
-*.a
-*.so
 *.d
-map.txt
-*.ogg
-*.mp3
+
+# Executables
 kissme
+
+# Code::Blocks junk
 *.layout
+
+# Sound files
+*.mp3
+*.ogg
+*.wma
+*.wav
+*.m4a
+*.flac
+*.opus
+*.ay
+*.gbs
+*.gym
+*.hes
+*.kss
+*.nsf
+*.nsfe
+*.sap
+*.spc
+*.vgm
+*.vgz

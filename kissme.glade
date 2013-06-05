@@ -47,6 +47,8 @@
       <column type="gchararray"/>
       <!-- column-name playback-icon -->
       <column type="gchararray"/>
+      <!-- column-name Track -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkAdjustment" id="posadjustment">
@@ -918,10 +920,29 @@
                                   </object>
                                 </child>
                                 <child>
+                                  <object class="GtkTreeViewColumn" id="Track">
+                                    <property name="resizable">True</property>
+                                    <property name="title" translatable="yes">Track</property>
+                                    <property name="clickable">True</property>
+                                    <property name="reorderable">True</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_column_id">6</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext8">
+                                        <property name="editable">True</property>
+                                        <property name="background_rgba">rgb(255,255,255)</property>
+                                        <signal name="edited" handler="track_edited" swapped="no"/>
+                                      </object>
+                                      <attributes>
+                                        <attribute name="text">6</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
                                   <object class="GtkTreeViewColumn" id="Length">
                                     <property name="resizable">True</property>
                                     <property name="title" translatable="yes">Length</property>
-                                    <property name="expand">True</property>
                                     <property name="clickable">True</property>
                                     <property name="reorderable">True</property>
                                     <property name="sort_indicator">True</property>

@@ -11,6 +11,7 @@
 #define CHANGE_TITLE    0
 #define CHANGE_ARTIST   1
 #define CHANGE_ALBUM    2
+#define CHANGE_TRACK    3
 typedef uint8_t tagType;
 
 //Global functions

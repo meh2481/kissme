@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <fstream>
+#include <sstream>
 
 //Global variables for use by our functions here
 tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
@@ -114,7 +115,7 @@ void add_to_playlist(std::string sFilename)
     TagLib::FileRef f(sFilename.c_str());
     if(f.isNull())
     {
-        add_song(sFilename, "", "", "", 0.0);
+        add_song(sFilename, "", "", "", 0, 0.0);
         g_lCurPlaylist.push_back(sFilename);
         return;
     }
@@ -122,9 +123,10 @@ void add_to_playlist(std::string sFilename)
     std::string sTitle = f.tag()->title().to8Bit(true);
 //    std::string sLength = f.tag()->length().to8Bit(true);
     std::string sArtist = f.tag()->artist().to8Bit(true);
+    uint iTrack = f.tag()->track();
 
     //Write this all to the proper location in the table
-    add_song(sFilename, sTitle, sArtist, sAlbum, 0.0);
+    add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, 0.0);
     g_lCurPlaylist.push_back(sFilename);
 }
 
@@ -170,6 +172,8 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
         return false;
     }
 
+    std::istringstream iss(sNewTag);
+    int track = 0;
     switch(tagToChange)
     {
         case CHANGE_ARTIST:
@@ -180,6 +184,16 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
             break;
         case CHANGE_TITLE:
             f.tag()->setTitle(sNewTag);
+            break;
+        case CHANGE_TRACK:
+            if(!sNewTag.size())
+            {
+                f.tag()->setTrack(0);
+                break;
+            }
+            if(!(iss >> track) || track <= 0)
+                return false;
+            f.tag()->setTrack(track);
             break;
         default:
             std::cout << "Err: Unknown tag type " << tagToChange << ". Ignoring..." << std::endl;

@@ -308,6 +308,12 @@ G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gc
         set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 3);
 }
 
+G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+{
+    if(tag_edited(path, new_text, CHANGE_TRACK))
+        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 6);
+}
+
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
     set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);
@@ -379,23 +385,25 @@ std::list<std::string> get_cur_playlist()
     return playlist;
 }
 
-void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, float fLength)
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, uint track, float fLength)
 {
     //Create new item in the list
     GtkTreeIter iter;
     gtk_list_store_append(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
     GtkTreePath* path = gtk_tree_model_get_path(mod, &iter);
+    std::ostringstream oss;
+    if(track > 0)   //Fill track column if this is a valid track number
+        oss << track;
     //Fill in list data
-    set_table_data("treeview2", "Tracks", path, (gchar*)sFilename.c_str(), 0);
-    set_table_data("treeview2", "Tracks", path, (gchar*)sTitle.c_str(), 1);
-    set_table_data("treeview2", "Tracks", path, (gchar*)sArtist.c_str(), 2);
-    set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
+    set_table_data("treeview2", "Tracks", path, sFilename.c_str(), 0);
+    set_table_data("treeview2", "Tracks", path, sTitle.c_str(), 1);
+    set_table_data("treeview2", "Tracks", path, sArtist.c_str(), 2);
+    set_table_data("treeview2", "Tracks", path, sAlbum.c_str(), 3);
+    set_table_data("treeview2", "Tracks", path, oss.str().c_str(), 6);
     //TODO set_table_data("treeview2", "Tracks", path, (gchar*)sLength.c_str(), 4);
     g_fTotalPlaylistLength += fLength;
     update_playlist_time();
-
-    //set_table_data("treeview2", "Tracks", path), "media-playback-start", 5);
 
     //Cleanup
     gtk_tree_path_free(path);

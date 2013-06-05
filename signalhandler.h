@@ -15,7 +15,7 @@
 #define REPEAT_ALL  1
 #define REPEAT_ONE  2
 
-#define NUM_COLUMNS 7
+#define NUM_COLUMNS 8
 #define PLAY_ICON   "media-playback-start"
 
 typedef struct _ChData ChData;
@@ -48,6 +48,7 @@ extern "C"
     G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void artist_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
+    G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
     G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
 
     //Sorting function callbacks
@@ -62,7 +63,7 @@ extern "C"
 
 //Helper functions
 void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column);
-void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, float fLength);
+void add_song(std::string sFilename, std::string sTitle, std::string sArtist, std::string sAlbum, uint track, float fLength);
 void show_play();   //Show play icon (for when music isn't playing)
 void show_pause();  //Show pause icon (for when music is playing)
 void init_signal_handler(); //Initialize variables used by the signal handler functions

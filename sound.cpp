@@ -173,7 +173,7 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
     }
 
     std::istringstream iss(sNewTag);
-    int track = 0;
+    int32_t track = 0;
     switch(tagToChange)
     {
         case CHANGE_ARTIST:
@@ -186,12 +186,12 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
             f.tag()->setTitle(sNewTag);
             break;
         case CHANGE_TRACK:
-            if(!sNewTag.size())
+            if(!sNewTag.size()) //Erase tag by clearing it
             {
                 f.tag()->setTrack(0);
                 break;
             }
-            if(!(iss >> track) || track <= 0)
+            if(!(iss >> track) || track <= 0)   //Only accept valid numbers; no negative numbers allowed    //TODO: What if we type something like "1noodle"? How should I handle this?
                 return false;
             f.tag()->setTrack(track);
             break;
@@ -208,4 +208,20 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
 
     return true;
 }
+
+float get_song_length()
+{
+    if(handle == TYRSOUND_NULLHANDLE)
+        return 0.0f;
+    return tyrsound_getLength(handle);
+}
+
+
+
+
+
+
+
+
+
 

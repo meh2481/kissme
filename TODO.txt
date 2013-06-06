@@ -9,5 +9,4 @@
 - Support for iPod (via libgpod/libimobiledevice) and other MP3 players (Or does this violate KISS?). iPod support is rudimentary at best.
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
 - Draw + allow tagging of album art? Does this violate KISS?
-- Allow MP3 tagging of artist/album/title.
 - Fetch track info? From where? Does this violate KISS?

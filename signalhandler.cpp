@@ -256,6 +256,16 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons
         set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
         //curPlay = gtk_tree_row_reference_new(model, path);
+
+        //Set song length as displayed in table view    //TODO: Save someplace?
+        oss.str("");
+        float fLen = get_song_length();
+        if(fLen > 0.0)
+        {
+            oss.fill('0');
+            oss << (int)floorf(fLen/60.0) << ":" << std::setw(2) << (int)floorf(fLen) % 60;
+            set_table_data("treeview2", "Tracks", path, oss.str(), 4);
+        }
     }
 }
 
@@ -340,6 +350,13 @@ bool bSlider = false;
 void update_play_slider(float fPos, float fLen)
 {
     bSlider = true;
+    if(fLen <= 0.0)
+    {
+        gtk_adjustment_set_value(GTK_ADJUSTMENT(gtk_builder_get_object(builder, "posadjustment")), 0.0);
+        gtk_range_set_fill_level(GTK_RANGE(gtk_builder_get_object(builder, "playpos")), 0.0);
+        gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playposlabel")), "0:00 of 0:00");
+        return;
+    }
     gtk_adjustment_set_value(GTK_ADJUSTMENT(gtk_builder_get_object(builder, "posadjustment")), fPos/fLen*100.0);
     gtk_range_set_fill_level(GTK_RANGE(gtk_builder_get_object(builder, "playpos")), fPos/fLen*100.0);
 

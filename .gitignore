@@ -27,3 +27,6 @@ kissme
 *.spc
 *.vgm
 *.vgz
+
+# Playlist files
+*.last

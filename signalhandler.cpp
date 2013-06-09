@@ -244,28 +244,8 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
             gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), "kissme");
 
         //And show play icon
-        /*if(curPlay != NULL) //Hide play icon on previous song
-        {
-            GtkTreePath* oldp = gtk_tree_row_reference_get_path(curPlay);
-            if(oldp != NULL)
-            {
-                set_table_data("treeview2", "Tracks", oldp, "", 5);
-                gtk_tree_path_free(oldp);
-            }
-        }*/
-        gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons
+        gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons (Rather than keeping track of one, which doesn't work on drag/drop)
         set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
-        //curPlay = gtk_tree_row_reference_new(model, path);
-
-        //Set song length as displayed in table view    //TODO: Save someplace?
-        oss.str("");
-        float fLen = get_song_length();
-        if(fLen > 0.0)
-        {
-            oss.fill('0');
-            oss << (int)floorf(fLen/60.0) << ":" << std::setw(2) << (int)floorf(fLen) % 60;
-            set_table_data("treeview2", "Tracks", path, oss.str(), 4);
-        }
     }
 }
 
@@ -346,7 +326,8 @@ void init_signal_handler()
 {
 
 }
-bool bSlider = false;
+
+bool bSlider = false;   //So we don't try to seek every time we update the play slider...
 void update_play_slider(float fPos, float fLen)
 {
     bSlider = true;
@@ -418,7 +399,16 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     set_table_data("treeview2", "Tracks", path, sArtist.c_str(), 2);
     set_table_data("treeview2", "Tracks", path, sAlbum.c_str(), 3);
     set_table_data("treeview2", "Tracks", path, oss.str().c_str(), 6);
-    //TODO set_table_data("treeview2", "Tracks", path, (gchar*)sLength.c_str(), 4);
+    //Set length
+    oss.str("");
+    if(fLength > 0.0)
+    {
+        oss.fill('0');
+        oss << (int)floorf(fLength/60.0) << ":" << std::setw(2) << (int)floorf(fLength) % 60;
+        set_table_data("treeview2", "Tracks", path, oss.str(), 4);
+    }
+
+    //Update playlist length
     g_fTotalPlaylistLength += fLength;
     update_playlist_time();
 
@@ -460,4 +450,23 @@ G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data)
         gtk_tree_view_move_column_after(tree_view, GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "Playing")), NULL);
 }
 
+G_MODULE_EXPORT gboolean draw_album_art(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+  guint width, height;
+  GdkRGBA color;
+
+  width = gtk_widget_get_allocated_width (widget);
+  height = gtk_widget_get_allocated_height (widget);
+  cairo_arc (cr,
+             width / 2.0, height / 2.0,
+             MIN (width, height) / 2.0,
+             0, 2 * G_PI);
+
+  gtk_style_context_get_color(gtk_widget_get_style_context (widget), GTK_STATE_FLAG_NORMAL, &color);
+  gdk_cairo_set_source_rgba (cr, &color);
+
+  cairo_fill (cr);
+
+ return FALSE;
+}
 

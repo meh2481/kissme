@@ -59,6 +59,9 @@ extern "C"
 
     //Misc functions for playlist treeview
     G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);   //Reorder the playing column to the far left, so it stays there
+
+    //TODO Draw album art
+    G_MODULE_EXPORT gboolean draw_album_art(GtkWidget *widget, cairo_t *cr, gpointer data);
 }
 
 //Helper functions

@@ -121,12 +121,11 @@ void add_to_playlist(std::string sFilename)
     }
     std::string sAlbum = f.tag()->album().to8Bit(true);
     std::string sTitle = f.tag()->title().to8Bit(true);
-//    std::string sLength = f.tag()->length().to8Bit(true);
     std::string sArtist = f.tag()->artist().to8Bit(true);
     uint iTrack = f.tag()->track();
 
     //Write this all to the proper location in the table
-    add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, 0.0);
+    add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, f.audioProperties()->length());
     g_lCurPlaylist.push_back(sFilename);
 }
 

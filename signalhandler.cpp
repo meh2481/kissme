@@ -324,7 +324,7 @@ void show_pause()
 
 void init_signal_handler()
 {
-
+    draw_album_art("logo.png");
 }
 
 bool bSlider = false;   //So we don't try to seek every time we update the play slider...
@@ -470,3 +470,11 @@ G_MODULE_EXPORT gboolean draw_album_art(GtkWidget *widget, cairo_t *cr, gpointer
  return FALSE;
 }
 
+void draw_album_art(std::string sFilename)
+{
+    GtkImage *image = GTK_IMAGE(gtk_builder_get_object(builder, "album"));
+    GdkPixbuf *pixbuf;  //TODO: Clean up?
+    pixbuf=gdk_pixbuf_new_from_file(sFilename.c_str(),NULL);
+    pixbuf=gdk_pixbuf_scale_simple(pixbuf, ALBUM_ART_ICON_WIDTH, ALBUM_ART_ICON_HEIGHT, GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(image, pixbuf);
+}

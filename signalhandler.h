@@ -18,6 +18,9 @@
 #define NUM_COLUMNS 8
 #define PLAY_ICON   "media-playback-start"
 
+#define ALBUM_ART_ICON_WIDTH    42
+#define ALBUM_ART_ICON_HEIGHT   42
+
 typedef struct _ChData ChData;
 struct _ChData
 {
@@ -59,9 +62,6 @@ extern "C"
 
     //Misc functions for playlist treeview
     G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);   //Reorder the playing column to the far left, so it stays there
-
-    //TODO Draw album art
-    G_MODULE_EXPORT gboolean draw_album_art(GtkWidget *widget, cairo_t *cr, gpointer data);
 }
 
 //Helper functions
@@ -73,5 +73,6 @@ void init_signal_handler(); //Initialize variables used by the signal handler fu
 void update_play_slider(float fPos, float fLen);  //Update where our current song is playing
 void update_playlist_time();    //Update label that says X songs, X total minutes
 std::list<std::string> get_cur_playlist();  //Get the current playlist displayed in the GUI
+void draw_album_art(std::string sFilename); //Draw album art
 
 #endif //GTKMM_EXAMPLEWINDOW_H

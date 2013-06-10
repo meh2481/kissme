@@ -23,7 +23,6 @@ int main(int argc, char **argv)
     ChData     *data;
 
     init_sound();
-    init_signal_handler();
     srand(time(NULL));
 
     // Init GTK+
@@ -59,6 +58,8 @@ int main(int argc, char **argv)
 
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );
+
+    init_signal_handler();
 
     //Load our last playlist
     load_playlist();

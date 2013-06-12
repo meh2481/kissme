@@ -36,27 +36,16 @@ namespace TagLib {
   class TAGLIB_EXPORT FileName
   {
   public:
-    FileName(const wchar_t *name);
-    FileName(const char *name);
-
-    FileName(const FileName &name);
-    FileName &operator==(const FileName &name);
-
-    operator const wchar_t *() const;
-    operator const char *() const;
-
-    const std::wstring &wstr() const;
-    const std::string  &str() const; 
-
+    FileName(const wchar_t *name) : m_wname(name) {}
+    FileName(const char *name) : m_name(name) {}
+    operator const wchar_t *() const { return m_wname.c_str(); }
+    operator const char *() const { return m_name.c_str(); }
   private:
-    class FileNamePrivate;
-    FileNamePrivate *d;
+    std::string m_name;
+    std::wstring m_wname;
   };
-
 #else
-
   typedef const char *FileName;
-
 #endif
 
   //! An abstract class that provides operations on a sequence of bytes

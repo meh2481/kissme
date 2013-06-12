@@ -59,6 +59,7 @@ int main(int argc, char **argv)
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );
 
+    //Initialize signal handler
     init_signal_handler();
 
     //Load our last playlist

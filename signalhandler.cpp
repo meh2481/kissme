@@ -221,6 +221,8 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         gtk_tree_model_get(model, &iter, 0, &name, -1);
 
+        draw_album_art(get_album_art(name));    //Load album art for this song
+
         load_song(name);
         //play_song();
 
@@ -448,26 +450,6 @@ G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data)
 //    if(gtk_tree_view_get_n_columns(tree_view) == NUM_COLUMNS) //TODO GTK 3.4
     if(numColumns(tree_view) == NUM_COLUMNS)        //To supress GTK errors (Since the first column is deleted first)
         gtk_tree_view_move_column_after(tree_view, GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "Playing")), NULL);
-}
-
-G_MODULE_EXPORT gboolean draw_album_art(GtkWidget *widget, cairo_t *cr, gpointer data)
-{
-  guint width, height;
-  GdkRGBA color;
-
-  width = gtk_widget_get_allocated_width (widget);
-  height = gtk_widget_get_allocated_height (widget);
-  cairo_arc (cr,
-             width / 2.0, height / 2.0,
-             MIN (width, height) / 2.0,
-             0, 2 * G_PI);
-
-  gtk_style_context_get_color(gtk_widget_get_style_context (widget), GTK_STATE_FLAG_NORMAL, &color);
-  gdk_cairo_set_source_rgba (cr, &color);
-
-  cairo_fill (cr);
-
- return FALSE;
 }
 
 void draw_album_art(std::string sFilename)

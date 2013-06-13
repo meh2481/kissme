@@ -56,6 +56,21 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
   </object>
+  <object class="GtkWindow" id="albumartwindow">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Album Art for X</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="transient_for">window1</property>
+    <property name="has_resize_grip">False</property>
+    <child>
+      <object class="GtkImage" id="albumart_large">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="stock">gtk-missing-image</property>
+      </object>
+    </child>
+  </object>
   <object class="GtkAdjustment" id="posadjustment">
     <property name="upper">100</property>
     <property name="step_increment">0.01</property>
@@ -412,6 +427,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="image">album</property>
                         <property name="relief">none</property>
+                        <signal name="clicked" handler="button_albumart_clicked" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>

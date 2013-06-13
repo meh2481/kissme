@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+//TODO OS-independant
 static const std::string sTempName = "/tmp/kissme";
 
 std::string get_album_art(std::string sAudioFile)
@@ -21,7 +22,7 @@ std::string get_album_art(std::string sAudioFile)
     TagLib::String fileName = sAudioFile;
     TagLib::String fileType = fileName.substr(fileName.size() - 3).upper();
 
-    std::string sFilename = "logo.png";//sTempName;
+    std::string sFilename = NO_IMAGE;//sTempName;
 
     if (fileType == "M4A")
     {

@@ -41,6 +41,8 @@ extern "C"
     G_MODULE_EXPORT void button_shuffle_leave(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_shuffle_clicked(GtkButton *button, ChData *data);
 
+    G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data);
+
     //Volume control
     G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data);
 

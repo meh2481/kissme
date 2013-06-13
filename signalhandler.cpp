@@ -11,6 +11,7 @@ extern GtkBuilder *builder;
 bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
 float g_fTotalPlaylistLength = 0.0;
+std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
 //GtkTreeRowReference* curPlay = NULL;
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
@@ -196,6 +197,19 @@ G_MODULE_EXPORT void button_shuffle_clicked(GtkButton *button, ChData *data)
     new_order[iNum] = 0;
 
     gtk_list_store_reorder(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), new_order);
+}
+
+G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data)
+{
+    //if(g_sLastAlbumArt == NO_IMAGE)
+    //{
+        //TODO: Set album art
+    //}
+    //else
+    //{
+        GtkWidget  *albumartwindow = GTK_WIDGET(gtk_builder_get_object(builder, "albumartwindow"));
+        gtk_widget_show(albumartwindow);
+    //}
 }
 
 G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)
@@ -455,9 +469,12 @@ G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data)
 
 void draw_album_art(std::string sFilename)
 {
+    g_sLastAlbumArt = sFilename;
     GtkImage *image = GTK_IMAGE(gtk_builder_get_object(builder, "album"));
     GdkPixbuf *pixbuf;  //TODO: Clean up?
     pixbuf=gdk_pixbuf_new_from_file(sFilename.c_str(),NULL);
+    //Set large album art image
+    gtk_image_set_from_pixbuf(GTK_IMAGE(gtk_builder_get_object(builder, "albumart_large")), pixbuf);
     pixbuf=gdk_pixbuf_scale_simple(pixbuf, ALBUM_ART_ICON_WIDTH, ALBUM_ART_ICON_HEIGHT, GDK_INTERP_BILINEAR);
     gtk_image_set_from_pixbuf(image, pixbuf);
 }

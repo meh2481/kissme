@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <string.h>
 
 extern GtkBuilder *builder;
 bool bPaused = true;
@@ -290,10 +291,9 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         g_free(name);
         gtk_tree_model_get(model, &iter, 2, &name, -1); //And artist
         std::ostringstream oss;
-        oss << "<b>" << sTitle << "</b>\n  <i>" << name << "</i>";
+        oss << "<b>" << g_markup_escape_text(sTitle.c_str(), sTitle.length()) << "</b>\n  <i>" << g_markup_escape_text(name, strlen(name)) << "</i>";
         //Draw artist name and track name
 
-        //TODO: Check for unparsable markup (like & instead of &amp;)
         gtk_label_set_markup(GTK_LABEL(gtk_builder_get_object(builder, "curtrack")), oss.str().c_str());
         g_free(name);
 

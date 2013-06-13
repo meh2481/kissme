@@ -1,5 +1,6 @@
 #include "signalhandler.h"
 #include "sound.h"
+#include "cover.h"
 #include <iostream>
 #include <vector>
 #include <sstream>

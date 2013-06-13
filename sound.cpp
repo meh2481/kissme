@@ -1,5 +1,6 @@
 #include "sound.h"
 #include "signalhandler.h"
+#include "cover.h"
 #include <iostream>
 #include <list>
 #include <fstream>
@@ -213,111 +214,6 @@ float get_song_length()
     if(handle == TYRSOUND_NULLHANDLE)
         return 0.0f;
     return tyrsound_getLength(handle);
-}
-
-//#include <flacfile.h>
-//#include <tlist.h>
-//#include <vorbisfile.h>
-
-/*#include<tbytevector.h>//ByteVector
-#include<mpegfile.h>//mp3 file
-#include<id3v2tag.h>//tag
-#include<id3v2frame.h>//frame
-#include <attachedpictureframe.h>//attachedPictureFrame*/
-
-#include <vorbisfile.h>
-#include <xiphcomment.h>
-#include <flacpicture.h>
-std::string get_album_art(std::string sFilename)
-{
-    std::string ret = "logo.png";   //Default: Show kissme logo
- /*   std::cout << "Getting album art for file " << sFilename << std::endl;
-    TagLib::Ogg::Vorbis::File file(sFilename.c_str());
-//    const TagLib::List<TagLib::FLAC::Picture*>& picList = file.pictureList();
-    //TagLib::FLAC::Picture* pic = //picList[0];
-    //TagLib::Ogg::Vorbis::File audioFile(sFilename);
-    TagLib::Ogg::XiphComment *tag = file.tag();
-    std::cout << "Title: " << tag->title() << std::endl;
-    if(tag->contains("METADATA_BLOCK_PICTURE"))
-        std::cout << "Found METADATA_BLOCK_PICTURE in Ogg file" << std::endl;
-    if(tag->contains("COVERART"))
-        std::cout << "Found COVERART in Ogg file" << std::endl;
-    const TagLib::Ogg::FieldListMap& map = tag->fieldListMap();
-
-    std::cout << "Num of ogg tag fields: " << map.size() << std::endl;
-    for(TagLib::Ogg::FieldListMap::ConstIterator i = map.begin(); i != map.end(); i++)
-    {
-
-        std::cout << "Tag :" << i->first << ", " << std::endl;// << i->second << std::endl;
-    }
-
-    TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
-    picture->setData(imageData);
-    picture->setType((TagLib::FLAC::Picture::Type) 0x03); // FrontCover
-    picture->setMimeType("image/jpeg");
-    picture->setDescription("Front Cover");
-    TagLib::ByteVector block = picture->render();
-    tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);*/
-
-    //TagLib::MPEG::File mp3File(sFilename.c_str());
-    //TagLib::ID3v2::Tag * mp3Tag;
-    //TagLib::ID3v2::FrameList listOfMp3Frames;
-    /*TagLib::ID3v2::AttachedPictureFrame * pictureFrame;
-
-    mp3Tag= mp3File.ID3v2Tag();
-    if(mp3Tag)
-    {
-        listOfMp3Frames = mp3Tag->frameListMap()["APIC"];//look for picture frames only
-        if(!listOfMp3Frames.isEmpty())
-        {
-            TagLib::ID3v2::FrameList::ConstIterator it= listOfMp3Frames.begin();
-            for(; it != listOfMp3Frames.end() ; it++)
-            {
-                pictureFrame = static_cast<TagLib::ID3v2::AttachedPictureFrame *> (*it);//cast Frame * to AttachedPictureFrame*
-
-                //Warning. format of picture assumed to be jpg. This may be false, for example it may be png.
-                FILE * fout = fopen("outputFile.jpg", "wb");
-                std::cout<<"processing the file "<< sFilename <<std::endl<<std::endl;
-                fwrite(pictureFrame->picture().data(), pictureFrame->picture().size(), 1, fout);
-                fclose(fout);
-                std::cout<<" The picture has been written to \t outputFile.jpg  \nRemember that the file type .jpg is just assumed for simplicity"<<std::endl<<std::endl;
-            }
-        }
-        else std::cerr<<"there seem to be no picture frames (APIC) frames in this file"<<std::endl<<std::endl;
-    }
-    else std::cerr<<"the file "<<sFilename<<"does not appear to have any mp3 tags"<<std::endl<<std::endl;*/
-
-    TagLib::Ogg::Vorbis::File audioFile(sFilename.c_str());
-    TagLib::Ogg::XiphComment *tag = audioFile.tag();
-    //const TagLib::Ogg::FieldListMap& map = tag->fieldListMap();
-
-    TagLib::StringList art_list = tag->fieldListMap()[ "COVERART" ];
-    std::cout << "Got coverart" << std::endl;
-
-    if(tag->contains("METADATA_BLOCK_PICTURE"))
-    {
-        std::cout << "Found METADATA_BLOCK_PICTURE in Ogg file" << std::endl;
-        const TagLib::StringList s = tag->fieldListMap()[ "METADATA_BLOCK_PICTURE" ];
-        TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
-        picture->setData(tag->render());
-        TagLib::ByteVector b = picture->data();
-        std::cout << "width x height: " << picture->width() << ", " << picture->height() << std::endl;
-    }
-    if(tag->contains("COVERART"))
-    {
-        std::cout << "Found COVERART in Ogg file" << std::endl;
-    }
-
-
-
-
-
-
-
-
-
-
-    return ret;
 }
 
 

@@ -48,6 +48,12 @@
 			<Add after="./run.sh" />
 			<Mode after="always" />
 		</ExtraCommands>
+		<Unit filename="base64.cpp">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="base64.h" />
+		<Unit filename="cover.cpp" />
+		<Unit filename="cover.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="signalhandler.cpp" />
 		<Unit filename="signalhandler.h" />

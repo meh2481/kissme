@@ -1,9 +1,16 @@
+// Support for getting/setting cover art for audio files
+// Modified examples from http://stackoverflow.com/questions/4752020/how-do-i-use-taglib-to-read-write-coverart-in-different-audio-formats
+// Retrieved 6/12/13 by Mark Hutcheson
+
 #include "cover.h"
 #include "sound.h"
 #include "signalhandler.h"
 #include <vorbisfile.h>
 #include <xiphcomment.h>
 #include <flacpicture.h>
+#include <mpegfile.h>
+#include <attachedpictureframe.h>
+#include <id3v2tag.h>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -22,7 +29,23 @@ std::string get_album_art(std::string sAudioFile)
     }
     else if (fileType == "MP3")
     {
-        //TODO
+        TagLib::MPEG::File audioFile(sAudioFile.c_str());
+
+        TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
+
+        TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+
+        if(!frames.isEmpty())
+        {
+            TagLib::ID3v2::AttachedPictureFrame *frame = static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
+            if(frame->mimeType() == "image/jpeg")
+                sFilename = sTempName + ".jpg";
+            else
+                sFilename = sTempName + ".png";
+            FILE* fp = fopen(sFilename.c_str(), "wb");
+            fwrite(frame->picture().data(), 1, frame->picture().size(), fp);
+            fclose(fp);
+        }
     }
     else if (fileType == "OGG")
     {

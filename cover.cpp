@@ -14,7 +14,6 @@
 #include <mp4file.h>
 #include <mp4tag.h>
 #include <mp4coverart.h>
-#include <stdio.h>
 #include <stdint.h>
 
 #include <iostream>
@@ -40,7 +39,7 @@ private:
 };
 
 
-//TODO OS-independant
+//TODO OS-independant temporary file
 static const std::string sTempName = "/tmp/kissme";
 
 std::string get_album_art(std::string sAudioFile)
@@ -48,11 +47,43 @@ std::string get_album_art(std::string sAudioFile)
     TagLib::String fileName = sAudioFile;
     TagLib::String fileType = fileName.substr(fileName.size() - 3).upper();
 
-    std::string sFilename = NO_IMAGE;//sTempName;
+    std::string sFilename = NO_IMAGE;
 
     if (fileType == "M4A")
     {
-        //TODO
+        //M4A parsing thanks to http://stackoverflow.com/questions/6542465/c-taglib-cover-art-from-mpeg-4-files
+        TagLib::MP4::File f(sAudioFile.c_str());
+        TagLib::MP4::Tag* tag = f.tag();
+        TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
+        TagLib::MP4::Item coverItem = itemsListMap["covr"];
+        TagLib::MP4::CoverArtList coverArtList = coverItem.toCoverArtList();
+        if(coverArtList.size())
+        {
+            TagLib::MP4::CoverArt coverArt = coverArtList.front();
+            TagLib::ByteVector bv = coverArt.data();
+            switch(coverArt.format())
+            {
+                case TagLib::MP4::CoverArt::JPEG:
+                    sFilename = sTempName + ".jpg";
+                    break;
+                case TagLib::MP4::CoverArt::PNG:
+                    sFilename = sTempName + ".png";
+                    break;
+                case TagLib::MP4::CoverArt::GIF:
+                    sFilename = sTempName + ".gif";
+                    break;
+                case TagLib::MP4::CoverArt::BMP:
+                    sFilename = sTempName + ".bmp";
+                    break;
+                default:
+                    std::cout << "Unknown format for M4A cover art: " << coverArt.format() << std::endl;
+                    sFilename = sTempName;
+                    break;
+            }
+            FILE* fp = fopen(sFilename.c_str(), "wb");
+            fwrite(bv.data(), 1, bv.size(), fp);
+            fclose(fp);
+        }
     }
     else if (fileType == "MP3")
     {
@@ -101,7 +132,7 @@ std::string get_album_art(std::string sAudioFile)
             fwrite(b.data(), 1, b.size(), fp);
             fclose(fp);
         }
-        else if(tag->contains("COVERART"))	//Don't bother decoding both if there are more than one
+        else if(tag->contains("COVERART"))	//Don't bother decoding both old format and new format if both are there
         {
             std::cout << "Found COVERART in Ogg file" << std::endl;
             TagLib::StringList sl = tag->fieldListMap()[ "COVERART" ];
@@ -122,10 +153,6 @@ std::string get_album_art(std::string sAudioFile)
             FILE* fp = fopen(sFilename.c_str(), "wb");
             fwrite(b.data(), 1, b.size(), fp);
             fclose(fp);
-        }
-        else
-        {
-            std::cout << "No album art found in file " << sAudioFile << std::endl;
         }
     }
     else
@@ -151,32 +178,20 @@ bool set_album_art(std::string sSong, std::string sImg)
     else if(mimeType == "PNG")
     	mimeType = "image/png";
     else
-    	std::cout << "Err: Unknown picture format: " << mimeType << std::endl;
+    {
+        std::cout << "Err: Unknown picture format: " << mimeType << std::endl;
+        return false;
+    }
 
     if (fileType == "M4A")
     {
-      // read the image file
       TagLib::MP4::CoverArt coverArt((TagLib::MP4::CoverArt::Format) 0x0D, imageData);
-
-      // read the mp4 file
       TagLib::MP4::File audioFile(sSong.c_str());
-
-      // get the tag ptr
       TagLib::MP4::Tag *tag = audioFile.tag();
-
-      // get the items map
       TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
-
-      // create cover art list
       TagLib::MP4::CoverArtList coverArtList;
-
-      // append instance
       coverArtList.append(coverArt);
-
-      // convert to item
       TagLib::MP4::Item coverItem(coverArtList);
-
-      // add item to map
       itemsListMap.insert("covr", coverItem);
 
       tag->save();
@@ -199,8 +214,7 @@ bool set_album_art(std::string sSong, std::string sImg)
       TagLib::Ogg::Vorbis::File audioFile(sSong.c_str());
       TagLib::Ogg::XiphComment *tag = audioFile.tag();
 
-      //PROPOSED http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
-      //-----------
+      //Write proposed (new) format -- see http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
       TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
       picture->setData(imageData);
       picture->setType((TagLib::FLAC::Picture::Type)  0x03); // FrontCover
@@ -210,19 +224,11 @@ bool set_album_art(std::string sSong, std::string sImg)
       TagLib::ByteVector block = picture->render();
       tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);
 
-      //-----------
-      //UNOFFICIAL DEPRECATED http://wiki.xiph.org/VorbisComment#Unofficial_COVERART_field_.28deprecated.29
-      //-----------
-      //block = imageData;
-
-      //tag->addField("COVERART",  b64_encode(block.data(), block.size()), true);
-      //-----------
-
       audioFile.save();
     }
     else
     {
-       std::cout << fileType << " is unsupported." << std::endl;
+       std::cout << fileType << " is unsupported for writing album art." << std::endl;
        return false;
     }
 

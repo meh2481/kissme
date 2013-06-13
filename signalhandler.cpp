@@ -12,7 +12,7 @@ bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
 float g_fTotalPlaylistLength = 0.0;
 std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
-//GtkTreeRowReference* curPlay = NULL;
+std::string g_sCurPlayingSong;  //Filename of song we're currently playing
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
@@ -201,15 +201,50 @@ G_MODULE_EXPORT void button_shuffle_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data)
 {
-    //if(g_sLastAlbumArt == NO_IMAGE)
-    //{
+    if(g_sCurPlayingSong.empty())
+        return;
+    if(g_sLastAlbumArt == NO_IMAGE)
+    {
         //TODO: Set album art
-    //}
-    //else
-    //{
-        GtkWidget  *albumartwindow = GTK_WIDGET(gtk_builder_get_object(builder, "albumartwindow"));
+        GtkWidget *dialog;
+        dialog = gtk_file_chooser_dialog_new ("Set cover art", GTK_WINDOW(data->main_window), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+
+        GtkFileChooser *filechooser = GTK_FILE_CHOOSER(dialog);
+
+        //Add filters to our file chooser
+        GtkFileFilter* filter = gtk_file_filter_new();
+        gtk_file_filter_set_name(filter, "Image Files (*.jpg, *.png)");
+        gtk_file_filter_add_pattern(filter, "*.jpg");
+        gtk_file_filter_add_pattern(filter, "*.png");
+
+        gtk_file_chooser_add_filter(filechooser, filter);
+
+        if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+        {
+            //Get all filenames and add them
+            gchar* sFilename = gtk_file_chooser_get_filename(filechooser);
+            if(sFilename != NULL)
+            {
+                //std::cout << "Set image: " << sFilename << std::endl;
+                if(set_album_art(g_sCurPlayingSong, sFilename))
+                    draw_album_art(sFilename);
+            }
+        }
+
+        gtk_widget_destroy (dialog);
+    }
+    else
+    {
+        GtkWidget* albumartwindow = GTK_WIDGET(gtk_builder_get_object(builder, "albumartwindow"));
+        GtkWidget* img = gtk_image_new_from_file(g_sLastAlbumArt.c_str());
+        //Destroy GtkImages currently in album art window (Why we can't just set this image, I have no idea...)
+        for(GList* contList = gtk_container_get_children(GTK_CONTAINER(albumartwindow)); contList != NULL && contList->data != NULL; contList = contList->next)
+            gtk_widget_destroy(GTK_WIDGET(contList->data));
+
+        gtk_container_add (GTK_CONTAINER(albumartwindow), img);
+        gtk_widget_show(img);
         gtk_widget_show(albumartwindow);
-    //}
+    }
 }
 
 G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)
@@ -236,9 +271,10 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         gtk_tree_model_get(model, &iter, 0, &name, -1);
 
+        g_sCurPlayingSong = name;
         draw_album_art(get_album_art(name));    //Load album art for this song
 
-        load_song(name);
+        //load_song(name);
         //play_song();
 
         g_free(name);
@@ -473,8 +509,6 @@ void draw_album_art(std::string sFilename)
     GtkImage *image = GTK_IMAGE(gtk_builder_get_object(builder, "album"));
     GdkPixbuf *pixbuf;  //TODO: Clean up?
     pixbuf=gdk_pixbuf_new_from_file(sFilename.c_str(),NULL);
-    //Set large album art image
-    gtk_image_set_from_pixbuf(GTK_IMAGE(gtk_builder_get_object(builder, "albumart_large")), pixbuf);
     pixbuf=gdk_pixbuf_scale_simple(pixbuf, ALBUM_ART_ICON_WIDTH, ALBUM_ART_ICON_HEIGHT, GDK_INTERP_BILINEAR);
     gtk_image_set_from_pixbuf(image, pixbuf);
 }

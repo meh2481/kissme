@@ -64,11 +64,7 @@
     <property name="transient_for">window1</property>
     <property name="has_resize_grip">False</property>
     <child>
-      <object class="GtkImage" id="albumart_large">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="stock">gtk-missing-image</property>
-      </object>
+      <placeholder/>
     </child>
   </object>
   <object class="GtkAdjustment" id="posadjustment">

@@ -121,17 +121,25 @@ int main(int argc, char *argv[])
     }
     else if (fileType == "MP3")
     {
-    	//TODO
-      /*TagLib::MPEG::File audioFile(argv[1]);
+    	TagLib::MPEG::File audioFile(argv[1]);
 
       TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
-      TagLib::ID3v2::AttachedPictureFrame *frame = new TagLib::ID3v2::AttachedPictureFrame;*/
 
-      //frame->setMimeType("image/jpeg");
-      //frame->setPicture(imageData);
+      TagLib::ID3v2::FrameList frames = tag->frameList("0PIC");
 
-      //tag->addFrame(frame);
-      //audioFile.save();      
+      if(!frames.isEmpty())
+      {
+          TagLib::ID3v2::AttachedPictureFrame *frame = static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
+          if(frame->mimeType() == "image/jpeg")
+              fileName += ".jpg";
+          else
+              fileName += ".png";
+          FILE* fp = fopen(fileName.toCString(), "wb");
+          fwrite(frame->picture().data(), 1, frame->picture().size(), fp);
+          fclose(fp);
+      }
+      else
+      	std::cout << "No MP3 image frame " << std::endl;
     }
     else if (fileType == "OGG")
     {

@@ -205,7 +205,7 @@ G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data)
         return;
     if(g_sLastAlbumArt == NO_IMAGE)
     {
-        //TODO: Set album art
+        //Set album art
         GtkWidget *dialog;
         dialog = gtk_file_chooser_dialog_new ("Set cover art", GTK_WINDOW(data->main_window), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
@@ -244,6 +244,11 @@ G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data)
         gtk_container_add (GTK_CONTAINER(albumartwindow), img);
         gtk_widget_show(img);
         gtk_widget_show(albumartwindow);
+
+        //Set window title
+        std::string sSongTitle = gtk_label_get_text(GTK_LABEL(gtk_builder_get_object(builder, "curtrack")));
+        sSongTitle.erase(sSongTitle.find_first_of('\n'));
+        gtk_window_set_title(GTK_WINDOW(albumartwindow), ("Album Art for " + sSongTitle).c_str());
     }
 }
 
@@ -287,6 +292,8 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         std::ostringstream oss;
         oss << "<b>" << sTitle << "</b>\n  <i>" << name << "</i>";
         //Draw artist name and track name
+
+        //TODO: Check for unparsable markup (like & instead of &amp;)
         gtk_label_set_markup(GTK_LABEL(gtk_builder_get_object(builder, "curtrack")), oss.str().c_str());
         g_free(name);
 

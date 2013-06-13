@@ -8,5 +8,4 @@
 - Support for common playlist types (See http://en.wikipedia.org/wiki/Playlist#Types_of_playlist_files); import (export?)
 - Support for iPod (via libgpod/libimobiledevice) and other MP3 players (Or does this violate KISS?). iPod support is rudimentary at best.
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
-- Draw + allow tagging of album art? Does this violate KISS?
 - Fetch track info? From where? Does this violate KISS?

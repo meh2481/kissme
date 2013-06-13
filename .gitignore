@@ -4,6 +4,8 @@
 
 # Executables
 kissme
+getcover
+setcover
 
 # Code::Blocks junk
 *.layout
@@ -27,6 +29,10 @@ kissme
 *.spc
 *.vgm
 *.vgz
+
+# Images
+*.png
+*.jpg
 
 # Playlist files
 *.last

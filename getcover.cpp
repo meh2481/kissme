@@ -6,7 +6,7 @@ and base64encoding (http://code.google.com/p/base64encoding/) needed for OGG Vor
 which uses libssl-dev
 
 gcc -g base64.c -lssl -c
-g++ -g -ggdb -I./dep/include -L./dep/lib setcover.cpp -o setcover base64.o -ltag -lcrypto
+g++ -g -ggdb -I./dep/include -L./dep/lib getcover.cpp -o getcover base64.o -ltag -lcrypto
 
 */
 
@@ -45,6 +45,8 @@ g++ -g -ggdb -I./dep/include -L./dep/lib setcover.cpp -o setcover base64.o -ltag
 #include <vorbisfile.h>
 #include <xiphcomment.h>
 #include <flacpicture.h>
+#include <stdio.h>
+#include <stdint.h>
 
 #include <iostream>
 
@@ -73,33 +75,26 @@ private:
     virtual bool save() { return false; }
 };
 
+#include <string.h>
 int main(int argc, char *argv[])
 {
     if (argc != 3) 
     {
-        std::cout << "Usage: setcover <mp3|m4a|ogg> cover.jpg" << std::endl;
+        std::cout << "Usage: setcover <mp3|m4a|ogg> [output filename]" << std::endl;
         return 1;
     }
 
     TagLib::String fileName = argv[1];
     TagLib::String fileType = fileName.substr(fileName.size() - 3).upper();
     
-    ImageFile imageFile(argv[2]);
-    TagLib::ByteVector imageData = imageFile.data();
-    
-    TagLib::String mimeType = argv[2];
-    mimeType = mimeType.substr(mimeType.size() - 3).upper();
-    if(mimeType == "JPG")
-    	mimeType = "image/jpeg";
-    else if(mimeType == "PNG")
-    	mimeType = "image/png";
-    else
-    	std::cout << "Err: Unknown picture format: " << mimeType << std::endl;
+    //ImageFile imageFile(argv[2]);
+    //TagLib::ByteVector imageData = imageFile.data();
     
     if (fileType == "M4A")
     {
+    	//TODO
       // read the image file
-      TagLib::MP4::CoverArt coverArt((TagLib::MP4::CoverArt::Format) 0x0D, imageData);
+      /*TagLib::MP4::CoverArt coverArt((TagLib::MP4::CoverArt::Format) 0x0D, imageData);
       
       // read the mp4 file
       TagLib::MP4::File audioFile(argv[1]);
@@ -122,47 +117,77 @@ int main(int argc, char *argv[])
       // add item to map
       itemsListMap.insert("covr", coverItem);
       
-      tag->save();
+      tag->save();*/
     }
     else if (fileType == "MP3")
     {
-      TagLib::MPEG::File audioFile(argv[1]);
+    	//TODO
+      /*TagLib::MPEG::File audioFile(argv[1]);
 
       TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
-      TagLib::ID3v2::AttachedPictureFrame *frame = new TagLib::ID3v2::AttachedPictureFrame;
+      TagLib::ID3v2::AttachedPictureFrame *frame = new TagLib::ID3v2::AttachedPictureFrame;*/
 
-      frame->setMimeType(mimeType);
-      frame->setPicture(imageData);
+      //frame->setMimeType("image/jpeg");
+      //frame->setPicture(imageData);
 
-      tag->addFrame(frame);
-      audioFile.save();      
+      //tag->addFrame(frame);
+      //audioFile.save();      
     }
     else if (fileType == "OGG")
     {
       TagLib::Ogg::Vorbis::File audioFile(argv[1]);
       TagLib::Ogg::XiphComment *tag = audioFile.tag();
       
-      /*
-      PROPOSED http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
-      */
-      TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
-      picture->setData(imageData);
-      picture->setType((TagLib::FLAC::Picture::Type)  0x03); // FrontCover
-      picture->setMimeType(mimeType);
-      picture->setDescription("Front Cover");
-      
-      TagLib::ByteVector block = picture->render();
-      tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);
-      
-      
-      /*
-      UNOFFICIAL DEPRECATED http://wiki.xiph.org/VorbisComment#Unofficial_COVERART_field_.28deprecated.29
-      */
-      block = imageData;
-      
-      tag->addField("COVERART",  b64_encode(block.data(), block.size()), true);
-      
-      audioFile.save();
+      if(tag->contains("METADATA_BLOCK_PICTURE"))
+      {
+      	std::cout << "Found METADATA_BLOCK_PICTURE in Ogg file" << std::endl;
+      	TagLib::StringList sl = tag->fieldListMap()[ "METADATA_BLOCK_PICTURE" ];
+      	if(!sl.size())
+      	{
+      		std::cout << "Empty METADATA_BLOCK_PICTURE" << std::endl;
+      		return 1;
+      	}
+      	unsigned char* buf = (unsigned char*)b64_decode(sl[0].toCString(true), sl[0].size());
+      	TagLib::ByteVector bv;
+      	bv.setData((const char*)buf, (uint)sl[0].size());
+      	TagLib::FLAC::Picture picture(bv);
+        TagLib::ByteVector b = picture.data();
+        std::string sFilename = argv[2];
+        if(picture.mimeType() == "image/jpeg")
+        	sFilename += ".jpg";
+        else
+        	sFilename += ".png";
+      	FILE* fp = fopen(sFilename.c_str(), "wb");
+      	fwrite(b.data(), 1, b.size(), fp);
+      	fclose(fp);
+      }
+    	else if(tag->contains("COVERART"))	//Don't bother decoding both if there are more than one
+      {
+      	std::cout << "Found COVERART in Ogg file" << std::endl;
+      	TagLib::StringList sl = tag->fieldListMap()[ "COVERART" ];
+      	if(!sl.size())
+      	{
+      		std::cout << "Empty COVERART" << std::endl;
+      		return 1;
+      	}
+      	unsigned char* buf = (unsigned char*)b64_decode(sl[0].toCString(true), sl[0].size());
+      	TagLib::ByteVector bv;
+      	bv.setData((const char*)buf, (uint)sl[0].size());
+      	TagLib::FLAC::Picture picture(bv);
+        TagLib::ByteVector b = picture.data();
+      	std::string sFilename = argv[2];
+        if(picture.mimeType() == "image/jpeg")
+        	sFilename += ".jpg";
+        else
+        	sFilename += ".png";
+      	FILE* fp = fopen(sFilename.c_str(), "wb");
+      	fwrite(b.data(), 1, b.size(), fp);
+      	fclose(fp);
+      }
+      else
+      {
+      	std::cout << "No album art found in file " << argv[0] << std::endl;
+      }
     }
     else
     {

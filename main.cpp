@@ -9,6 +9,7 @@
 #include <VFS.h>
 #include "signalhandler.h"
 #include "sound.h"
+#include "fileoperations.h"
 
 #define MAPFILE "map.txt"
 
@@ -23,6 +24,7 @@ int main(int argc, char **argv)
     ChData     *data;
 
     init_sound();
+    init_fileio();
     srand(time(NULL));
 
     // Init GTK+

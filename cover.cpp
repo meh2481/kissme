@@ -54,11 +54,12 @@ std::string get_album_art(std::string sAudioFile)
         //M4A parsing thanks to http://stackoverflow.com/questions/6542465/c-taglib-cover-art-from-mpeg-4-files
         TagLib::MP4::File f(sAudioFile.c_str());
         TagLib::MP4::Tag* tag = f.tag();
-        TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
-        TagLib::MP4::Item coverItem = itemsListMap["covr"];
+        TagLib::MP4::ItemListMap* itemsListMap = tag->itemListMap();
+        TagLib::MP4::Item coverItem = (*itemsListMap)["covr"];
         TagLib::MP4::CoverArtList coverArtList = coverItem.toCoverArtList();
         if(coverArtList.size())
         {
+            std::cout << "Cover art list size: " << coverArtList.size() << std::endl;
             TagLib::MP4::CoverArt coverArt = coverArtList.front();
             TagLib::ByteVector bv = coverArt.data();
             switch(coverArt.format())
@@ -84,6 +85,8 @@ std::string get_album_art(std::string sAudioFile)
             fwrite(bv.data(), 1, bv.size(), fp);
             fclose(fp);
         }
+        else
+            std::cout << "Cover art list empty" << std::endl;
     }
     else if (fileType == "MP3")
     {
@@ -185,16 +188,16 @@ bool set_album_art(std::string sSong, std::string sImg)
 
     if (fileType == "M4A")
     {
-      TagLib::MP4::CoverArt coverArt((TagLib::MP4::CoverArt::Format) 0x0D, imageData);
+      TagLib::MP4::CoverArt coverArt(TagLib::MP4::CoverArt::JPEG, imageData);
       TagLib::MP4::File audioFile(sSong.c_str());
       TagLib::MP4::Tag *tag = audioFile.tag();
-      TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
+      TagLib::MP4::ItemListMap* itemsListMap = tag->itemListMap();
       TagLib::MP4::CoverArtList coverArtList;
-      coverArtList.append(coverArt);
-      TagLib::MP4::Item coverItem(coverArtList);
-      itemsListMap.insert("covr", coverItem);
+      coverArtList.prepend(coverArt);
+      itemsListMap->insert("covr", coverArtList);
 
       tag->save();
+      audioFile.save();
     }
     else if (fileType == "MP3")
     {

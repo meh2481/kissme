@@ -9,3 +9,7 @@
 - Support for iPod (via libgpod/libimobiledevice) and other MP3 players (Or does this violate KISS?). iPod support is rudimentary at best.
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
 - Fetch track info? From where? Does this violate KISS?
+- Unicode support
+- Start up in seconds. Load files/tags as needed rather than up-front
+- Save last window size on startup
+- Fix M4A album art tagging

@@ -54,6 +54,8 @@
 		<Unit filename="base64.h" />
 		<Unit filename="cover.cpp" />
 		<Unit filename="cover.h" />
+		<Unit filename="fileoperations.cpp" />
+		<Unit filename="fileoperations.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="signalhandler.cpp" />
 		<Unit filename="signalhandler.h" />

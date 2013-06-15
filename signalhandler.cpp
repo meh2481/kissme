@@ -1,6 +1,7 @@
 #include "signalhandler.h"
 #include "sound.h"
 #include "cover.h"
+#include "fileoperations.h"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -34,27 +35,13 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
     //Add filters to our file chooser
     GtkFileFilter* filter = gtk_file_filter_new();
     gtk_file_filter_set_name(filter, "Song Files");
-    gtk_file_filter_add_pattern(filter, "*.mp3");   //TODO
-    gtk_file_filter_add_pattern(filter, "*.ogg");   //Ogg vorbis
-    gtk_file_filter_add_pattern(filter, "*.wma");   //TODO?
-    gtk_file_filter_add_pattern(filter, "*.wav");   //TODO
-    gtk_file_filter_add_pattern(filter, "*.m4a");   //TODO?
-    gtk_file_filter_add_pattern(filter, "*.flac");  //TODO
-    gtk_file_filter_add_pattern(filter, "*.opus");  //Opus
-
-    //libGME supported formats
-    gtk_file_filter_add_pattern(filter, "*.ay");
-    gtk_file_filter_add_pattern(filter, "*.gbs");
-    gtk_file_filter_add_pattern(filter, "*.gym");
-    gtk_file_filter_add_pattern(filter, "*.hes");
-    gtk_file_filter_add_pattern(filter, "*.kss");
-    gtk_file_filter_add_pattern(filter, "*.nsf");
-    gtk_file_filter_add_pattern(filter, "*.nsfe");
-    gtk_file_filter_add_pattern(filter, "*.sap");
-    gtk_file_filter_add_pattern(filter, "*.spc");
-    gtk_file_filter_add_pattern(filter, "*.vgm");
-    gtk_file_filter_add_pattern(filter, "*.vgz");
-
+    std::set<std::string> slFilesSupported = get_filetypes_supported();
+    for(std::set<std::string>::iterator i = slFilesSupported.begin(); i != slFilesSupported.end(); i++)
+    {
+        std::string sPattern = "*.";
+        sPattern += *i;
+        gtk_file_filter_add_pattern(filter, sPattern.c_str());
+    }
     gtk_file_chooser_add_filter(filechooser, filter);
 
     GtkFileFilter* filter2 = gtk_file_filter_new();
@@ -70,6 +57,42 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
         {
             std::string s = (char*)i->data;
             add_to_playlist(s);
+            g_free(i->data);
+        }
+        g_slist_free(filenames);
+
+        //Save list in case of crash
+        save_playlist();
+    }
+
+    gtk_widget_destroy (dialog);
+}
+
+G_MODULE_EXPORT void button_addfolder_clicked(GtkButton *button, ChData *data)
+{
+    GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new ("Add Folders", GTK_WINDOW(data->main_window), GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+
+    GtkFileChooser *filechooser = GTK_FILE_CHOOSER(dialog);
+
+    gtk_file_chooser_set_select_multiple(filechooser, true);
+    gtk_file_chooser_set_action(filechooser, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        //Get all filenames and add them
+        GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
+        for(GSList* i = filenames; i != NULL; i=i->next)
+        {
+            std::string s = (char*)i->data;
+            std::deque<std::string> sFilenames = get_files_from_dir_rec(s, get_filetypes_supported());
+            for(std::deque<std::string>::iterator j = sFilenames.begin(); j != sFilenames.end(); j++)   //TODO: Can hang here for minutes on end as songs load.
+            {
+                if(!j->length())
+                    continue;
+                std::cout << "Adding file " << *j << " to playlist" << std::endl;
+                add_to_playlist(*j);    //TODO: don't parse album data yet?
+            }
             g_free(i->data);
         }
         g_slist_free(filenames);

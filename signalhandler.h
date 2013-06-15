@@ -32,6 +32,7 @@ extern "C"
 {
     //Buttons
     G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void button_addfolder_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data);

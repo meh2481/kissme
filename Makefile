@@ -1,4 +1,4 @@
-OBJECTS = main.o signalhandler.o sound.o base64.o cover.o
+OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o
 LIBS = -L./dep/lib -lttvfs -ltag -ltyrsound -lopenal -logg -lvorbis -lvorbisfile -lopus -lcrypto
 HEADER = -I./dep/include
 

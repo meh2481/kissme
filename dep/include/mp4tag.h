@@ -65,7 +65,7 @@ namespace TagLib {
         void setYear(uint value);
         void setTrack(uint value);
 
-        ItemListMap &itemListMap();
+        ItemListMap *itemListMap();
 
     private:
         AtomDataList parseData2(Atom *atom, TagLib::File *file, int expectedFlags = -1, bool freeForm = false);

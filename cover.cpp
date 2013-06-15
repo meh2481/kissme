@@ -14,6 +14,8 @@
 #include <mp4file.h>
 #include <mp4tag.h>
 #include <mp4coverart.h>
+#include <asfpicture.h>
+#include <asffile.h>
 #include <stdint.h>
 
 #include <iostream>
@@ -59,7 +61,6 @@ std::string get_album_art(std::string sAudioFile)
         TagLib::MP4::CoverArtList coverArtList = coverItem.toCoverArtList();
         if(coverArtList.size())
         {
-            std::cout << "Cover art list size: " << coverArtList.size() << std::endl;
             TagLib::MP4::CoverArt coverArt = coverArtList.front();
             TagLib::ByteVector bv = coverArt.data();
             switch(coverArt.format())
@@ -85,8 +86,8 @@ std::string get_album_art(std::string sAudioFile)
             fwrite(bv.data(), 1, bv.size(), fp);
             fclose(fp);
         }
-        else
-            std::cout << "Cover art list empty" << std::endl;
+        //else
+        //    std::cout << "Cover art list empty" << std::endl;
     }
     else if (fileType == "MP3")
     {
@@ -158,6 +159,29 @@ std::string get_album_art(std::string sAudioFile)
             fclose(fp);
         }
     }
+    else if(fileType == "WMA")
+    {
+        TagLib::ASF::File audioFile(sAudioFile.c_str());
+        TagLib::ASF::Tag* tag = audioFile.tag();
+        TagLib::ASF::AttributeListMap attributeMap = tag->attributeListMap();
+        if(attributeMap.size())
+        {
+            TagLib::ASF::AttributeList attrlist = attributeMap["WM/Picture"];
+            if(attrlist.size())
+            {
+                TagLib::ASF::Attribute attrib = attrlist.front();
+                TagLib::ASF::Picture pic = attrib.toPicture();
+                if(pic.mimeType() == "image/png")
+                    sFilename = sTempName + ".png";
+                else
+                    sFilename = sTempName + ".jpg";
+                TagLib::ByteVector bv = pic.picture();
+                FILE* fp = fopen(sFilename.c_str(), "wb");
+                fwrite(bv.data(), 1, bv.size(), fp);
+                fclose(fp);
+            }
+        }
+    }
     else
     {
         std::cout << fileType << " is unsupported for album art." << std::endl;
@@ -191,13 +215,16 @@ bool set_album_art(std::string sSong, std::string sImg)
       TagLib::MP4::CoverArt coverArt(TagLib::MP4::CoverArt::JPEG, imageData);
       TagLib::MP4::File audioFile(sSong.c_str());
       TagLib::MP4::Tag *tag = audioFile.tag();
+      //TagLib is broken here. It's not returning a proper reference, which makes embedding album art an impossibility.
+      //Thus, I hacked it to return a pointer.
       TagLib::MP4::ItemListMap* itemsListMap = tag->itemListMap();
       TagLib::MP4::CoverArtList coverArtList;
       coverArtList.prepend(coverArt);
       itemsListMap->insert("covr", coverArtList);
 
-      tag->save();
-      audioFile.save();
+      //TODO: M4A tagging seems to be broken. Not sure if cover art or just stupid
+      //tag->save();
+      //audioFile.save();
     }
     else if (fileType == "MP3")
     {
@@ -228,6 +255,18 @@ bool set_album_art(std::string sSong, std::string sImg)
       tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);
 
       audioFile.save();
+    }
+    else if(fileType == "WMA")
+    {
+        TagLib::ASF::File audioFile(sSong.c_str());
+        TagLib::ASF::Tag* tag = audioFile.tag();
+        TagLib::ASF::Picture p;
+        p.setMimeType(mimeType);
+        p.setType(TagLib::ASF::Picture::FrontCover);
+        p.setPicture(imageData);
+        TagLib::ASF::Attribute a(p);
+        tag->addAttribute("WM/Picture", a);
+        audioFile.save();
     }
     else
     {

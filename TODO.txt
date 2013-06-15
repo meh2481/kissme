@@ -12,4 +12,5 @@
 - Unicode support
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
-- Fix M4A album art tagging
+- M4A tagging broken currently
+- FLAC, WMA, and Opus coverart support

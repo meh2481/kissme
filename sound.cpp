@@ -164,6 +164,9 @@ void set_music_loc(float fPos)
 
 bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
 {
+    #ifndef BOTCHED_TAGGING
+    return false;
+    #endif
     TagLib::FileRef f(sFilename.c_str());
 
     if(f.isNull())  //Can't really do anything

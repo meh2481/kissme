@@ -222,9 +222,11 @@ bool set_album_art(std::string sSong, std::string sImg)
       coverArtList.prepend(coverArt);
       itemsListMap->insert("covr", coverArtList);
 
-      //TODO: M4A tagging seems to be broken. Not sure if cover art or just stupid
-      //tag->save();
-      //audioFile.save();
+      //TODO: M4A tagging seems to be broken afterwards in WMP and iTunes. Not sure if cover art or just stupid
+      #ifdef BOTCHED_TAGGING
+      tag->save();
+      audioFile.save();
+      #endif
     }
     else if (fileType == "MP3")
     {
@@ -247,7 +249,7 @@ bool set_album_art(std::string sSong, std::string sImg)
       //Write proposed (new) format -- see http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
       TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
       picture->setData(imageData);
-      picture->setType((TagLib::FLAC::Picture::Type)  0x03); // FrontCover
+      picture->setType(TagLib::FLAC::Picture::FrontCover);
       picture->setMimeType(mimeType);
       picture->setDescription("Front Cover");
 
@@ -266,7 +268,10 @@ bool set_album_art(std::string sSong, std::string sImg)
         p.setPicture(imageData);
         TagLib::ASF::Attribute a(p);
         tag->addAttribute("WM/Picture", a);
+        //TODO: WMA tagging seems to be broken afterwards in WMP
+        #ifdef BOTCHED_TAGGING
         audioFile.save();
+        #endif
     }
     else
     {

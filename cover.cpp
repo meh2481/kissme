@@ -16,6 +16,8 @@
 #include <mp4coverart.h>
 #include <asfpicture.h>
 #include <asffile.h>
+#include <opusfile.h>
+#include <flacfile.h>
 #include <stdint.h>
 
 #include <iostream>
@@ -182,6 +184,60 @@ std::string get_album_art(std::string sAudioFile)
             }
         }
     }
+    else if(fileType == "OPUS") //Same picture format as OGG
+    {
+        TagLib::Ogg::Opus::File audioFile(sAudioFile.c_str());
+        TagLib::Ogg::XiphComment *tag = audioFile.tag();
+
+        if(tag->contains("METADATA_BLOCK_PICTURE"))
+        {
+            TagLib::StringList sl = tag->fieldListMap()[ "METADATA_BLOCK_PICTURE" ];
+            if(!sl.size())
+            {
+                std::cout << "Empty METADATA_BLOCK_PICTURE" << std::endl;
+                return sFilename;
+            }
+            unsigned char* buf = (unsigned char*)b64_decode(sl[0].toCString(true), sl[0].size());
+            TagLib::ByteVector bv;
+            bv.setData((const char*)buf, (uint)sl[0].size());
+            TagLib::FLAC::Picture picture(bv);
+            TagLib::ByteVector b = picture.data();
+            if(picture.mimeType() == "image/png")
+                sFilename = sTempName + ".png";
+            else
+                sFilename = sTempName + ".jpg";
+            FILE* fp = fopen(sFilename.c_str(), "wb");
+            fwrite(b.data(), 1, b.size(), fp);
+            fclose(fp);
+        }
+    }
+    else if(fileType == "FLAC") //Same picture format as OGG
+    {
+        TagLib::FLAC::File audioFile(sAudioFile.c_str());
+        TagLib::Ogg::XiphComment *tag = audioFile.xiphComment();
+
+        if(tag->contains("METADATA_BLOCK_PICTURE"))
+        {
+            TagLib::StringList sl = tag->fieldListMap()[ "METADATA_BLOCK_PICTURE" ];
+            if(!sl.size())
+            {
+                std::cout << "Empty METADATA_BLOCK_PICTURE" << std::endl;
+                return sFilename;
+            }
+            unsigned char* buf = (unsigned char*)b64_decode(sl[0].toCString(true), sl[0].size());
+            TagLib::ByteVector bv;
+            bv.setData((const char*)buf, (uint)sl[0].size());
+            TagLib::FLAC::Picture picture(bv);
+            TagLib::ByteVector b = picture.data();
+            if(picture.mimeType() == "image/png")
+                sFilename = sTempName + ".png";
+            else
+                sFilename = sTempName + ".jpg";
+            FILE* fp = fopen(sFilename.c_str(), "wb");
+            fwrite(b.data(), 1, b.size(), fp);
+            fclose(fp);
+        }
+    }
     else
     {
         std::cout << fileType << " is unsupported for album art." << std::endl;
@@ -272,6 +328,40 @@ bool set_album_art(std::string sSong, std::string sImg)
         #ifdef BOTCHED_TAGGING
         audioFile.save();
         #endif
+    }
+    else if (fileType == "OPUS")    //Same as OGG
+    {
+      TagLib::Ogg::Opus::File audioFile(sSong.c_str());
+      TagLib::Ogg::XiphComment *tag = audioFile.tag();
+
+      //Write proposed (new) format -- see http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
+      TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
+      picture->setData(imageData);
+      picture->setType(TagLib::FLAC::Picture::FrontCover);
+      picture->setMimeType(mimeType);
+      picture->setDescription("Front Cover");
+
+      TagLib::ByteVector block = picture->render();
+      tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);
+
+      audioFile.save();
+    }
+    else if (fileType == "FLAC")    //Same as OGG
+    {
+      TagLib::FLAC::File audioFile(sSong.c_str());
+      TagLib::Ogg::XiphComment *tag = audioFile.xiphComment();
+
+      //Write proposed (new) format -- see http://wiki.xiph.org/VorbisComment#METADATA_BLOCK_PICTURE
+      TagLib::FLAC::Picture* picture = new TagLib::FLAC::Picture();
+      picture->setData(imageData);
+      picture->setType(TagLib::FLAC::Picture::FrontCover);
+      picture->setMimeType(mimeType);
+      picture->setDescription("Front Cover");
+
+      TagLib::ByteVector block = picture->render();
+      tag->addField("METADATA_BLOCK_PICTURE", b64_encode(block.data(), block.size()), true);
+
+      audioFile.save();
     }
     else
     {

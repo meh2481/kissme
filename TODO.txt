@@ -2,7 +2,7 @@
 - Undo/Redo
 - Drag-and-drop support
 - Drag multiple items
-- Support for lots of common media formats: wma, m4a, aac, mp3, etc
+- Support for lots of common media formats: wma, m4a, mp3, flac, opus, wav, etc
 - Save layout on exit and return to exactly the same state
 - Save song location on exit to start from exactly the same point
 - Support for common playlist types (See http://en.wikipedia.org/wiki/Playlist#Types_of_playlist_files); import (export?)
@@ -12,5 +12,4 @@
 - Unicode support
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
-- M4A/WMA tagging/saving cover art completely broken currently
-- FLAC/Opus coverart support
+- M4A/WMA tagging/saving cover art is completely broken currently. Fix.

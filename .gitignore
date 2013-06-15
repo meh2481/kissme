@@ -4,11 +4,10 @@
 
 # Executables
 kissme
-getcover
-setcover
 
 # Code::Blocks junk
 *.layout
+*.cbTemp
 
 # Sound files
 *.mp3

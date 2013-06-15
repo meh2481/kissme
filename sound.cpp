@@ -165,7 +165,11 @@ void set_music_loc(float fPos)
 bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
 {
     #ifndef BOTCHED_TAGGING
-    return false;
+    if(sFilename.find(".m4a") != std::string::npos || sFilename.find(".wma") != std::string::npos)
+    {
+        std::cout << "WMA and M4A tagging is broken currently, sorry. Complain to the TagLib devs." << std::endl;
+        return false;
+    }
     #endif
     TagLib::FileRef f(sFilename.c_str());
 

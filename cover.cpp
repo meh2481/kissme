@@ -47,7 +47,7 @@ static const std::string sTempName = "/tmp/kissme";
 std::string get_album_art(std::string sAudioFile)
 {
     TagLib::String fileName = sAudioFile;
-    TagLib::String fileType = fileName.substr(fileName.size() - 3).upper();
+    TagLib::String fileType = fileName.substr(fileName.rfind(".")+1).upper();
 
     std::string sFilename = NO_IMAGE;
 
@@ -116,7 +116,7 @@ std::string get_album_art(std::string sAudioFile)
 
         if(tag->contains("METADATA_BLOCK_PICTURE"))
         {
-            std::cout << "Found METADATA_BLOCK_PICTURE in Ogg file" << std::endl;
+            //std::cout << "Found METADATA_BLOCK_PICTURE in Ogg file" << std::endl;
             TagLib::StringList sl = tag->fieldListMap()[ "METADATA_BLOCK_PICTURE" ];
             if(!sl.size())
             {
@@ -138,7 +138,7 @@ std::string get_album_art(std::string sAudioFile)
         }
         else if(tag->contains("COVERART"))	//Don't bother decoding both old format and new format if both are there
         {
-            std::cout << "Found COVERART in Ogg file" << std::endl;
+            //std::cout << "Found COVERART in Ogg file" << std::endl;
             TagLib::StringList sl = tag->fieldListMap()[ "COVERART" ];
             if(!sl.size())
             {
@@ -193,7 +193,7 @@ std::string get_album_art(std::string sAudioFile)
 bool set_album_art(std::string sSong, std::string sImg)
 {
     TagLib::String fileName = sSong;
-    TagLib::String fileType = fileName.substr(fileName.size() - 3).upper();
+    TagLib::String fileType = fileName.substr(fileName.rfind(".")+1).upper();
 
     ImageFile imageFile(sImg.c_str());
     TagLib::ByteVector imageData = imageFile.data();

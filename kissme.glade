@@ -485,7 +485,7 @@
                             <property name="can_focus">True</property>
                             <property name="model">Playlists</property>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selection1">
+                              <object class="GtkTreeSelection" id="selectedplaylists">
                                 <property name="mode">browse</property>
                               </object>
                             </child>

@@ -9,6 +9,7 @@
 //Global variables for use by our functions here
 tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
 extern int      iRepeatMode;
+extern bool bPaused;
 std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
 
 void init_sound()
@@ -18,7 +19,6 @@ void init_sound()
         std::cout << "Failed to init tyrsound." << std::endl;
         exit(1);
     }
-	atexit(cleanup_sound);
 }
 
 void cleanup_sound()
@@ -28,8 +28,45 @@ void cleanup_sound()
 
 void load_song(std::string sFilename)
 {
+    //Make sure this file format is supported
+#ifndef OGG_SUPPORT
+    if(sFilename.find(".ogg") != std::string::npos)
+    {
+        std::cout << "Ogg playback not supported at this time" << std::endl;
+        return;
+    }
+#endif
+#ifndef MP3_SUPPORT
+    if(sFilename.find(".mp3") != std::string::npos)
+    {
+        std::cout << "MP3 playback not supported at this time" << std::endl;
+        return;
+    }
+#endif
+#ifndef OPUS_SUPPORT
+    if(sFilename.find(".opus") != std::string::npos)
+    {
+        std::cout << "Opus playback not supported at this time" << std::endl;
+        return;
+    }
+#endif
+#ifndef FLAC_SUPPORT
+    if(sFilename.find(".flac") != std::string::npos)
+    {
+        std::cout << "Flac playback not supported at this time" << std::endl;
+        return;
+    }
+#endif
+#ifndef WAV_SUPPORT
+    if(sFilename.find(".wav") != std::string::npos)
+    {
+        std::cout << "Wav playback not supported at this time" << std::endl;
+        return;
+    }
+#endif
     if(handle != TYRSOUND_NULLHANDLE)
     {
+        tyrsound_stop(handle);
         tyrsound_unload(handle);
     }
 
@@ -37,7 +74,7 @@ void load_song(std::string sFilename)
     if(tyrsound_createFileNameStream(&strm, sFilename.c_str(), "rb") != TYRSOUND_ERR_OK)
     {
         std::cout << "File not found: " << sFilename << std::endl;
-        exit(1);
+        return;
     }
 
     handle = tyrsound_load(strm, NULL);
@@ -45,7 +82,7 @@ void load_song(std::string sFilename)
     if(handle == TYRSOUND_NULLHANDLE)
     {
         std::cout << "Invalid handle for song " << sFilename << std::endl;
-        exit(1);
+        return;
     }
 
 
@@ -54,13 +91,13 @@ void load_song(std::string sFilename)
     if(err != TYRSOUND_ERR_OK)
     {
         std::cout << "Failed to start playback on file " << sFilename << " Err: " << err << std::endl;
-        exit(1);
+        return;
     }
 }
 
 gboolean check_music_playing(gpointer data)
 {
-    if(!tyrsound_isPlaying(handle))
+    if(!tyrsound_isPlaying(handle) && !bPaused)
     {
         switch(iRepeatMode)
         {
@@ -68,7 +105,7 @@ gboolean check_music_playing(gpointer data)
                 //TODO
                 break;
             case REPEAT_NONE:
-                //TODO stop
+                //TODO stop @ end of playlist
                 break;
             case REPEAT_ONE:
                 tyrsound_seek(handle, 0.0);

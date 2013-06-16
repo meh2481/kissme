@@ -303,7 +303,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         g_sCurPlayingSong = name;
         draw_album_art(get_album_art(name));    //Load album art for this song
 
-        //load_song(name);
+        load_song(name);
         //play_song();
 
         g_free(name);

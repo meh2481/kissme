@@ -33,6 +33,12 @@ float       get_song_length();
 gboolean    check_music_playing(gpointer data); //Callback for every loop to see if we should play_song next song
 
 
+//Supported file types
+#define OGG_SUPPORT
+#define OPUS_SUPPORT
+//#define FLAC_SUPPORT
+//#define WAV_SUPPORT
+//#define MP3_SUPPORT
 
 
 

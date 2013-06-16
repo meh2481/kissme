@@ -70,7 +70,9 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
+    //Save playlist and exit
     save_playlist();
+    cleanup_sound();
 
     return( 0 );
 }

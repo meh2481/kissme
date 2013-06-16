@@ -44,6 +44,11 @@ extern "C"
 
     G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data);
 
+    //Playlist pane buttons
+    G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void newplaylist_cancel(GtkButton *button, ChData *data);
+
     //Volume control
     G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data);
 

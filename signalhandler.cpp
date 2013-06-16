@@ -259,21 +259,51 @@ G_MODULE_EXPORT void button_albumart_clicked(GtkButton *button, ChData *data)
     }
     else
     {
-        GtkWidget* albumartwindow = GTK_WIDGET(gtk_builder_get_object(builder, "albumartwindow"));
-        GtkWidget* img = gtk_image_new_from_file(g_sLastAlbumArt.c_str());
-        //Destroy GtkImages currently in album art window (Why we can't just set this image, I have no idea...)
-        for(GList* contList = gtk_container_get_children(GTK_CONTAINER(albumartwindow)); contList != NULL && contList->data != NULL; contList = contList->next)
-            gtk_widget_destroy(GTK_WIDGET(contList->data));
-
-        gtk_container_add (GTK_CONTAINER(albumartwindow), img);
-        gtk_widget_show(img);
-        gtk_widget_show(albumartwindow);
+        //Set the image for the album art window to this image
+        GtkWindow* albumartwindow = GTK_WINDOW(gtk_builder_get_object(builder, "albumartwindow"));
+        GtkImage* img = GTK_IMAGE(gtk_builder_get_object(builder, "albumart_large"));
+        gtk_image_set_from_file(img, g_sLastAlbumArt.c_str());
+        gtk_widget_show(GTK_WIDGET(albumartwindow));
 
         //Set window title
         std::string sSongTitle = gtk_label_get_text(GTK_LABEL(gtk_builder_get_object(builder, "curtrack")));
         sSongTitle.erase(sSongTitle.find_first_of('\n'));
-        gtk_window_set_title(GTK_WINDOW(albumartwindow), ("Album Art for " + sSongTitle).c_str());
+        gtk_window_set_title(albumartwindow, ("Album Art for " + sSongTitle).c_str());
     }
+}
+
+G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
+{
+    //Clear last playlist name
+    GtkEntry* textbox = GTK_ENTRY(gtk_builder_get_object(builder, "entry1"));
+    gtk_entry_set_text(textbox, "");
+    gtk_widget_grab_focus(GTK_WIDGET(textbox)); //In case this window was closed with "Cancel" button, this will regain the focus to the texbox
+
+    //Show dialog for inputting new playlist name
+    GtkDialog* newname = GTK_DIALOG(gtk_builder_get_object(builder, "dialog1"));
+    gint ret = gtk_dialog_run(newname);
+    gtk_widget_hide(GTK_WIDGET(newname));
+
+    if(ret == GTK_RESPONSE_ACCEPT)
+    {
+        //On return, get name that the user entered
+        std::string sPlaylistName = gtk_entry_get_text(textbox);
+        std::cout << "Name is blah: " << sPlaylistName << std::endl;
+    }
+}
+
+G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data)
+{
+    GtkDialog* dialog = GTK_DIALOG(gtk_builder_get_object(builder, "dialog1"));
+    gtk_dialog_response(dialog, GTK_RESPONSE_ACCEPT);
+    //gtk_dialog_response(dialog, GTK_RESPONSE_DELETE_EVENT);
+}
+
+G_MODULE_EXPORT void newplaylist_cancel(GtkButton *button, ChData *data)
+{
+    GtkDialog* dialog = GTK_DIALOG(gtk_builder_get_object(builder, "dialog1"));
+    gtk_dialog_response(dialog, GTK_RESPONSE_CANCEL);
+    //gtk_dialog_response(dialog, GTK_RESPONSE_DELETE_EVENT);
 }
 
 G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChData *data)

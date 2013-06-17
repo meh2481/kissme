@@ -287,8 +287,20 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
     if(ret == GTK_RESPONSE_ACCEPT)
     {
         //On return, get name that the user entered
-        std::string sPlaylistName = gtk_entry_get_text(textbox);
-        std::cout << "Name is blah: " << sPlaylistName << std::endl;
+        const gchar* text = gtk_entry_get_text(textbox);
+        if(text != NULL)
+        {
+            if(strlen(text))    //TODO Test playlist name to be sure it's not taken yet
+            {
+                GtkTreeIter iter;
+                GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
+                gtk_list_store_append(playlists, &iter);
+                GValue a = G_VALUE_INIT;
+                g_value_init (&a, G_TYPE_STRING);
+                g_value_set_static_string (&a, text);
+                gtk_list_store_set_value(playlists, &iter, 0, &a);
+            }
+        }
     }
 }
 

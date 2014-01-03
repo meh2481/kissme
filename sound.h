@@ -38,7 +38,7 @@ gboolean    check_music_playing(gpointer data); //Callback for every loop to see
 #define OPUS_SUPPORT
 //#define FLAC_SUPPORT
 //#define WAV_SUPPORT
-//#define MP3_SUPPORT
+#define MP3_SUPPORT
 
 
 

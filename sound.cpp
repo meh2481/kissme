@@ -77,7 +77,7 @@ void load_song(std::string sFilename)
         return;
     }
 
-    handle = tyrsound_load(strm, NULL);
+    handle = tyrsound_load(strm);
 
     if(handle == TYRSOUND_NULLHANDLE)
     {

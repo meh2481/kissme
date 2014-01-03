@@ -32,6 +32,7 @@ struct tyrsound_Format
     unsigned int signedSamples;
     unsigned int numBuffers;
 };
+typedef struct tyrsound_Format tyrsound_Format;
 
 typedef unsigned int tyrsound_Handle;
 #define TYRSOUND_NULLHANDLE 0
@@ -66,7 +67,10 @@ struct tyrsound_Stream
     /* Returns number of bytes remaining in the stream. NULL if unknown.
      * Returns < 0 if unknown or failed. */
     tyrsound_int64 (*remain)(void *user);
+
 };
+typedef struct tyrsound_Stream tyrsound_Stream;
+
 
 /* Error values */
 enum tyrsound_Error
@@ -75,19 +79,24 @@ enum tyrsound_Error
 
     /* > 0: warnings */
     TYRSOUND_ERR_PARAMS_ADJUSTED       = 1, /* NOT YET USED */
+    TYRSOUND_ERR_NOT_APPLIED_TO_CHANNEL= 2, /* Settings for a sound object were set, but there was no active channel */
 
     /* < 0: errors */
     TYRSOUND_ERR_UNSPECIFIED           = -1, /* Generic error */
-    TYRSOUND_ERR_INVALID_HANDLE        = -2, /* Inavlid handle passed to function (TYRSOUND_NULLHANDLE is always invalid) */
+    TYRSOUND_ERR_INVALID_HANDLE        = -2, /* Invalid handle passed to function (TYRSOUND_NULLHANDLE is always invalid) */
     TYRSOUND_ERR_INVALID_VALUE         = -3, /* Parameter error */
-    TYRSOUND_ERR_UNSUPPORTED           = -4, /* Action not suported by device / Stream format not recognized */
+    TYRSOUND_ERR_UNSUPPORTED           = -4, /* Action not supported by device / Stream format not recognized */
     TYRSOUND_ERR_NO_DEVICE             = -5, /* No device was found */
     TYRSOUND_ERR_SHIT_HAPPENED         = -6, /* Internal error */
     TYRSOUND_ERR_OUT_OF_MEMORY         = -7, /* Allocator returned NULL */
-    TYRSOUND_ERR_UNSUPPORTED_FORMAT    = -8, /* The passed tyrsound_Format swas not suitable to complete the action */
+    TYRSOUND_ERR_UNSUPPORTED_FORMAT    = -8, /* The passed tyrsound_Format was not suitable to complete the action */
     TYRSOUND_ERR_NOT_READY             = -9, /* Action can't be done right now (but possibly later) */
-};
+    TYRSOUND_ERR_CHANNELS_FULL         =-10, /* An attempt was made to reserve a channel but none was free */
+    TYRSOUND_ERR_INFINITE              =-11, /* This action would result in an endless loop, decode forever, etc*/
 
+    TYRSOUND_ERR_PAD32BIT = 0x7fffffff
+};
+typedef enum tyrsound_Error tyrsound_Error;
 
 /********************
 * Function pointers *
@@ -104,12 +113,17 @@ typedef tyrsound_Error (*tyrsound_positionCallback)(tyrsound_Handle, float posit
 typedef void *(*tyrsound_Alloc)(void *ptr, size_t size, void *user);
 
 
+/*****************************
+* Library setup & management *
+*****************************/
+
 /* Startup the sound system.
  * fmt: Sets the format that should be used by tyrsound_init().
  *      Pass NULL to use default parameters (might not work).
  * output: Space-separated list of output devices to try, in that order.
-           If "" or NULL is passed, try a default output device
-           (Note: Currently only "openal" is supported) */
+           If "" or NULL is passed, try a default output device.
+           Currently supported: openal null
+*/
 TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_init(const tyrsound_Format *fmt, const char *output);
 
 /* Shuts down the sound system and resets the internal state.
@@ -119,25 +133,28 @@ TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_shutdown(void);
 
 /* Sets up the library for multithreading,
  * allowing to call tyrsound_update() from one or more separate threads.
- *   mutex: Opaque pointer to a mutex that can be locked/unlocked at all times.
-            The pointer must stay alive until tyrsound_shutdown() is called,
-            or NULL is passed to this function.
-            The mutex is never locked recursively.
- *   lockFunc: Function pointer that the mutex pointer is passed to.
+ * IMPORTANT: Must be called before tyrsound_init() or after tyrsound_shutdown() !!
+              tyrsound_shutdown() will NOT clear the function pointers set here,
+              but will delete all existing mutexes.
+ *   newMutexFunc: Function pointer that creates a new mutex and returns a pointer to it.
+                   A mutex is never locked recursively.
+ *   deleteMutexFunc: Function pointer that takes a mutex and deletes it.
+                      A mutex will never be locked when passed.
+ *   lockFunc: Function pointer that a mutex pointer is passed to.
                Expected to return 0 if locking the mutex failed
                (causing any action that triggered the call to fail),
                any other value to indicate success.
- *   unlockFunc: Function pointer that unlocks the mutex. Expected not to fail.
+ *   unlockFunc: Function pointer that unlocks a mutex. Expected not to fail.
  */
-TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_setUpdateMutex(void *mutex,
-                                                           int (*lockFunc)(void*),
-                                                           void (*unlockFunc)(void*));
+TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_setupMT(void *(*newMutexFunc)(void),
+                                                    void (*deleteMutexFunc)(void*),
+                                                    int (*lockFunc)(void*),
+                                                    void (*unlockFunc)(void*));
 
 /* Expected to be called in the main loop, or at least often enough
    to prevent buffer underrun and subsequent playback starving.
    Triggers callbacks.
-   Can be called from one (!) separate thread if an update mutex
-   has been set. */
+   Can be called from one (!) separate thread if MT has been set up. */
 TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_update(void);
 
 
@@ -146,7 +163,8 @@ TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_update(void);
 TYRSOUND_DLL_EXPORT void tyrsound_getFormat(tyrsound_Format *fmt);
 
 /* Set a custom memory allocation function following the same semantics as realloc().
-   See tyrsound_Alloc description. Passing NULL uses the default allocator (realloc()).*/
+   See tyrsound_Alloc description. Passing NULL uses the default allocator (realloc()).
+   Do not call this between tyrsound_init() and tyrsound_shutdown() !! */
 TYRSOUND_DLL_EXPORT void tyrsound_setAlloc(tyrsound_Alloc allocFunc, void *user);
 
 /*****************************
@@ -154,9 +172,16 @@ TYRSOUND_DLL_EXPORT void tyrsound_setAlloc(tyrsound_Alloc allocFunc, void *user)
 *****************************/
 
 /* Load a sound using a stream loader. Returns TYRSOUND_NULLHANDLE on failure.
+ * Uses the output format currently used by the output device. */
+TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_load(tyrsound_Stream stream);
+
+/* More configurable version of tyrsound_load().
  * The optional format parameter may be set to the desired output format;
- * if it is NULL, use the format currently used by the output device. */
-TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_load(tyrsound_Stream stream, const tyrsound_Format *fmt);
+ * if it is NULL, use the format currently used by the output device.
+ * Setting tryHard to true disables quick header checks. While this might be able to open files that
+ * tyrsound_load() rejects, this can involve a bunch more memory allocations / reads
+ * depending on how long each decoder takes to figure out whether it can decode the stream or not. */
+TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_loadEx(tyrsound_Stream stream, const tyrsound_Format *fmt, int tryHard);
 
 /* Stops a sound, and frees all related resources. 
  * The actual deletion is delayed and performed in the next update() call.
@@ -164,12 +189,28 @@ TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_load(tyrsound_Stream stream, const 
  * deleting a sound when a second thread is involved. You have been warned.) */
 TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_unload(tyrsound_Handle);
 
+/* Create a sound and attach an already configured decoder.
+ * The decoder is a C++ pointer to a valid class derived from DecoderBase.
+ * Ownership of the decoder is transferred to the sound,
+ * and it will be deleted together with the sound. */
+TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_fromDecoder(void *decoder);
+
+/* Load a raw stream directly, with format fmt.
+ * If fmt is NULL, use the format currently used by the output device.
+ * (As this is probably wrong, just don't do it except for testing.) */
+TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_loadRawStream(tyrsound_Stream, const tyrsound_Format *fmt);
+
+/* Load a raw memory buffer, like tyrsound_loadRawStream().
+ * Makes an internal copy of the memory buffer. */
+TYRSOUND_DLL_EXPORT tyrsound_Handle tyrsound_loadRawBuffer(void *buf, size_t bytes, const tyrsound_Format *fmt);
+
 
 /**********************
  * Sound manipulation *
  *********************/
 
-/* Starts playing a sound or unpauses a paused sound */
+/* Starts playing a sound or unpauses a paused sound.
+   If already playing, the call has no effect and will not fail. */
 TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_play(tyrsound_Handle);
 
 /* Pauses a playing sound. Pausing multiple times has no effect and does not fail. */
@@ -181,7 +222,7 @@ TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_stop(tyrsound_Handle);
 /* Returns 1 when a sound is currently playing, i.e. not stopped and not paused. */
 TYRSOUND_DLL_EXPORT int tyrsound_isPlaying(tyrsound_Handle);
 
-/* Returns the current playback position in seconds. -1 if unknown. */
+/* Returns the current playback position in seconds. -1 if unknown, 0 if not playing. */
 TYRSOUND_DLL_EXPORT float tyrsound_getPlayPosition(tyrsound_Handle);
 
 /* Sets volume. 0 = silent, 1 = normal, > 1: louder than normal */
@@ -273,11 +314,17 @@ TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_bufferStream(tyrsound_Stream *dst,
 /* Decodes data from one stream and writes the result to the 2nd stream.
  * If dstfmt is not NULL, write format info to it.
  * The optional dstfmt parameter may be set to the desired output format;
- * if it is NULL, use the format currently used by the output device. */
+ * if it is NULL, use the format currently used by the output device.
+ * If tryHard is true, skip header checks (as in tyrsound_loadTryHarder()).
+ * Pass maxSeconds > 0 to limit the resulting audio stream.
+ *   For streams that contain repeating audio this is mandatory,
+ *   otherwise it will fail with TYRSOUND_ERR_INFINITE. */
 TYRSOUND_DLL_EXPORT tyrsound_Error tyrsound_decodeStream(tyrsound_Stream dst,
                                                          tyrsound_Format *dstfmt,
                                                          tyrsound_Stream src,
-                                                         tyrsound_Format *srcfmt);
+                                                         tyrsound_Format *srcfmt,
+                                                         int tryHard,
+                                                         float maxSeconds);
 
 #ifdef __cplusplus
 } /* end extern "C" */

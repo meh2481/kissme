@@ -16,9 +16,36 @@ float g_fTotalPlaylistLength = 0.0;
 std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
 std::string g_sCurPlayingSong;  //Filename of song we're currently playing
 
+//Local functions
+gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+    set_table_data("treeview2", "Tracks", path, "", 5);
+    return false;
+}
+
+gchar* g_cursong;
+gboolean find_cur_song(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+    gchar *icon;
+		gtk_tree_model_get(model, iter, 5, &icon, -1);
+		if(icon == NULL) return false;
+		std::string s = icon;
+		if(s == "")
+			return false;
+		else if(s == PLAY_ICON)	//This song currently playing
+		{
+			g_cursong = gtk_tree_path_to_string(path);
+			return true;	//Done iterating
+		}
+    
+    return false;
+}
+
+//Global functions declared in signalhandler.h
+
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
-    //FIXME: Should I be using GTK+ instead of flat GTK?
+    //TODO: Should I be using GTK+ instead of flat GTK?
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new ("Add Files",
                                           GTK_WINDOW(data->main_window),
@@ -145,7 +172,28 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 {
+		//GtkTreePath* path = gtk_tree_path_new();
+    //gtk_tree_model_foreach(model, find_cur_song, (gpointer) path);
     rewind_song(); //TODO Song list
+}
+
+G_MODULE_EXPORT void button_next_clicked(GtkButton *button, ChData *data)
+{
+    //TODO Song list
+    GtkTreePath* path;
+    gchar* pathspec;
+    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    gtk_tree_model_foreach(model, find_cur_song, NULL);
+    pathspec = g_cursong; 	//Store the song's name in a global variable, because apparently the pointer isn't two-way...
+    path = gtk_tree_path_new_from_string(pathspec);
+    gtk_tree_path_next(path);
+    //if(gtk_tree_path_next(path))
+    {
+    	song_selected(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")), path, NULL, NULL);
+    }
+    gtk_tree_path_free(path);
+    g_free(pathspec);
+    //song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
 }
 
 G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
@@ -171,12 +219,15 @@ G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data)
     {
         case REPEAT_ALL:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatAll")));
+            loop(false);
             break;
         case REPEAT_NONE:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOff")));
+            loop(false);
             break;
         case REPEAT_ONE:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOne")));
+            loop(true);
             break;
     }
 }
@@ -323,12 +374,6 @@ G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChDat
     setVolume(value);
 }
 
-gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
-{
-    set_table_data("treeview2", "Tracks", path, "", 5);
-    return false;
-}
-
 G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
 {
     GtkTreeModel *model;
@@ -369,6 +414,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
             gtk_window_set_title(GTK_WINDOW(gtk_builder_get_object(builder, "window1")), "kissme");
 
         //And show play icon
+        //TODO: See if better way to do this when we have huge list?
         gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons (Rather than keeping track of one, which doesn't work on drag/drop)
         set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
     }
@@ -555,7 +601,8 @@ G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data)
         return;
     }
     //std::cout << "Seek to: " << gtk_adjustment_get_value(adjustment) << std::endl;
-    //TODO set_music_loc(gtk_adjustment_get_value(adjustment)/100.0);
+    //TODO tyrsound doesn't fully support this yet.
+    //set_music_loc(gtk_adjustment_get_value(adjustment)/100.0);
 }
 
 int numColumns(GtkTreeView *tree_view)

@@ -429,6 +429,7 @@
                             <property name="tooltip_markup" translatable="yes">Go to Next Track</property>
                             <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
+                            <signal name="clicked" handler="button_next_clicked" swapped="no"/>
                             <child>
                               <object class="GtkImage" id="image3">
                                 <property name="width_request">32</property>

@@ -35,6 +35,7 @@ extern "C"
     G_MODULE_EXPORT void button_addfolder_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void button_next_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data);
 
     G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data);
@@ -82,5 +83,6 @@ void update_play_slider(float fPos, float fLen);  //Update where our current son
 void update_playlist_time();    //Update label that says X songs, X total minutes
 std::list<std::string> get_cur_playlist();  //Get the current playlist displayed in the GUI
 void draw_album_art(std::string sFilename); //Draw album art
+void get_current_song();
 
 #endif //GTKMM_EXAMPLEWINDOW_H

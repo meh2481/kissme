@@ -108,8 +108,8 @@ gboolean check_music_playing(gpointer data)
                 //TODO stop @ end of playlist
                 break;
             case REPEAT_ONE:
-                tyrsound_seek(handle, 0.0);
-                tyrsound_play(handle);
+                //tyrsound_stop(handle);
+                //tyrsound_play(handle);
                 break;
         }
     }
@@ -138,12 +138,22 @@ void pause_song()
 
 void rewind_song()
 {
-    tyrsound_seek(handle, 0.0f);
+    tyrsound_stop(handle);
+    tyrsound_seek(handle, 0);
+    tyrsound_play(handle);
 }
 
 void setVolume(float fVol)
 {
     tyrsound_setVolume(handle, fVol);
+}
+
+void loop(bool bLoop)
+{
+	if(bLoop)
+		tyrsound_setLoop(handle, 0.0f, -1);
+	else
+		tyrsound_setLoop(handle, 0.0f, 0);
 }
 
 void add_to_playlist(std::string sFilename)

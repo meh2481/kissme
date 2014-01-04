@@ -172,28 +172,74 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 {
-		//GtkTreePath* path = gtk_tree_path_new();
-    //gtk_tree_model_foreach(model, find_cur_song, (gpointer) path);
-    rewind_song(); //TODO Song list
+		GtkTreePath* path;
+    gchar* pathspec;
+    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    g_cursong = NULL;
+    gtk_tree_model_foreach(model, find_cur_song, NULL);
+    if(g_cursong != NULL)
+    {
+		  pathspec = g_cursong; 	//Store the song's path in a global variable, because easier than pointer-to-pointer
+		  path = gtk_tree_path_new_from_string(pathspec);
+		  std::string sTop = "0";
+		  if(sTop == pathspec)	//Loop back 
+		  {
+		  	gtk_tree_path_free(path);
+		  	std::ostringstream sFinal;
+		  	sFinal << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL) - 1;
+		  	path = gtk_tree_path_new_from_string(sFinal.str().c_str());
+			}
+			else
+		  	gtk_tree_path_prev(path);
+		  	
+		  play_song(model, path);
+		  
+		  gtk_tree_path_free(path);
+		  g_free(pathspec);
+    }
+
+
+    //rewind_song(); //TODO Song list
 }
 
 G_MODULE_EXPORT void button_next_clicked(GtkButton *button, ChData *data)
 {
-    //TODO Song list
-    GtkTreePath* path;
+    next_song(true);
+}
+
+void next_song(bool bLoop)
+{
+		GtkTreePath* path;
     gchar* pathspec;
     GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    g_cursong = NULL;
     gtk_tree_model_foreach(model, find_cur_song, NULL);
-    pathspec = g_cursong; 	//Store the song's name in a global variable, because apparently the pointer isn't two-way...
-    path = gtk_tree_path_new_from_string(pathspec);
-    gtk_tree_path_next(path);
-    //if(gtk_tree_path_next(path))
+    if(g_cursong != NULL)
     {
-    	song_selected(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")), path, NULL, NULL);
+		  pathspec = g_cursong;
+		  path = gtk_tree_path_new_from_string(pathspec);
+		  gtk_tree_path_next(path);
+		  std::ostringstream sMax;	//Get # of list elements here
+		  sMax << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL);
+		  if(sMax.str() == gtk_tree_path_to_string(path))	//If we're incrementing past how many are here
+		  {
+		  	if(!bLoop)
+		  	{
+		  		rewind_song();
+		  		pause_song();
+		  	}
+		  	else//if(bLoop)
+		  	{
+					gtk_tree_path_free(path);
+					path = gtk_tree_path_new_from_string("0");	//Reset to top
+					play_song(model, path);
+		  	}
+		  }
+		  else
+		  	play_song(model, path);
+		  gtk_tree_path_free(path);
+		  g_free(pathspec);
     }
-    gtk_tree_path_free(path);
-    g_free(pathspec);
-    //song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
 }
 
 G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
@@ -219,15 +265,15 @@ G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data)
     {
         case REPEAT_ALL:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatAll")));
-            loop(false);
+            loop_song(false);
             break;
         case REPEAT_NONE:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOff")));
-            loop(false);
+            loop_song(false);
             break;
         case REPEAT_ONE:
             gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOne")));
-            loop(true);
+            loop_song(true);
             break;
     }
 }
@@ -374,13 +420,10 @@ G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChDat
     setVolume(value);
 }
 
-G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
+void play_song(GtkTreeModel *model, GtkTreePath *path)
 {
-    GtkTreeModel *model;
-    GtkTreeIter   iter;
-
-    model = gtk_tree_view_get_model(tree_view);
-
+    GtkTreeIter iter;
+    
     if (gtk_tree_model_get_iter(model, &iter, path))
     {
         gchar *name;
@@ -391,7 +434,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
         draw_album_art(get_album_art(name));    //Load album art for this song
 
         load_song(name);
-        //play_song();
+        loop_song(iRepeatMode == REPEAT_ONE);
 
         g_free(name);
 
@@ -415,9 +458,18 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
         //And show play icon
         //TODO: See if better way to do this when we have huge list?
-        gtk_tree_model_foreach(model, clear_play_icons, data);  //Clear previous play icons (Rather than keeping track of one, which doesn't work on drag/drop)
+        gtk_tree_model_foreach(model, clear_play_icons, NULL);  //Clear previous play icons (Rather than keeping track of one, which doesn't work on drag/drop)
         set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
     }
+}
+
+G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data)
+{
+    GtkTreeModel *model;
+
+    model = gtk_tree_view_get_model(tree_view);
+
+    play_song(model, path);
 }
 
 void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column)

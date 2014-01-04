@@ -102,10 +102,10 @@ gboolean check_music_playing(gpointer data)
         switch(iRepeatMode)
         {
             case REPEAT_ALL:
-                //TODO
+                next_song(true);
                 break;
             case REPEAT_NONE:
-                //TODO stop @ end of playlist
+                next_song(false);
                 break;
             case REPEAT_ONE:
                 //tyrsound_stop(handle);
@@ -143,12 +143,18 @@ void rewind_song()
     tyrsound_play(handle);
 }
 
+void stop_song()
+{
+	tyrsound_stop(handle);
+	tyrsound_seek(handle, 0);
+}
+
 void setVolume(float fVol)
 {
     tyrsound_setVolume(handle, fVol);
 }
 
-void loop(bool bLoop)
+void loop_song(bool bLoop)
 {
 	if(bLoop)
 		tyrsound_setLoop(handle, 0.0f, -1);

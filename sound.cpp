@@ -26,6 +26,16 @@ void cleanup_sound()
     tyrsound_shutdown();
 }
 
+bool song_is_valid()
+{
+	return (handle != TYRSOUND_NULLHANDLE);
+}
+
+bool is_playing()
+{
+	return tyrsound_isPlaying(handle);
+}
+
 void load_song(std::string sFilename)
 {
     //Make sure this file format is supported
@@ -145,8 +155,12 @@ void rewind_song()
 
 void stop_song()
 {
-	tyrsound_stop(handle);
-	tyrsound_seek(handle, 0);
+	if(handle != TYRSOUND_NULLHANDLE)
+  {
+      tyrsound_stop(handle);
+      tyrsound_unload(handle);
+  }
+  handle = TYRSOUND_NULLHANDLE;
 }
 
 void setVolume(float fVol)

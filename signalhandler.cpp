@@ -167,7 +167,99 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
     //Free memory
     g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
 
-    save_playlist();    //Update our changes
+    save_playlist(); //Update our changes
+
+    /*GtkTreeModel* model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
+    //Get list of selected songs
+    GList* selected = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedsongs")), &model);
+    //Create list of references out of this list
+    std::list<GtkTreeRowReference*> references;
+    while(selected != NULL)
+    {
+        GtkTreePath* path = ((GtkTreePath*)selected->data);
+        if(path != NULL)
+        {
+            GtkTreeRowReference* ref = gtk_tree_row_reference_new(model, path);
+            references.push_back(ref);
+        }
+        selected = selected->next;
+    }
+    
+    //Get the current song that's playing
+    g_cursong = NULL;
+    GtkTreePath* curpath = NULL;
+    gtk_tree_model_foreach(model, find_cur_song, NULL);
+    if(g_cursong != NULL)
+    	curpath = gtk_tree_path_new_from_string(g_cursong);
+    bool bIsPlaying = is_playing();	//See if song is playing before we start
+    bool bEnd = false;
+    stop_song();	//Stop any current song that's playing
+    
+    //Iteratively move the current song down 
+    bool bHitCur = false;
+    for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
+    {
+        GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
+        if(path != NULL)
+        {
+        		gchar* sIt = gtk_tree_path_to_string(path);
+        		if(g_cursong != NULL && curpath != NULL && (std::string)sIt == (std::string)g_cursong)
+        		{
+        			bHitCur = true;
+        			std::ostringstream sMax;
+        			sMax << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
+		  				if(sMax.str() == (std::string)gtk_tree_path_to_string(curpath))	//If we're incrementing past how many are here
+		  					bEnd = true;
+		  				//else
+        			//	gtk_tree_path_next(curpath);
+        			
+						}
+						else if(!bHitCur)
+						{
+							//See if we're before or after thingy (WHEE TIRED CODING)
+							std::istringstream iss(sIt);
+							int iCurTrack;
+							iss >> iCurTrack;
+							iss.str(gtk_tree_path_to_string(curpath));
+							int iCurIt;
+							if(iCurTrack < iCurIt)
+								gtk_tree_path_prev(curpath);
+						}
+				}
+		}
+    
+    //Delete songs pointed to by these references
+    for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
+    {
+        GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
+        if(path != NULL)
+        {            		
+            GtkTreeIter iter;
+            if(gtk_tree_model_get_iter(model, &iter, path))
+                gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
+            gtk_tree_path_free(path);
+        }
+        gtk_tree_row_reference_free(*i);
+    }
+		
+		//Play song
+		if(bEnd)	//Last song on list
+		{
+			std::ostringstream sMax;
+      sMax << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
+      play_this_song(model, gtk_tree_path_new_from_string(sMax.str().c_str()));
+		}
+		else if(curpath != NULL && bHitCur)	//Last song we kept track of
+		{
+			play_this_song(model, curpath);
+		}
+		if(!bIsPlaying)
+			stop_song();
+
+    //Free memory
+    g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
+
+    save_playlist();    //Update our changes*/
 }
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
@@ -192,7 +284,7 @@ G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 			else
 		  	gtk_tree_path_prev(path);
 		  	
-		  play_song(model, path);
+		  play_this_song(model, path);
 		  
 		  gtk_tree_path_free(path);
 		  g_free(pathspec);
@@ -232,11 +324,11 @@ void next_song(bool bLoop)
 		  	{
 					gtk_tree_path_free(path);
 					path = gtk_tree_path_new_from_string("0");	//Reset to top
-					play_song(model, path);
+					play_this_song(model, path);
 		  	}
 		  }
 		  else
-		  	play_song(model, path);
+		  	play_this_song(model, path);
 		  gtk_tree_path_free(path);
 		  g_free(pathspec);
     }
@@ -244,23 +336,54 @@ void next_song(bool bLoop)
 
 G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
 {
-    if(bPaused)
-    {
-        bPaused = !bPaused;
-        play_song();
-    }
-    else
-    {
-        bPaused = !bPaused;
-        pause_song();
+		if(!song_is_valid())	//Not currently playing a valid song; select the top one and play it
+		{
+			//Play top selected song if there is one
+			GtkTreeModel* model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
+		  //Get list of selected songs
+		  GList* selected = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedsongs")), &model);
+		  //Grab first song
+		  if(selected != NULL)
+		  {
+		      GtkTreePath* path = ((GtkTreePath*)selected->data);
+		      if(path != NULL)
+						play_this_song(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), path);	//Play first selected song in list
+		      else	//Play top song
+		      {
+		      	path = gtk_tree_path_new_from_string("0");
+						play_this_song(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), path);
+						gtk_tree_path_free(path);
+		      }
+		  }
+		  else	//Play top song
+		  {
+		  	GtkTreePath *path = gtk_tree_path_new_from_string("0");
+				play_this_song(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), path);
+				gtk_tree_path_free(path);
+			}
+		}
+		else	//Otherwise, just play/pause
+		{
+		  if(bPaused)
+		  {
+		      bPaused = !bPaused;
+		      play_song();
+		  }
+		  else
+		  {
+		      bPaused = !bPaused;
+		      pause_song();
+		  }
     }
 }
 
 G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data)
 {
+		//Cycle through repeat modes
     iRepeatMode++;
     if(iRepeatMode > REPEAT_ONE)
         iRepeatMode = REPEAT_NONE;
+    //Set to the right icon, and set behavior accordingly
     switch(iRepeatMode)
     {
         case REPEAT_ALL:
@@ -420,7 +543,7 @@ G_MODULE_EXPORT void volume_changed(GtkScaleButton *button, gdouble value, ChDat
     setVolume(value);
 }
 
-void play_song(GtkTreeModel *model, GtkTreePath *path)
+void play_this_song(GtkTreeModel *model, GtkTreePath *path)
 {
     GtkTreeIter iter;
     
@@ -469,7 +592,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
 
     model = gtk_tree_view_get_model(tree_view);
 
-    play_song(model, path);
+    play_this_song(model, path);
 }
 
 void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column)

@@ -402,7 +402,9 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="has_tooltip">True</property>
                             <property name="tooltip_markup" translatable="yes">Play/Pause</property>
+                            <property name="tooltip_text" translatable="yes">Play/Pause</property>
                             <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
                             <signal name="clicked" handler="button_play_clicked" swapped="no"/>
@@ -560,6 +562,7 @@
               <object class="GtkPaned" id="paned1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="position">179</property>
                 <child>
                   <object class="GtkBox" id="box8">
                     <property name="visible">True</property>
@@ -576,9 +579,7 @@
                             <property name="can_focus">True</property>
                             <property name="model">Playlists</property>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="selectedplaylists">
-                                <property name="mode">browse</property>
-                              </object>
+                              <object class="GtkTreeSelection" id="selectedplaylists"/>
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
@@ -753,7 +754,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="resize">False</property>
+                    <property name="resize">True</property>
                     <property name="shrink">True</property>
                   </packing>
                 </child>
@@ -950,6 +951,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn" id="Filename">
+                                    <property name="visible">False</property>
                                     <property name="resizable">True</property>
                                     <property name="title" translatable="yes">Filename</property>
                                     <property name="expand">True</property>
@@ -1111,6 +1113,8 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="has_tooltip">True</property>
+                            <property name="tooltip_markup" translatable="yes">Volume</property>
+                            <property name="tooltip_text" translatable="yes">Volume</property>
                             <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
                             <property name="focus_on_click">False</property>
@@ -1134,7 +1138,8 @@ audio-volume-medium</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="tooltip_markup" translatable="yes">Shuffle</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">Shuffle</property>
                             <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
                             <signal name="enter" handler="button_shuffle_enter" swapped="no"/>
@@ -1160,7 +1165,8 @@ audio-volume-medium</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="tooltip_markup" translatable="yes">Repeat</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">Repeat</property>
                             <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
                             <signal name="clicked" handler="button_repeat_clicked" swapped="no"/>

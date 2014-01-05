@@ -84,7 +84,7 @@ void update_playlist_time();    //Update label that says X songs, X total minute
 std::list<std::string> get_cur_playlist();  //Get the current playlist displayed in the GUI
 void draw_album_art(std::string sFilename); //Draw album art
 void get_current_song();										//Get the current song that's playing
-void play_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
+void play_this_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
 void next_song(bool bLoop = false);	//Play the next song on the playlist
 
 #endif //GTKMM_EXAMPLEWINDOW_H

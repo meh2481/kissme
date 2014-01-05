@@ -150,53 +150,17 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
         }
         selected = selected->next;
     }
-    //Delete songs pointed to by these references
-    for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
-    {
-        GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
-        if(path != NULL)
-        {
-            GtkTreeIter iter;
-            if(gtk_tree_model_get_iter(model, &iter, path))
-                gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
-            gtk_tree_path_free(path);
-        }
-        gtk_tree_row_reference_free(*i);
-    }
-
-    //Free memory
-    g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
-
-    save_playlist(); //Update our changes
-
-    /*GtkTreeModel* model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
-    //Get list of selected songs
-    GList* selected = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedsongs")), &model);
-    //Create list of references out of this list
-    std::list<GtkTreeRowReference*> references;
-    while(selected != NULL)
-    {
-        GtkTreePath* path = ((GtkTreePath*)selected->data);
-        if(path != NULL)
-        {
-            GtkTreeRowReference* ref = gtk_tree_row_reference_new(model, path);
-            references.push_back(ref);
-        }
-        selected = selected->next;
-    }
     
-    //Get the current song that's playing
+    //Get current song that's playing
     g_cursong = NULL;
     GtkTreePath* curpath = NULL;
     gtk_tree_model_foreach(model, find_cur_song, NULL);
     if(g_cursong != NULL)
     	curpath = gtk_tree_path_new_from_string(g_cursong);
+    bool bHit = false;
     bool bIsPlaying = is_playing();	//See if song is playing before we start
-    bool bEnd = false;
-    stop_song();	//Stop any current song that's playing
     
-    //Iteratively move the current song down 
-    bool bHitCur = false;
+    //First loop so we don't invalidate any paths
     for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
     {
         GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
@@ -204,36 +168,21 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
         {
         		gchar* sIt = gtk_tree_path_to_string(path);
         		if(g_cursong != NULL && curpath != NULL && (std::string)sIt == (std::string)g_cursong)
-        		{
-        			bHitCur = true;
-        			std::ostringstream sMax;
-        			sMax << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
-		  				if(sMax.str() == (std::string)gtk_tree_path_to_string(curpath))	//If we're incrementing past how many are here
-		  					bEnd = true;
-		  				//else
-        			//	gtk_tree_path_next(curpath);
-        			
-						}
-						else if(!bHitCur)
-						{
-							//See if we're before or after thingy (WHEE TIRED CODING)
-							std::istringstream iss(sIt);
-							int iCurTrack;
-							iss >> iCurTrack;
-							iss.str(gtk_tree_path_to_string(curpath));
-							int iCurIt;
-							if(iCurTrack < iCurIt)
-								gtk_tree_path_prev(curpath);
-						}
-				}
-		}
+        			bHit = true;	//If we hit a song, record it so we know to start the next song
+        		else if(!bHit)
+        			//If we haven't hit a song yet, we may be deleting songs above it before hitting it, so decrease path counter
+        			//(If we don't end up hitting it later, no worries)
+        			gtk_tree_path_prev(curpath);
+        }
+    }
     
     //Delete songs pointed to by these references
     for(std::list<GtkTreeRowReference*>::iterator i = references.begin(); i != references.end(); i++)
     {
         GtkTreePath* path = gtk_tree_row_reference_get_path(*i);
         if(path != NULL)
-        {            		
+        {        			
+        		//Remove this song
             GtkTreeIter iter;
             if(gtk_tree_model_get_iter(model, &iter, path))
                 gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
@@ -241,25 +190,31 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
         }
         gtk_tree_row_reference_free(*i);
     }
-		
-		//Play song
-		if(bEnd)	//Last song on list
-		{
-			std::ostringstream sMax;
-      sMax << gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
-      play_this_song(model, gtk_tree_path_new_from_string(sMax.str().c_str()));
+    
+    //If we deleted the song we're playing, play the next song we should
+    if(bHit)
+    {
+    	//See if we're past the total number of tracks
+			int iNumTracks = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
+			std::istringstream iss(gtk_tree_path_to_string(curpath));
+			int iCurTrack;
+			iss >> iCurTrack;
+			if(iCurTrack > iNumTracks)	//If we've passed how many tracks there are
+			{
+				std::ostringstream oss;
+				oss << iNumTracks;
+				curpath = gtk_tree_path_new_from_string(oss.str().c_str());	//Reset to last track
+			}
+								
+    	play_this_song(model, curpath);
+    	if(!bIsPlaying)
+    		pause_song();
 		}
-		else if(curpath != NULL && bHitCur)	//Last song we kept track of
-		{
-			play_this_song(model, curpath);
-		}
-		if(!bIsPlaying)
-			stop_song();
 
     //Free memory
     g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
 
-    save_playlist();    //Update our changes*/
+    save_playlist(); //Update our changes
 }
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)

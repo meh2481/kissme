@@ -1,19 +1,22 @@
-OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o
-LIBS = -L./dep/lib -L./lib/x64 -lttvfs -ltag -ltyrsound -lopenal -logg -lvorbis -lvorbisfile -lopus -lcrypto
-HEADER = -I./dep/include
+# Entry point for kissme makefiles
+# Based loosely off FreeImage makefiles - thanks, doods
+# Default to 'make -f Makefile.unix' for Linux and for unknown OS.
+#
+OS = $(shell uname)
+MAKEFILE = unix
 
-GTKINCLUDE = `pkg-config gtk+-3.0 gmodule-2.0 --cflags`
-GTKLIB = `pkg-config gtk+-3.0 gmodule-2.0 --libs`
+ifeq ($(OS), Darwin)
+	MAKEFILE = osx
+endif
+ifeq ($(OS), windows32)
+	MAKEFILE = mingw
+endif
 
-all : kissme
+default:
+	$(MAKE) -f Makefile.$(MAKEFILE)
 
-kissme : $(OBJECTS)
-	g++ -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
-
-%.o: %.cpp
-	g++ -c -MMD -ggdb -g -o $@ $< $(HEADER) $(GTKINCLUDE)
-
--include $(OBJECTS:.o=.d)
+all:
+	$(MAKE) -f Makefile.$(MAKEFILE) all
 
 clean:
-	rm -rf *.o *.d kissme
+	$(MAKE) -f Makefile.$(MAKEFILE) clean 

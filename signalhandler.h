@@ -5,6 +5,13 @@
 #include <gtk/gtk.h>
 #include <list>
 #include <string>
+#ifdef _WIN32
+typedef unsigned int uint;
+#include <glib-object.h>
+#ifndef G_VALUE_INIT
+#define G_VALUE_INIT  { 0, { { 0 } } }	//WHY THIS NOT HERE ON WIN32, BROSKI?
+#endif
+#endif
 
 #define CH_GET_OBJECT( builder, name, type, data ) \
     data->name = type( gtk_builder_get_object( builder, #name ) )

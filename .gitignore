@@ -4,6 +4,7 @@
 
 # Executables
 kissme
+kissme.exe
 
 # Code::Blocks junk
 *.layout

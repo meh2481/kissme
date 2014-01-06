@@ -1,0 +1,18 @@
+OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o
+LIBS = -ltyrsound.dll -logg -lopusfile -L./dep/lib/Win32 -lttvfs  -lOpenAL32.dll -ltag.dll -lssl -lcrypto 
+HEADER = -I./dep/include -I./dep/include/Win32
+
+GTKLIB = -latk-1.0.dll -lcairo-gobject.dll -lcairo-script-interpreter.dll -lcairo.dll -lgailutil-3.dll -lgdk-3.dll -lgdk_pixbuf-2.0.dll -lgio-2.0.dll -lglib-2.0.dll -lgmodule-2.0.dll -lgobject-2.0.dll -lgthread-2.0.dll -lgtk-3.dll -lgtk-win32-2.0.dll -lpango-1.0.dll -lpangocairo-1.0.dll -lpangoft2-1.0.dll -lpangowin32-1.0.dll
+
+all : kissme
+
+kissme : $(OBJECTS)
+	g++ -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
+
+%.o: %.cpp
+	g++ -c -MMD -ggdb -g -o $@ $< $(HEADER) 
+
+-include $(OBJECTS:.o=.d)
+
+clean:
+	rm -rf *.o *.d kissme.exe

@@ -196,19 +196,27 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
     {
     	//See if we're past the total number of tracks
 			int iNumTracks = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL)-1;
-			std::istringstream iss(gtk_tree_path_to_string(curpath));
-			int iCurTrack;
-			iss >> iCurTrack;
-			if(iCurTrack > iNumTracks)	//If we've passed how many tracks there are
+			if(iNumTracks >= 0)	//If there are any tracks to play
 			{
-				std::ostringstream oss;
-				oss << iNumTracks;
-				curpath = gtk_tree_path_new_from_string(oss.str().c_str());	//Reset to last track
-			}
+				std::istringstream iss(gtk_tree_path_to_string(curpath));
+				int iCurTrack;
+				iss >> iCurTrack;
+				if(iCurTrack > iNumTracks)	//If we've passed how many tracks there are
+				{
+					std::ostringstream oss;
+					oss << iNumTracks;
+					curpath = gtk_tree_path_new_from_string(oss.str().c_str());	//Reset to last track
+				}
 								
-    	play_this_song(model, curpath);
-    	if(!bIsPlaying)
-    		pause_song();
+		  	play_this_song(model, curpath);
+		  	if(!bIsPlaying)
+		  		pause_song();
+    	}
+    	else
+    	{
+    		stop_song();
+    		clean_gui();
+			}
 		}
 
     //Free memory
@@ -761,3 +769,34 @@ void draw_album_art(std::string sFilename)
     pixbuf=gdk_pixbuf_scale_simple(pixbuf, ALBUM_ART_ICON_WIDTH, ALBUM_ART_ICON_HEIGHT, GDK_INTERP_BILINEAR);
     gtk_image_set_from_pixbuf(image, pixbuf);
 }
+
+void clean_gui()
+{
+	draw_album_art("logo.png");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

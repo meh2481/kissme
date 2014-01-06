@@ -86,5 +86,6 @@ void draw_album_art(std::string sFilename); //Draw album art
 void get_current_song();										//Get the current song that's playing
 void play_this_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
 void next_song(bool bLoop = false);	//Play the next song on the playlist
+void clean_gui();										//Clean current-song data from GUI
 
 #endif //GTKMM_EXAMPLEWINDOW_H

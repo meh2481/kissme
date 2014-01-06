@@ -15,4 +15,5 @@ Long-term:
 
 Short-term:
 - Update volume when songs play based on volume control (not just when control is adjusted)
+- Memory leaks. Memory leaks everywhere.
 

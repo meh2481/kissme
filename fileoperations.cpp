@@ -25,7 +25,16 @@ std::deque<std::string> get_files_from_dir_rec(std::string sFolderName, std::set
 {
     ttvfs::StringList lFilenames;
 
-    ttvfs::GetFileListRecursive(sFolderName, lFilenames, true); //TODO: Can hang here for quite a long time. Anything I can do about it?
+	//Recursively get the filenames of all files contained within this folder
+	ttvfs::StringList lFolders;
+	ttvfs::GetDirList(sFolderName.c_str(), lFolders, -1);
+	if(!lFolders.empty())
+	{
+		for(ttvfs::StringList::iterator i = lFolders.begin(); i != lFolders.end(); i++)
+			ttvfs::GetFileList(i->c_str(), lFilenames);
+	}
+
+    //ttvfs::GetFileListRecursive(sFolderName, lFilenames, true); //TODO: Can hang here for quite a long time. Anything I can do about it?
 
     if(!lFileFilters.empty() && !lFilenames.empty())
     {

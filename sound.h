@@ -40,7 +40,7 @@ gboolean    check_music_playing(gpointer data); //Callback for every loop to upd
 //Supported file types
 #define OGG_SUPPORT
 #define OPUS_SUPPORT
-//#define FLAC_SUPPORT
+#define FLAC_SUPPORT
 //#define WAV_SUPPORT
 #define MP3_SUPPORT
 

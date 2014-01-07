@@ -35,4 +35,11 @@ kissme.exe
 *.jpg
 
 # Playlist files
-*.last
+*.kiss
+*.m3u
+*.xml
+*.asx
+*.pls
+*.wpl
+*.xspf
+*.vlc

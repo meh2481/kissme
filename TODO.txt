@@ -8,11 +8,11 @@ Long-term:
 - Save song location on exit to start from exactly the same point
 - Support for common playlist types (See http://en.wikipedia.org/wiki/Playlist#Types_of_playlist_files); import (export?).
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
-- Unicode support
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
 - Progress bar when adding a bajillion files recursively with "Import Folder"
 
 Short-term:
 - Memory leaks. Memory leaks everywhere.
+- Test UTF-8
 

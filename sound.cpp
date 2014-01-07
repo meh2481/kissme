@@ -41,35 +41,35 @@ void load_song(std::string sFilename)
 {
     //Make sure this file format is supported
 #ifndef OGG_SUPPORT
-    if(sFilename.find(".ogg") != std::string::npos)
+    if(sFilename.find(".ogg", sFilename.size() - 4) != std::string::npos)
     {
         std::cout << "Ogg playback not supported at this time" << std::endl;
         return;
     }
 #endif
 #ifndef MP3_SUPPORT
-    if(sFilename.find(".mp3") != std::string::npos)
+    if(sFilename.find(".mp3", sFilename.size() - 4) != std::string::npos)
     {
         std::cout << "MP3 playback not supported at this time" << std::endl;
         return;
     }
 #endif
 #ifndef OPUS_SUPPORT
-    if(sFilename.find(".opus") != std::string::npos)
+    if(sFilename.find(".opus", sFilename.size() - 5) != std::string::npos)
     {
         std::cout << "Opus playback not supported at this time" << std::endl;
         return;
     }
 #endif
 #ifndef FLAC_SUPPORT
-    if(sFilename.find(".flac") != std::string::npos)
+    if(sFilename.find(".flac", sFilename.size() - 5) != std::string::npos)
     {
         std::cout << "Flac playback not supported at this time" << std::endl;
         return;
     }
 #endif
 #ifndef WAV_SUPPORT
-    if(sFilename.find(".wav") != std::string::npos)
+    if(sFilename.find(".wav", sFilename.size() - 4) != std::string::npos)
     {
         std::cout << "Wav playback not supported at this time" << std::endl;
         return;
@@ -207,39 +207,13 @@ float get_song_length(std::string sFilename)
   	return f.audioProperties()->length();
 }
 
-void save_playlist()
-{
-    //For now, just shove all the data out to the file, without caring about format
-    std::ofstream playlistFile("kissme.last");
-    if(playlistFile.fail()) return;
-    std::list<std::string> playlist = get_cur_playlist();
-    for(std::list<std::string>::iterator i = playlist.begin(); i != playlist.end(); i++)
-        playlistFile << *i << std::endl;
-    playlistFile.close();
-}
-
-void load_playlist()
-{
-    std::ifstream playlistFile("kissme.last");
-    while(!playlistFile.fail() && !playlistFile.eof())
-    {
-        std::string s;
-        getline(playlistFile, s);
-        if(s.size())
-        {
-            add_to_playlist(s);
-        }
-    }
-    playlistFile.close();
-}
-
 void set_music_loc(float fPos)
 {
     if(handle != TYRSOUND_NULLHANDLE)
         tyrsound_seek(handle, fPos*tyrsound_getLength(handle));
 }
 
-bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
+bool change_tag(std::string sFilename, tagType tagToChange, gchar *sNewTag)
 {
     #ifndef BOTCHED_TAGGING
     if(sFilename.find(".m4a") != std::string::npos || sFilename.find(".wma") != std::string::npos)
@@ -257,20 +231,21 @@ bool change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag)
     }
 
     std::istringstream iss(sNewTag);
+    TagLib::String utfs(sNewTag, TagLib::String::UTF8);	//Explicitly treat as UTF-8
     int32_t track = 0;
     switch(tagToChange)
     {
         case CHANGE_ARTIST:
-            f.tag()->setArtist(sNewTag);
+            f.tag()->setArtist(utfs);
             break;
         case CHANGE_ALBUM:
-            f.tag()->setAlbum(sNewTag);
+            f.tag()->setAlbum(utfs);
             break;
         case CHANGE_TITLE:
-            f.tag()->setTitle(sNewTag);
+            f.tag()->setTitle(utfs);
             break;
         case CHANGE_TRACK:
-            if(!sNewTag.size()) //Erase tag by clearing it
+            if(!iss.str().size()) //Erase tag by clearing it
             {
                 f.tag()->setTrack(0);
                 break;

@@ -10,6 +10,7 @@
 #include "signalhandler.h"
 #include "sound.h"
 #include "fileoperations.h"
+#include "playlist.h"
 
 #define MAPFILE "map.txt"
 

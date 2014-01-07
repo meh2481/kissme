@@ -23,10 +23,8 @@ void        pause_song();                   //Pauses the currently playing music
 void        rewind_song();                  //Rewinds the currently-playing song to the beginning
 void        setVolume(float fVol);          //Set the current volume (between 0 and 1)
 void        add_to_playlist(std::string sFilename);  //Add this song to the current playlist
-void        save_playlist();                //Save current playlist to file
-void        load_playlist();                //Load the playlist we saved
 void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
-bool        change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag);    //Change the tag in a music file
+bool        change_tag(std::string sFilename, tagType tagToChange, gchar *sNewTag);    //Change the tag in a music file
 float				get_song_length(std::string sFilename);	//Get requested song's length in seconds
 float       get_song_length();							//Return current song length in seconds
 void 				loop_song(bool bLoop);					//Sets whether we should loop this one song indefinitely or not

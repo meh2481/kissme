@@ -662,6 +662,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_action_appearance">False</property>
+                            <signal name="clicked" handler="button_import_clicked" swapped="no"/>
                             <child>
                               <object class="GtkBox" id="box12">
                                 <property name="visible">True</property>

@@ -2,6 +2,7 @@
 #include "sound.h"
 #include "cover.h"
 #include "fileoperations.h"
+#include "playlist.h"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -19,7 +20,7 @@ static std::string g_sCurPlayingSong;  //Filename of song we're currently playin
 //Local functions
 gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
-    set_table_data("treeview2", "Tracks", path, "", 5);
+    set_table_data("treeview2", "Tracks", path, (gchar*)"", 5);
     return false;
 }
 
@@ -497,6 +498,51 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
     }
 }
 
+G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
+{
+	GtkWidget *dialog;
+    dialog = gtk_file_chooser_dialog_new ("Import Playlist",
+                                          GTK_WINDOW(data->main_window),
+                                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          GTK_STOCK_CANCEL,
+                                          GTK_RESPONSE_CANCEL,
+                                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                          NULL);
+
+    GtkFileChooser *filechooser = GTK_FILE_CHOOSER(dialog);
+
+    gtk_file_chooser_set_select_multiple(filechooser, false);
+
+    //Add filters to our file chooser
+    GtkFileFilter* filter = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter, "Playlist Files");
+    std::set<std::string> slFilesSupported = get_playlisttypes_supported();
+    for(std::set<std::string>::iterator i = slFilesSupported.begin(); i != slFilesSupported.end(); i++)
+    {
+        std::string sPattern = "*.";
+        sPattern += *i;
+        gtk_file_filter_add_pattern(filter, sPattern.c_str());
+    }
+    gtk_file_chooser_add_filter(filechooser, filter);
+
+    GtkFileFilter* filter2 = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter2, "All Files");
+    gtk_file_filter_add_pattern(filter2, "*");
+    gtk_file_chooser_add_filter(filechooser, filter2);
+
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+        //Get filename and open
+        std::string sFilename = gtk_file_chooser_get_filename(filechooser);
+        playlist_load(sFilename);
+
+        //Save list in case of crash
+       // save_playlist();
+    }
+
+    gtk_widget_destroy (dialog);
+}
+
 G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data)
 {
     GtkDialog* dialog = GTK_DIALOG(gtk_builder_get_object(builder, "dialog1"));
@@ -555,7 +601,7 @@ void play_this_song(GtkTreeModel *model, GtkTreePath *path)
         //And show play icon
         //TODO: See if better way to do this when we have huge list?
         gtk_tree_model_foreach(model, clear_play_icons, NULL);  //Clear previous play icons (Rather than keeping track of one, which doesn't work on drag/drop)
-        set_table_data("treeview2", "Tracks", path, PLAY_ICON, 5);
+        set_table_data("treeview2", "Tracks", path, (gchar*)PLAY_ICON, 5);
     }
 }
 
@@ -568,7 +614,7 @@ G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, Gt
     play_this_song(model, path);
 }
 
-void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, std::string new_text, gint column)
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, gchar* new_text, gint column)
 {
     //All this just to set the table value? OH COME ON!
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
@@ -576,7 +622,7 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     gtk_tree_model_get_iter(mod, &i, path);
     GValue a = G_VALUE_INIT;
     g_value_init (&a, G_TYPE_STRING);
-    g_value_set_static_string (&a, new_text.c_str());
+    g_value_set_static_string (&a, new_text);
     gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
 }
 
@@ -713,18 +759,18 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     if(track > 0)   //Fill track column if this is a valid track number
         oss << track;
     //Fill in list data
-    set_table_data("treeview2", "Tracks", path, sFilename.c_str(), 0);
-    set_table_data("treeview2", "Tracks", path, sTitle.c_str(), 1);
-    set_table_data("treeview2", "Tracks", path, sArtist.c_str(), 2);
-    set_table_data("treeview2", "Tracks", path, sAlbum.c_str(), 3);
-    set_table_data("treeview2", "Tracks", path, oss.str().c_str(), 6);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sFilename.c_str(), 0);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sTitle.c_str(), 1);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sArtist.c_str(), 2);
+    set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
+    set_table_data("treeview2", "Tracks", path, (gchar*)oss.str().c_str(), 6);
     //Set length
     oss.str("");
     if(fLength > 0.0)
     {
         oss.fill('0');
         oss << (int)floorf(fLength/60.0) << ":" << std::setw(2) << (int)floorf(fLength) % 60;
-        set_table_data("treeview2", "Tracks", path, oss.str(), 4);
+        set_table_data("treeview2", "Tracks", path, (gchar*)oss.str().c_str(), 4);
     }
 
     //Update playlist length

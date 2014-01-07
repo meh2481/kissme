@@ -1,4 +1,4 @@
-OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o
+OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o tinyxml2.o playlist.o
 LIBS = -ltyrsound.dll -logg -lopusfile -L./dep/lib/Win32 -lttvfs  -lOpenAL32.dll -ltag.dll -lssl -lcrypto 
 HEADER = -I./dep/include -I./dep/include/Win32
 

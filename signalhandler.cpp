@@ -534,10 +534,16 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
     {
         //Get filename and open
         std::string sFilename = gtk_file_chooser_get_filename(filechooser);
-        playlist_load(sFilename);
+        std::list<std::string> sFiles = playlist_load(sFilename);
+        
+        //TODO: Load into new playlist
+        for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
+        {
+        	add_to_playlist(*i);
+				}
 
-        //Save list in case of crash
-       // save_playlist();
+        //TODO: Save list in case of crash
+        //save_playlist();
     }
 
     gtk_widget_destroy (dialog);

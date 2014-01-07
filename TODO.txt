@@ -3,7 +3,7 @@ Long-term:
 - Undo/Redo
 - Drag-and-drop support
 - Drag multiple items
-- Support for lots of common media formats: wma, m4a, mp3, flac, opus, wav, etc
+- Support for lots of common media formats: wma, m4a, wav, etc
 - Save layout on exit and return to exactly the same state
 - Save song location on exit to start from exactly the same point
 - Support for common playlist types (See http://en.wikipedia.org/wiki/Playlist#Types_of_playlist_files); import (export?).
@@ -15,4 +15,5 @@ Long-term:
 Short-term:
 - Memory leaks. Memory leaks everywhere.
 - Test UTF-8
+- Convert file:/// links to file paths
 

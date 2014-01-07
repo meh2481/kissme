@@ -14,9 +14,12 @@ std::list<std::string> playlist_load_VLC(std::string sFilename);
 std::list<std::string> playlist_load_iTunes(std::string sFilename);
 std::list<std::string> playlist_load_kissme(std::string sFilename);
 
+void playlist_save_kissme(std::string sFilename, std::list<std::string> sFiles);
+
 std::set<std::string> get_playlisttypes_supported();	//Get the types of playlists we support
 void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
+std::list<std::string>	convert_to_global(std::list<std::string> sFilenames, std::string sPath);	//Convert the list of filenames to be global, rather than relative, paths.
 
 
 

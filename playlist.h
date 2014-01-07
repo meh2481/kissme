@@ -10,7 +10,6 @@ std::list<std::string> playlist_load_ASX(std::string sFilename);
 std::list<std::string> playlist_load_PLS(std::string sFilename);	//dood, pls
 std::list<std::string> playlist_load_WPL(std::string sFilename);
 std::list<std::string> playlist_load_XSPF(std::string sFilename);
-std::list<std::string> playlist_load_VLC(std::string sFilename);
 std::list<std::string> playlist_load_iTunes(std::string sFilename);
 std::list<std::string> playlist_load_kissme(std::string sFilename);
 

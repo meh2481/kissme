@@ -5,13 +5,13 @@
 - Support for lots of common media formats: wma, m4a, wav, etc
 - Save layout on exit and return to exactly the same state
 - Save song location on exit to start from exactly the same point
-- Support for common playlist types (See http://en.wikipedia.org/wiki/Playlist#Types_of_playlist_files); import (export?).
+- Support for exporting common playlist types?
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
 - Progress bar when adding a bajillion files recursively with "Import Folder"
 - Memory leaks. Memory leaks everywhere.
 - Test UTF-8
-- Convert file:/// links to file paths
 - Use playlist data to populate tags, if possible and as needed
+- Update album data in GUI as tags are edited
 

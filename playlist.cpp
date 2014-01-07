@@ -41,7 +41,6 @@ std::set<std::string> get_playlisttypes_supported()
 	sList.insert("pls");
 	sList.insert("wpl");
 	sList.insert("xspf");
-	sList.insert("vlc");
 	sList.insert("xml");
 	sList.insert("kiss");
 	return sList;
@@ -61,8 +60,6 @@ std::list<std::string> playlist_load(std::string sFilename)
 		ret = convert_to_global(playlist_load_WPL(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".xspf", sFilename.size() - 5) != std::string::npos)
 		ret = convert_to_global(playlist_load_XSPF(sFilename), ttvfs::StripLastPath(sFilename));
-	else if(sFilename.find(".vlc", sFilename.size() - 4) != std::string::npos)
-		ret = convert_to_global(playlist_load_VLC(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".xml", sFilename.size() - 4) != std::string::npos)
 		ret = convert_to_global(playlist_load_iTunes(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".kiss", sFilename.size() - 5) != std::string::npos)
@@ -287,18 +284,66 @@ std::list<std::string> playlist_load_XSPF(std::string sFilename)
 	return ret;
 }
 
-std::list<std::string> playlist_load_VLC(std::string sFilename)
-{
-	std::cout << "TODO: vlc support" << std::endl;
-	std::list<std::string> ret;
-	return ret;
-}
-
+//I considered briefly how I would know that a particular .xml file would be in this exact format. I then realized that
+//Apple programmers are the only people stupid enough to actually name an XML-based playlist format with a .xml file
+//extension. Problem avoided.
+//
+//Of course, a user may be that stupid as well, but the resulting playlist would just be blank, so no worries.
 std::list<std::string> playlist_load_iTunes(std::string sFilename)
 {
-	std::cout << "TODO: iTunes support" << std::endl;
 	std::list<std::string> ret;
-	return ret;
+	
+	XMLDocument* doc = new XMLDocument;
+  int iErr = doc->LoadFile(sFilename.c_str());
+  if(iErr != XML_NO_ERROR)
+  {
+		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
+		delete doc;
+		return ret;
+  }
+  
+  //Grab root element
+  XMLElement* root = doc->RootElement();
+  if(root == NULL)
+  {
+		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
+		delete doc;
+		return ret;
+  }
+  
+  //Am I being too harsh about Apple programmers? Oh, wait, what's this? Three nested XML elements, all with the same name? 
+  //Nah, I'm not being too harsh.
+  for(XMLElement* dict = root->FirstChildElement("dict"); dict != NULL; dict = dict->NextSiblingElement("dict"))
+  {
+		for(XMLElement* dict2 = dict->FirstChildElement("dict"); dict2 != NULL; dict2 = dict2->NextSiblingElement("dict"))
+		{
+			for(XMLElement* dict3 = dict2->FirstChildElement("dict"); dict3 != NULL; dict3 = dict3->NextSiblingElement("dict"))
+			{
+				//Now we have to dig through a bajillion "key"s here to get the location...
+				for(XMLElement* key = dict3->FirstChildElement("key"); key != NULL; key = key->NextSiblingElement("key"))
+				{
+					const char* name = key->GetText();
+					if(name != NULL && std::string(name) == "Location")	//Key with name "Location" should have the path next
+					{
+						//Found the right thing; next XML element should be "string" with the actual location
+						//(Seriously, have they heard of XML attributes?)
+						XMLElement* string = key->NextSiblingElement("string");
+						if(string != NULL)
+						{
+							const char* cPath = string->GetText();
+							if(cPath != NULL)
+							{
+								ret.push_back(cPath);
+								break;	//Stop searching through this lowest-level dict
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return ret;	//Worst. XML format. Ever.
 }
 
 std::list<std::string> playlist_load_kissme(std::string sFilename)

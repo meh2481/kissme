@@ -14,7 +14,5 @@ Long-term:
 - Progress bar when adding a bajillion files recursively with "Import Folder"
 
 Short-term:
-- Update volume when songs play based on volume control (not just when control is adjusted)
 - Memory leaks. Memory leaks everywhere.
-- Update total time also when songs deleted
 

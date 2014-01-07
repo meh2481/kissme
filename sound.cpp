@@ -10,6 +10,7 @@
 tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
 extern int      iRepeatMode;
 extern bool bPaused;
+static float g_fVolume = 1.0f;
 std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
 
 void init_sound()
@@ -95,7 +96,7 @@ void load_song(std::string sFilename)
         return;
     }
 
-
+		tyrsound_setVolume(handle, g_fVolume);
     tyrsound_Error err = tyrsound_play(handle);
 
     if(err != TYRSOUND_ERR_OK)
@@ -165,6 +166,7 @@ void stop_song()
 
 void setVolume(float fVol)
 {
+		g_fVolume = fVol;
     tyrsound_setVolume(handle, fVol);
 }
 
@@ -195,6 +197,14 @@ void add_to_playlist(std::string sFilename)
     //Write this all to the proper location in the table
     add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, f.audioProperties()->length());
     g_lCurPlaylist.push_back(sFilename);
+}
+
+float get_song_length(std::string sFilename)
+{
+	float ret = 0.0f;
+	TagLib::FileRef f(sFilename.c_str());
+  if(!f.isNull())
+  	return f.audioProperties()->length();
 }
 
 void save_playlist()

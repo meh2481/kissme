@@ -27,7 +27,8 @@ void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
 void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
 bool        change_tag(std::string sFilename, tagType tagToChange, std::string sNewTag);    //Change the tag in a music file
-float       get_song_length();							//Return song length in seconds
+float				get_song_length(std::string sFilename);	//Get requested song's length in seconds
+float       get_song_length();							//Return current song length in seconds
 void 				loop_song(bool bLoop);					//Sets whether we should loop this one song indefinitely or not
 void 				stop_song();										//Stop playing the current song
 bool 				song_is_valid();								//See if our current song handle is valid

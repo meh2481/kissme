@@ -12,9 +12,9 @@
 extern GtkBuilder *builder;
 bool bPaused = true;
 int iRepeatMode = REPEAT_NONE;
-float g_fTotalPlaylistLength = 0.0;
-std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
-std::string g_sCurPlayingSong;  //Filename of song we're currently playing
+static float g_fTotalPlaylistLength = 0.0;
+static std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
+static std::string g_sCurPlayingSong;  //Filename of song we're currently playing
 
 //Local functions
 gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
@@ -185,11 +185,21 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
         		//Remove this song
             GtkTreeIter iter;
             if(gtk_tree_model_get_iter(model, &iter, path))
-                gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
+            {
+            	//Get how long this song was, and subtract that from our total length
+            	gchar *name;
+        			gtk_tree_model_get(model, &iter, 0, &name, -1);
+						  if(name != NULL)
+						  	g_fTotalPlaylistLength -= get_song_length(name);
+            	
+            	//Remove this item from list
+            	gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")), &iter);
+            }
             gtk_tree_path_free(path);
         }
         gtk_tree_row_reference_free(*i);
     }
+		update_playlist_time();	//Update our little counter to show correct total playlist time
     
     //If we deleted the song we're playing, play the next song we should
     if(bHit)

@@ -1,6 +1,7 @@
 #include "sound.h"
 #include "signalhandler.h"
 #include "cover.h"
+#include "playlist.h"
 #include <iostream>
 #include <list>
 #include <fstream>
@@ -180,7 +181,6 @@ void loop_song(bool bLoop)
 
 void add_to_playlist(std::string sFilename)
 {
-		//TODO: Convert sFilename if it's in URL (file:///) format
     //Get data for song
     //ID3_Tag mp3Tag(sFilename.c_str());
     TagLib::FileRef f(sFilename.c_str());

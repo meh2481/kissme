@@ -1,4 +1,3 @@
-Long-term:
 - Clipboard support
 - Undo/Redo
 - Drag-and-drop support
@@ -11,9 +10,8 @@ Long-term:
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
 - Progress bar when adding a bajillion files recursively with "Import Folder"
-
-Short-term:
 - Memory leaks. Memory leaks everywhere.
 - Test UTF-8
 - Convert file:/// links to file paths
+- Use playlist data to populate tags, if possible and as needed
 

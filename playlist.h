@@ -20,7 +20,7 @@ std::set<std::string> get_playlisttypes_supported();	//Get the types of playlist
 void        save_playlist();                //Save current playlist to file
 void        load_playlist();                //Load the playlist we saved
 std::list<std::string>	convert_to_global(std::list<std::string> sFilenames, std::string sPath);	//Convert the list of filenames to be global, rather than relative, paths.
-
+std::string convert_to_path(std::string sURI);	//Convert a file:/// URI to an actual system path
 
 
 

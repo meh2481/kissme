@@ -171,6 +171,7 @@
     <property name="icon">logo.png</property>
     <property name="has_resize_grip">False</property>
     <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
+    <signal name="key-press-event" handler="key_pressed" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
         <property name="visible">True</property>

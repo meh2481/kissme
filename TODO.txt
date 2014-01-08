@@ -14,4 +14,4 @@
 - Test UTF-8
 - Use playlist data to populate tags, if possible and as needed
 - Update album data in GUI as tags are edited
-
+- Organize library by artist, song, album, etc

@@ -132,6 +132,17 @@ G_MODULE_EXPORT void button_addfolder_clicked(GtkButton *button, ChData *data)
     gtk_widget_destroy (dialog);
 }
 
+G_MODULE_EXPORT gboolean key_pressed(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	if(event->key.keyval == GDK_KEY_KP_Delete || event->key.keyval == GDK_KEY_Delete)
+	{
+		button_removesongs_clicked(NULL, NULL);
+		return true;
+	}
+
+	return false;
+} 
+
 G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
 {
     //TODO See if currently-playing song has been deleted, and stop playing it if so
@@ -227,6 +238,16 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
     	{
     		stop_song();
     		clean_gui();
+			}
+		}
+		
+		//Select current song
+    if(curpath != NULL)
+    {
+    	GtkTreeSelection* sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
+    	if(sel != NULL)
+    	{
+    		gtk_tree_selection_select_path(sel, curpath);
 			}
 		}
 

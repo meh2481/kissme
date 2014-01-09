@@ -90,7 +90,7 @@ G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
         g_slist_free(filenames);
 
         //Save list in case of crash
-        save_playlist();
+        save();
     }
 
     gtk_widget_destroy (dialog);
@@ -126,7 +126,7 @@ G_MODULE_EXPORT void button_addfolder_clicked(GtkButton *button, ChData *data)
         g_slist_free(filenames);
 
         //Save list in case of crash
-        save_playlist();
+        save();
     }
 
     gtk_widget_destroy (dialog);
@@ -241,20 +241,18 @@ G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
 			}
 		}
 		
-		//Select current song
+		//Select new current song
     if(curpath != NULL)
     {
     	GtkTreeSelection* sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
     	if(sel != NULL)
-    	{
     		gtk_tree_selection_select_path(sel, curpath);
-			}
 		}
 
     //Free memory
     g_list_free_full(selected, (GDestroyNotify) gtk_tree_path_free);
 
-    save_playlist(); //Update our changes
+    save(); //Update our changes
 }
 
 G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
@@ -514,6 +512,15 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
                 g_value_init (&a, G_TYPE_STRING);
                 g_value_set_static_string (&a, text);
                 gtk_list_store_set_value(playlists, &iter, 0, &a);
+                
+                //Highlight this newly-created playlist
+                GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
+                GtkTreePath* path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
+                gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
+                gtk_tree_path_free(path);
+                
+                //Create new playlist
+                playlist_play(text);
             }
         }
     }
@@ -557,17 +564,36 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
         std::string sFilename = gtk_file_chooser_get_filename(filechooser);
         std::list<std::string> sFiles = playlist_load(sFilename);
         
-        //TODO: Load into new playlist
-        for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
-        {
-        	add_to_playlist(*i);
-				}
+        std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(sFilename.c_str()));	//Name of our new playlist 
+        
+        //Add playlist to our manager
+        playlist_add(sListName, sFiles);
+        
+        //Add new playlist to our view
+        GtkTreeIter iter;
+        GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
+        gtk_list_store_append(playlists, &iter);
+        GValue a = G_VALUE_INIT;
+        g_value_init (&a, G_TYPE_STRING);
+        g_value_set_static_string (&a, sListName.c_str());
+        gtk_list_store_set_value(playlists, &iter, 0, &a);
 
-        //TODO: Save list in case of crash
-        //save_playlist();
+				//Highlight this new list
+        GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
+        GtkTreePath* path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
+        gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
+        gtk_tree_path_free(path);
+				
+        //Save list in case of crash
+        save();
     }
 
     gtk_widget_destroy (dialog);
+}
+
+G_MODULE_EXPORT void button_deleteplaylist_clicked(GtkButton *button, ChData *data)
+{
+	
 }
 
 G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data)
@@ -744,9 +770,28 @@ void update_play_slider(float fPos, float fLen)
 void update_playlist_time()
 {
     int iNumSongs = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks")), NULL);
-    int iMinutes = (int)floorf(g_fTotalPlaylistLength/60.0);
+    int iMinutes = (int)floorf(g_fTotalPlaylistLength/60.0) % 60;
+    int iHours = (int)floorf(g_fTotalPlaylistLength/3600.0) % 24;
+    int iDays = (int)floorf(g_fTotalPlaylistLength/86400.0);
     std::ostringstream oss;
-    oss << iNumSongs << " songs, " << iMinutes << " total minutes";
+    if(iNumSongs == 1)
+    	oss << "1 song - ";
+    else
+    	oss << iNumSongs << " songs - ";
+    if(iDays == 1)
+    	oss << "1 day, ";
+    else if(iDays)
+    	oss << iDays << " days, ";
+    if(iHours == 1)
+    	oss << "1 hour, ";
+    else if(iHours)
+    	oss << iHours << " hours, ";
+    if(iMinutes == 1)
+    	oss << "1 minute, ";
+    else if(iMinutes)
+    	oss << iMinutes << " minutes";
+    if(g_fTotalPlaylistLength < 60.0)
+    	oss << (int)floorf(g_fTotalPlaylistLength) << " seconds";
     gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playlisttime")), oss.str().c_str());
 }
 
@@ -858,9 +903,34 @@ void clean_gui()
 	draw_album_art("logo.png");
 }
 
+static std::string sCurPlaylist = "";
+G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data)
+{
+	//Find selection
+	GtkTreeIter iter;
+	GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Playlists"));
+	if(gtk_tree_selection_get_selected(treeselection, &tree_model, &iter))
+	{
+		GValue value = G_VALUE_INIT;
+    gtk_tree_model_get_value(tree_model, &iter, 0, &value);
+    const gchar* text = g_value_get_string(&value);
+    if(text != NULL)
+    {
+    	//The "changed" signal can be emitted at any time, so make sure we aren't switching to the same playlist we're already in
+    	if(sCurPlaylist == text)
+    		return;
+    	playlist_play(text);
+    	sCurPlaylist = text;
+    }
+    g_value_unset(&value);
+	}
+}
 
-
-
+void clear_now_playing()
+{
+	gtk_list_store_clear(GTK_LIST_STORE(gtk_builder_get_object(builder, "Tracks")));
+	g_fTotalPlaylistLength = 0;	//Reset total time counter
+}
 
 
 

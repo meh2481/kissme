@@ -27,11 +27,6 @@
       <!-- column-name Playlist -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Library</col>
-      </row>
-    </data>
   </object>
   <object class="GtkListStore" id="Tracks">
     <columns>
@@ -580,7 +575,10 @@
                             <property name="can_focus">True</property>
                             <property name="model">Playlists</property>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="selectedplaylists"/>
+                              <object class="GtkTreeSelection" id="selectedplaylists">
+                                <property name="mode">browse</property>
+                                <signal name="changed" handler="playlist_selected" swapped="no"/>
+                              </object>
                             </child>
                             <child>
                               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
@@ -709,6 +707,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_action_appearance">False</property>
+                            <signal name="clicked" handler="button_deleteplaylist_clicked" swapped="no"/>
                             <child>
                               <object class="GtkHBox" id="hbox1">
                                 <property name="visible">True</property>

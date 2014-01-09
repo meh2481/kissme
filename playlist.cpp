@@ -4,8 +4,12 @@
 #include "tinyxml2.h"
 #include <fstream>
 #include <VFSTools.h>
+#include <VFSSystemPaths.h>
 #include <sstream>
-using namespace tinyxml2;
+#include <map>
+
+extern GtkBuilder *builder;
+static std::map<std::string, std::list<std::string> > g_mPlaylists;
 
 std::string stripcarriageret(std::string s) //For some reason, some files contain carriage returns, and Linux doesn't like them.
 {
@@ -97,9 +101,9 @@ std::list<std::string> playlist_load_ASX(std::string sFilename)
 {
 	std::list<std::string> ret;
 	
-  XMLDocument* doc = new XMLDocument;
+  tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
   int iErr = doc->LoadFile(sFilename.c_str());
-  if(iErr != XML_NO_ERROR)
+  if(iErr != tinyxml2::XML_NO_ERROR)
   {
 		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
 		delete doc;
@@ -107,7 +111,7 @@ std::list<std::string> playlist_load_ASX(std::string sFilename)
   }
   
   //Grab root element
-  XMLElement* root = doc->RootElement();
+  tinyxml2::XMLElement* root = doc->RootElement();
   if(root == NULL)
   {
 		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
@@ -116,9 +120,9 @@ std::list<std::string> playlist_load_ASX(std::string sFilename)
   }
   
   //Read entries
-  for(XMLElement* entry = root->FirstChildElement("entry"); entry != NULL; entry = entry->NextSiblingElement("entry"))
+  for(tinyxml2::XMLElement* entry = root->FirstChildElement("entry"); entry != NULL; entry = entry->NextSiblingElement("entry"))
   {
-  	XMLElement* ref = entry->FirstChildElement("ref");
+  	tinyxml2::XMLElement* ref = entry->FirstChildElement("ref");
   	if(ref != NULL)
   	{
   		const char* href = ref->Attribute("href");
@@ -207,9 +211,9 @@ std::list<std::string> playlist_load_WPL(std::string sFilename)
 {
 	std::list<std::string> ret;
 	
-	XMLDocument* doc = new XMLDocument;
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
   int iErr = doc->LoadFile(sFilename.c_str());
-  if(iErr != XML_NO_ERROR)
+  if(iErr != tinyxml2::XML_NO_ERROR)
   {
 		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
 		delete doc;
@@ -217,7 +221,7 @@ std::list<std::string> playlist_load_WPL(std::string sFilename)
   }
   
   //Grab root element
-  XMLElement* root = doc->RootElement();
+  tinyxml2::XMLElement* root = doc->RootElement();
   if(root == NULL)
   {
 		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
@@ -226,11 +230,11 @@ std::list<std::string> playlist_load_WPL(std::string sFilename)
   }
   
   //Read entries
-  for(XMLElement* body = root->FirstChildElement("body"); body != NULL; body = body->NextSiblingElement("body"))
+  for(tinyxml2::XMLElement* body = root->FirstChildElement("body"); body != NULL; body = body->NextSiblingElement("body"))
   {
-  	for(XMLElement* seq = body->FirstChildElement("seq"); seq != NULL; seq = seq->NextSiblingElement("seq"))
+  	for(tinyxml2::XMLElement* seq = body->FirstChildElement("seq"); seq != NULL; seq = seq->NextSiblingElement("seq"))
   	{
-  		for(XMLElement* media = seq->FirstChildElement("media"); media != NULL; media = media->NextSiblingElement("media"))
+  		for(tinyxml2::XMLElement* media = seq->FirstChildElement("media"); media != NULL; media = media->NextSiblingElement("media"))
   		{
 				const char* src = media->Attribute("src");
 				if(src != NULL)
@@ -246,9 +250,9 @@ std::list<std::string> playlist_load_XSPF(std::string sFilename)
 {
 	std::list<std::string> ret;
 	
-	XMLDocument* doc = new XMLDocument;
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
   int iErr = doc->LoadFile(sFilename.c_str());
-  if(iErr != XML_NO_ERROR)
+  if(iErr != tinyxml2::XML_NO_ERROR)
   {
 		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
 		delete doc;
@@ -256,7 +260,7 @@ std::list<std::string> playlist_load_XSPF(std::string sFilename)
   }
   
   //Grab root element
-  XMLElement* root = doc->RootElement();
+  tinyxml2::XMLElement* root = doc->RootElement();
   if(root == NULL)
   {
 		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
@@ -265,11 +269,11 @@ std::list<std::string> playlist_load_XSPF(std::string sFilename)
   }
   
   //Read entries
-  for(XMLElement* tracklist = root->FirstChildElement("trackList"); tracklist != NULL; tracklist = tracklist->NextSiblingElement("trackList"))
+  for(tinyxml2::XMLElement* tracklist = root->FirstChildElement("trackList"); tracklist != NULL; tracklist = tracklist->NextSiblingElement("trackList"))
   {
-  	for(XMLElement* track = tracklist->FirstChildElement("track"); track != NULL; track = track->NextSiblingElement("track"))
+  	for(tinyxml2::XMLElement* track = tracklist->FirstChildElement("track"); track != NULL; track = track->NextSiblingElement("track"))
   	{
-  		XMLElement* location = track->FirstChildElement("location");
+  		tinyxml2::XMLElement* location = track->FirstChildElement("location");
   		if(location != NULL)
   		{
 				const char* src = location->GetText();
@@ -293,9 +297,9 @@ std::list<std::string> playlist_load_iTunes(std::string sFilename)
 {
 	std::list<std::string> ret;
 	
-	XMLDocument* doc = new XMLDocument;
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
   int iErr = doc->LoadFile(sFilename.c_str());
-  if(iErr != XML_NO_ERROR)
+  if(iErr != tinyxml2::XML_NO_ERROR)
   {
 		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
 		delete doc;
@@ -303,7 +307,7 @@ std::list<std::string> playlist_load_iTunes(std::string sFilename)
   }
   
   //Grab root element
-  XMLElement* root = doc->RootElement();
+  tinyxml2::XMLElement* root = doc->RootElement();
   if(root == NULL)
   {
 		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
@@ -313,21 +317,21 @@ std::list<std::string> playlist_load_iTunes(std::string sFilename)
   
   //Am I being too harsh about Apple programmers? Oh, wait, what's this? Three nested XML elements, all with the same name? 
   //Nah, I'm not being too harsh.
-  for(XMLElement* dict = root->FirstChildElement("dict"); dict != NULL; dict = dict->NextSiblingElement("dict"))
+  for(tinyxml2::XMLElement* dict = root->FirstChildElement("dict"); dict != NULL; dict = dict->NextSiblingElement("dict"))
   {
-		for(XMLElement* dict2 = dict->FirstChildElement("dict"); dict2 != NULL; dict2 = dict2->NextSiblingElement("dict"))
+		for(tinyxml2::XMLElement* dict2 = dict->FirstChildElement("dict"); dict2 != NULL; dict2 = dict2->NextSiblingElement("dict"))
 		{
-			for(XMLElement* dict3 = dict2->FirstChildElement("dict"); dict3 != NULL; dict3 = dict3->NextSiblingElement("dict"))
+			for(tinyxml2::XMLElement* dict3 = dict2->FirstChildElement("dict"); dict3 != NULL; dict3 = dict3->NextSiblingElement("dict"))
 			{
 				//Now we have to dig through a bajillion "key"s here to get the location...
-				for(XMLElement* key = dict3->FirstChildElement("key"); key != NULL; key = key->NextSiblingElement("key"))
+				for(tinyxml2::XMLElement* key = dict3->FirstChildElement("key"); key != NULL; key = key->NextSiblingElement("key"))
 				{
 					const char* name = key->GetText();
 					if(name != NULL && std::string(name) == "Location")	//Key with name "Location" should have the path next
 					{
 						//Found the right thing; next XML element should be "string" with the actual location
 						//(Seriously, have they heard of XML attributes?)
-						XMLElement* string = key->NextSiblingElement("string");
+						tinyxml2::XMLElement* string = key->NextSiblingElement("string");
 						if(string != NULL)
 						{
 							const char* cPath = string->GetText();
@@ -365,6 +369,7 @@ std::list<std::string> playlist_load_kissme(std::string sFilename)
 
 void playlist_save_kissme(std::string sFilename, std::list<std::string> sFiles)
 {
+	ttvfs::CreateDirRec(ttvfs::StripLastPath(sFilename).c_str());
 	std::ofstream playlistFile(sFilename.c_str());
   if(playlistFile.fail()) return;
   for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
@@ -372,17 +377,29 @@ void playlist_save_kissme(std::string sFilename, std::list<std::string> sFiles)
   playlistFile.close();
 }
 
-void save_playlist()
+void playlist_save_M3U(std::string sFilename, std::list<std::string> sFiles)
 {
-    std::list<std::string> playlist = get_cur_playlist();
-    playlist_save_kissme("last.kiss", playlist);
+	//TODO
 }
 
-void load_playlist()
+void save_config()
 {
-		std::list<std::string> sFiles = playlist_load_kissme("last.kiss");
-    for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
-    	add_to_playlist(*i);
+	//TODO
+		
+		
+		
+    //std::list<std::string> playlist = get_cur_playlist();
+    //playlist_save_kissme("last.kiss", playlist);
+}
+
+void load_config()
+{
+	//TODO		
+		
+		
+	//	std::list<std::string> sFiles = playlist_load_kissme("last.kiss");
+  //  for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
+  //  	add_to_playlist(*i);
 }
 
 std::list<std::string> convert_to_global(std::list<std::string> sFilenames, std::string sPath)
@@ -423,13 +440,47 @@ std::string convert_to_path(std::string sURI)
 	return sURI;
 }
 
+void playlist_play(std::string sName)
+{
+	clear_now_playing();
+	std::list<std::string> sList = g_mPlaylists[sName];
+	for(std::list<std::string>::iterator i = sList.begin(); i != sList.end(); i++)
+  	add_to_playlist(*i);
+  update_playlist_time();
+}
 
+void playlist_add(std::string sName, std::list<std::string> sSongs)
+{
+	g_mPlaylists[sName] = sSongs;
+}
 
+void save()
+{
+	save_config();
+	save_cur_playlist();
+}
 
-
-
-
-
+void save_cur_playlist()
+{
+	std::list<std::string> playlist = get_cur_playlist();
+	
+	//Get current playlist name
+	std::string sName = ttvfs::GetAppDir("kissme") + "/last";
+	//Find selection
+	GtkTreeIter iter;
+	GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Playlists"));
+	if(gtk_tree_selection_get_selected(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedplaylists")), &tree_model, &iter))
+	{
+		GValue value = G_VALUE_INIT;
+    gtk_tree_model_get_value(tree_model, &iter, 0, &value);
+    const gchar* text = g_value_get_string(&value);
+    if(text != NULL)
+    	sName = ttvfs::GetAppDir("kissme") + "/" + text;
+    g_value_unset(&value);
+  }
+	sName += ".kiss";
+  playlist_save_kissme(sName, playlist);
+}
 
 
 

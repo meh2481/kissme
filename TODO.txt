@@ -7,6 +7,7 @@
 - Save song location on exit to start from exactly the same point
 - Support for exporting common playlist types?
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
+- Replay Gain? http://en.wikipedia.org/wiki/ReplayGain
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Save last window size on startup
 - Progress bar when adding a bajillion files recursively with "Import Folder"
@@ -15,3 +16,15 @@
 - Use playlist data to populate tags, if possible and as needed
 - Update album data in GUI as tags are edited
 - Organize library by artist, song, album, etc
+- Play songs passed via commandline above all else
+- Make sure two playlists don't have the same name
+- Add library pane
+	- Artists
+	- Songs
+	- Albums
+- Search feature
+- Highlight imported playlist on import
+- Highlight first playlist on load
+- Highlight created playlist on creation
+- Keep track of which song is playing on which playlist, so playing can continue even while you edit other playlists
+	- note: Shuffle button shuffles currently-viewing playlist, not currently-playing one

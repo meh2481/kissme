@@ -66,13 +66,13 @@ int main(int argc, char **argv)
     init_signal_handler();
 
     //Load our last playlist
-    load_playlist();
+    load_config();
 
     // Start main loop
     gtk_main();
 
     //Save playlist and exit
-    save_playlist();
+    save();
     cleanup_sound();
 
     return( 0 );

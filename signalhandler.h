@@ -56,6 +56,7 @@ extern "C"
     //Playlist pane buttons
     G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data);
+    G_MODULE_EXPORT void button_deleteplaylist_clicked(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data);
     G_MODULE_EXPORT void newplaylist_cancel(GtkButton *button, ChData *data);
 
@@ -64,6 +65,7 @@ extern "C"
 
     //Playlist pane control
     G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data);
+    G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data);
 
     //Called whenever a data field in the playlist is edited
     G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);
@@ -95,5 +97,6 @@ void draw_album_art(std::string sFilename); //Draw album art
 void play_this_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
 void next_song(bool bLoop = false);	//Play the next song on the playlist
 void clean_gui();										//Clean current-song data from GUI
+void clear_now_playing();			//Empties out the right "now playing" pane
 
 #endif //GTKMM_EXAMPLEWINDOW_H

@@ -172,6 +172,11 @@ void setVolume(float fVol)
     tyrsound_setVolume(handle, fVol);
 }
 
+float getVolume()
+{
+	return g_fVolume;
+}
+
 void loop_song(bool bLoop)
 {
 	if(bLoop)

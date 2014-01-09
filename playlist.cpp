@@ -429,6 +429,11 @@ void save_config()
   window->SetAttribute("posy", root_y);
   window->SetAttribute("width", width);
   window->SetAttribute("height", height);
+  
+  //Save audio data stuff
+  tinyxml2::XMLElement* audio = doc->NewElement("audio");
+  root->InsertEndChild(audio);
+  audio->SetAttribute("volume", getVolume());
 	
 	//Done
 	doc->SaveFile(sConfigFilename.c_str());
@@ -478,6 +483,18 @@ void load_config()	//Silently fail here if config isn't here already
 				 window->QueryIntAttribute("height", &height) == tinyxml2::XML_NO_ERROR)
 				gtk_window_resize(w, width, height);
   	}
+	}
+	
+	//Load audio config
+	tinyxml2::XMLElement* audio = root->FirstChildElement("audio");
+	if(audio != NULL)
+	{
+		//volume
+		float fVolume = 1.0;
+		audio->QueryFloatAttribute("volume", &fVolume);
+		setVolume(fVolume);
+		//Update GUI to reflect this
+		gtk_scale_button_set_value(GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "volumebutton1")), fVolume);
 	}
 	
 	delete doc;

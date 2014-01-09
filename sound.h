@@ -22,6 +22,7 @@ void        play_song();                    //Starts playing the last song loade
 void        pause_song();                   //Pauses the currently playing music
 void        rewind_song();                  //Rewinds the currently-playing song to the beginning
 void        setVolume(float fVol);          //Set the current volume (between 0 and 1)
+float       getVolume();										//Get the current volume
 void        add_to_playlist(std::string sFilename);  //Add this song to the current playlist
 void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
 bool        change_tag(std::string sFilename, tagType tagToChange, gchar *sNewTag);    //Change the tag in a music file

@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <set>
+#include <gtk/gtk.h>
 
 std::list<std::string> playlist_load(std::string sFilename);			//Calls the appropriate function of the following:
 std::list<std::string> playlist_load_M3U(std::string sFilename);
@@ -26,7 +27,10 @@ void playlist_play(std::string sName);	//Show this playlist in the right pane
 void playlist_add(std::string sName, std::list<std::string> sSongs);	//Add this playlist to our playlist manager
 
 void save();	//Save both config and current playlist
-void save_cur_playlist();
+void load();	//Load both config and playlists
+void load_playlists();		//Load all playlists in user dir
+gboolean save_cur_playlist(gpointer data);	//Save the currently-viewing playlist
+void save_cur_playlist(std::string sName);	//Save the currently-viewing list under this name
 
 
 

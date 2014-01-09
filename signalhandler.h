@@ -86,6 +86,7 @@ extern "C"
 		//Misc handlers
 		G_MODULE_EXPORT gboolean window_changed(GtkWidget *widget, GdkEvent *event, gpointer user_data);
 		G_MODULE_EXPORT gboolean check_window_pos(gpointer data);
+		G_MODULE_EXPORT void mainwindow_hidden(GtkWidget *widget, gpointer user_data);
 }
 
 //Helper functions

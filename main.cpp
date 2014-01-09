@@ -57,8 +57,10 @@ int main(int argc, char **argv)
 
     // Every 10 ms, update tyrsound
     g_timeout_add(10, check_music_playing, data);
-    // Every half-second, check window pos
+    // Every half-second, check window pos (because GTK doesn't let us do this after someone clicks the X button)
 		g_timeout_add(500, check_window_pos, data);
+		// Every 5 minutes, autosave current playlist
+		g_timeout_add(300000, save_cur_playlist, data);
 
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );
@@ -72,7 +74,7 @@ int main(int argc, char **argv)
     	ttvfs::CreateDirRec(sUserDir);
 
     //Load our config
-    load_config();
+    load();
 
     // Start main loop
     gtk_main();

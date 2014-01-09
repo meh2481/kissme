@@ -527,7 +527,7 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
 }
 
 G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
-{
+{	
 	GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new ("Import Playlist",
                                           GTK_WINDOW(data->main_window),
@@ -583,9 +583,6 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
         GtkTreePath* path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
         gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
         gtk_tree_path_free(path);
-				
-        //Save list in case of crash
-        save();
     }
 
     gtk_widget_destroy (dialog);
@@ -774,24 +771,35 @@ void update_playlist_time()
     int iHours = (int)floorf(g_fTotalPlaylistLength/3600.0) % 24;
     int iDays = (int)floorf(g_fTotalPlaylistLength/86400.0);
     std::ostringstream oss;
-    if(iNumSongs == 1)
-    	oss << "1 song - ";
-    else
-    	oss << iNumSongs << " songs - ";
-    if(iDays == 1)
-    	oss << "1 day, ";
-    else if(iDays)
-    	oss << iDays << " days, ";
-    if(iHours == 1)
-    	oss << "1 hour, ";
-    else if(iHours)
-    	oss << iHours << " hours, ";
-    if(iMinutes == 1)
-    	oss << "1 minute, ";
-    else if(iMinutes)
-    	oss << iMinutes << " minutes";
+    oss << iNumSongs << " song";
+    if(iNumSongs != 1)
+    	oss << 's';
+    oss << " - ";
+    if(iDays)
+    {
+    	oss << iDays << " day";
+    	if(iDays != 1)
+    		oss << 's';
+		}
+		if(iHours)
+		{
+			if(iDays)
+				oss << ", ";
+			oss << iHours << " hour";
+			if(iHours != 1)
+				oss << 's';
+		}
+		if(iMinutes)
+		{
+			if(iHours || iDays)
+				oss << ", ";
+			oss << iMinutes << " minute";
+			if(iMinutes != 1)
+				oss << 's';
+		}
     if(g_fTotalPlaylistLength < 60.0)
     	oss << (int)floorf(g_fTotalPlaylistLength) << " seconds";
+    
     gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playlisttime")), oss.str().c_str());
 }
 
@@ -906,6 +914,10 @@ void clean_gui()
 static std::string sCurPlaylist = "";
 G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data)
 {
+	//Save old playlist
+	save_cur_playlist(sCurPlaylist);
+	save_config();
+	
 	//Find selection
 	GtkTreeIter iter;
 	GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Playlists"));
@@ -971,7 +983,10 @@ gboolean check_window_pos(gpointer data)
 	return true;
 }
 
-
+G_MODULE_EXPORT void mainwindow_hidden(GtkWidget *widget, gpointer user_data)
+{
+	save();		//Because playlist
+}
 
 
 

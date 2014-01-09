@@ -440,7 +440,7 @@ void save_config()
   delete doc;
 }
 
-void load_config()	//Silently fail here if config isn't here already
+void load_config()	//Silently fail if config isn't here already
 {
 	std::string sConfigFilename = ttvfs::GetAppDir("kissme") + "/kissme.last";
 	
@@ -500,6 +500,34 @@ void load_config()	//Silently fail here if config isn't here already
 	delete doc;
 }
 
+//Load all playlists in user dir
+void load_playlists()
+{
+	ttvfs::StringList lFiles;
+	ttvfs::GetFileList(ttvfs::GetAppDir("kissme").c_str(), lFiles);
+	
+	//Loop through all files in user dir (where we keep playlists)
+	for(ttvfs::StringList::iterator i = lFiles.begin(); i != lFiles.end(); i++)
+	{
+		if(i->find(".kiss", i->size() - 5) != std::string::npos)	//Playlist file
+		{
+			std::list<std::string> sFiles = playlist_load_kissme(ttvfs::GetAppDir("kissme") + "/" + *i);
+			std::string sListName = ttvfs::StripFileExtension(*i);
+			//Add playlist to our manager
+      playlist_add(sListName, sFiles);
+      
+      //Add new playlist to our view
+      GtkTreeIter iter;
+      GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
+      gtk_list_store_append(playlists, &iter);
+      GValue a = G_VALUE_INIT;
+      g_value_init (&a, G_TYPE_STRING);
+      g_value_set_static_string (&a, sListName.c_str());
+      gtk_list_store_set_value(playlists, &iter, 0, &a);
+		}
+	}
+}
+
 std::list<std::string> convert_to_global(std::list<std::string> sFilenames, std::string sPath)
 {
 	std::list<std::string> ret;
@@ -555,15 +583,22 @@ void playlist_add(std::string sName, std::list<std::string> sSongs)
 void save()
 {
 	save_config();
-	save_cur_playlist();
+	save_cur_playlist(NULL);
 }
 
-void save_cur_playlist()
+void load()
+{
+	load_playlists();
+	load_config();
+}
+
+gboolean save_cur_playlist(gpointer data)
 {
 	std::list<std::string> playlist = get_cur_playlist();
 	
-	//Get current playlist name
+	//Get current playlist filename
 	std::string sName = ttvfs::GetAppDir("kissme") + "/last";
+	std::string sPaneName = "last";
 	//Find selection
 	GtkTreeIter iter;
 	GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Playlists"));
@@ -573,14 +608,40 @@ void save_cur_playlist()
     gtk_tree_model_get_value(tree_model, &iter, 0, &value);
     const gchar* text = g_value_get_string(&value);
     if(text != NULL)
+    {
     	sName = ttvfs::GetAppDir("kissme") + "/" + text;
+    	sPaneName = text;
+    }
     g_value_unset(&value);
   }
 	sName += ".kiss";
+	
+	if(sPaneName == "last" && !playlist.size()) return true;	//Skip empty "last.kiss" files
+	
+	//Update our internal list
+	g_mPlaylists[sPaneName] = playlist;
+	
+	//Save the playlist
   playlist_save_kissme(sName, playlist);
+  
+  return true;
 }
 
-
+void save_cur_playlist(std::string sName)
+{
+	if(!sName.size()) return;
+	
+	std::list<std::string> playlist = get_cur_playlist();
+	
+	//Get current playlist filename
+	std::string sFileName = ttvfs::GetAppDir("kissme") + "/" + sName + ".kiss";
+	
+	//Update our internal list
+	g_mPlaylists[sName] = playlist;
+	
+	//Save the playlist
+  playlist_save_kissme(sFileName, playlist);
+}
 
 
 

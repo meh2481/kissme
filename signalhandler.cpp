@@ -861,6 +861,9 @@ std::list<song> get_cur_playlist()
         if(text != NULL)
             sLen = text;
         g_value_unset(&value);
+        size_t colon = sLen.find(':');
+        if(colon != std::string::npos)
+        	sLen.replace(colon, 1, 1, ' ');
         std::istringstream length(sLen);
         int minutes, seconds;
         length >> minutes >> seconds;

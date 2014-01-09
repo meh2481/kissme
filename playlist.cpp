@@ -55,17 +55,17 @@ std::list<song> playlist_load(std::string sFilename)
 	std::list<song> ret;
 	if(sFilename.find(".m3u", sFilename.size() - 4) != std::string::npos ||
 		 sFilename.find(".m3u8", sFilename.size() - 5) != std::string::npos)
-		ret = convert_to_global(playlist_load_M3U(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_M3U(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".asx", sFilename.size() - 4) != std::string::npos)
-		ret = convert_to_global(playlist_load_ASX(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_ASX(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".pls", sFilename.size() - 4) != std::string::npos)
-		ret = convert_to_global(playlist_load_PLS(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_PLS(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".wpl", sFilename.size() - 4) != std::string::npos)
-		ret = convert_to_global(playlist_load_WPL(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_WPL(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".xspf", sFilename.size() - 5) != std::string::npos)
-		ret = convert_to_global(playlist_load_XSPF(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_XSPF(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".xml", sFilename.size() - 4) != std::string::npos)
-		ret = convert_to_global(playlist_load_iTunes(sFilename), ttvfs::StripLastPath(sFilename));
+		ret = fill_out(playlist_load_iTunes(sFilename), ttvfs::StripLastPath(sFilename));
 	else if(sFilename.find(".kiss", sFilename.size() - 5) != std::string::npos)
 		ret = convert_to_global(playlist_load_kissme(sFilename), ttvfs::StripLastPath(sFilename));
 	else
@@ -90,7 +90,11 @@ std::list<song> playlist_load_M3U(std::string sFilename)
       getline(infile, s);
       removecomment(s, '#');		//Skip over m3u comments; we'll load all track data ourselves
       if(s.size())
-      	ret.push_back(song_get_tags(s));
+      {
+      	song so;
+      	so.filename = s;
+      	ret.push_back(so);
+      }
   }
   infile.close();
 	
@@ -129,7 +133,9 @@ std::list<song> playlist_load_ASX(std::string sFilename)
   		if(href != NULL)
   		{
   			std::string s = href;
-  			ret.push_back(song_get_tags(s));
+  			song so;
+      	so.filename = s;
+      	ret.push_back(so);
 			}
 		}
   }
@@ -206,7 +212,9 @@ std::list<song> playlist_load_PLS(std::string sFilename)
 		 	strip_leading_whitespace(s);	//Strip any whitespace
 			
 			//Done; add file
-      ret.push_back(song_get_tags(s));
+      song so;
+    	so.filename = s;
+    	ret.push_back(so);
     }
     
   }
@@ -246,7 +254,11 @@ std::list<song> playlist_load_WPL(std::string sFilename)
   		{
 				const char* src = media->Attribute("src");
 				if(src != NULL)
-					ret.push_back(song_get_tags(src));
+				{
+					song so;
+		    	so.filename = src;
+		    	ret.push_back(so);
+				}
 			}
   	}
   }
@@ -286,7 +298,11 @@ std::list<song> playlist_load_XSPF(std::string sFilename)
   		{
 				const char* src = location->GetText();
 				if(src != NULL)
-					ret.push_back(song_get_tags(src));
+				{
+					song so;
+		    	so.filename = src;
+		    	ret.push_back(so);
+				}
 			}
   	}
   }
@@ -345,7 +361,9 @@ std::list<song> playlist_load_iTunes(std::string sFilename)
 							const char* cPath = string->GetText();
 							if(cPath != NULL)
 							{
-								ret.push_back(song_get_tags(cPath));
+								song so;
+								so.filename = cPath;
+								ret.push_back(so);
 								break;	//Stop searching through this lowest-level dict
 							}
 						}
@@ -362,27 +380,96 @@ std::list<song> playlist_load_iTunes(std::string sFilename)
 std::list<song> playlist_load_kissme(std::string sFilename)
 {
 	std::list<song> ret;
-	std::ifstream playlistFile(sFilename.c_str());
+	/*std::ifstream playlistFile(sFilename.c_str());
   while(!playlistFile.fail() && !playlistFile.eof())
   {
       std::string s;
       getline(playlistFile, s);
       if(s.size())
       {
-          ret.push_back(song_get_tags(s));	//TODO 
+          ret.push_back(song_get_tags(s));
       }
   }
-  playlistFile.close();
+  playlistFile.close();*/
+  
+  tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
+  int iErr = doc->LoadFile(sFilename.c_str());
+  if(iErr != tinyxml2::XML_NO_ERROR)
+  {
+		std::cout << "Error parsing XML file " << sFilename << ": Error " << iErr << std::endl;
+		delete doc;
+		return ret;
+  }
+  
+  //Grab root element
+  tinyxml2::XMLElement* root = doc->RootElement();
+  if(root == NULL)
+  {
+		std::cout << "Error: Root element NULL in XML file " << sFilename << std::endl;
+		delete doc;
+		return ret;
+  }
+  
+	for(tinyxml2::XMLElement* songelem = root->FirstChildElement("song"); songelem != NULL; songelem = songelem->NextSiblingElement("song"))
+	{
+		song s;
+		s.track = 0;
+		s.length = -1;
+		const char* cFilename = songelem->Attribute("file");
+		const char* cTitle = songelem->Attribute("title");
+		const char* cArtist = songelem->Attribute("artist");
+		const char* cAlbum = songelem->Attribute("album");
+		if(cFilename == NULL) continue;
+		s.filename = cFilename;
+		if(cTitle != NULL)
+			s.title = cTitle;
+		else
+			s.title = ttvfs::StripFileExtension(ttvfs::PathToFileName(cFilename));	//At bare minimum, display filename as title
+		if(cArtist != NULL)
+			s.artist = cArtist;
+		if(cAlbum != NULL)
+			s.album = cAlbum;
+			
+		songelem->QueryUnsignedAttribute("track", &s.track);
+		songelem->QueryIntAttribute("length", &s.length);
+		
+		ret.push_back(s);
+	}  
+  
 	return ret;
 }
 
 void playlist_save_kissme(std::string sFilename, std::list<song> sFiles)
 {
-	std::ofstream playlistFile(sFilename.c_str());
+	/*std::ofstream playlistFile(sFilename.c_str());
   if(playlistFile.fail()) return;
   for(std::list<song>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
-      playlistFile << i->filename << std::endl;	//TODO
-  playlistFile.close();
+      playlistFile << i->filename << std::endl;
+  playlistFile.close();*/
+  
+  //Create XML
+  tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
+  tinyxml2::XMLElement* root = doc->NewElement("playlist");
+  doc->InsertFirstChild(root);
+  
+  //Save songs
+  for(std::list<song>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
+  {
+  	tinyxml2::XMLElement* songelem = doc->NewElement("song");
+  	root->InsertEndChild(songelem);
+  	
+  	//Populate song with important metadata
+  	songelem->SetAttribute("file", i->filename.c_str());
+  	songelem->SetAttribute("title", i->title.c_str());
+  	songelem->SetAttribute("artist", i->artist.c_str());
+  	songelem->SetAttribute("album", i->album.c_str());
+  	songelem->SetAttribute("track", i->track);
+  	songelem->SetAttribute("length", i->length);
+	}
+	
+	//Done
+	doc->SaveFile(sFilename.c_str());
+  delete doc;
 }
 
 void playlist_save_M3U(std::string sFilename, std::list<song> sFiles)
@@ -643,7 +730,15 @@ void save_cur_playlist(std::string sName)
   playlist_save_kissme(sFileName, playlist);
 }
 
-
+std::list<song> fill_out(std::list<song> songs, std::string sPath)
+{
+	songs = convert_to_global(songs, sPath);
+	for(std::list<song>::iterator i = songs.begin(); i != songs.end(); i++)
+	{
+		*i = song_get_tags(i->filename);
+	}
+	return songs;
+}
 
 
 

@@ -562,7 +562,7 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
     {
         //Get filename and open
         std::string sFilename = gtk_file_chooser_get_filename(filechooser);
-        std::list<std::string> sFiles = playlist_load(sFilename);
+        std::list<song> sFiles = playlist_load(sFilename);
         
         std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(sFilename.c_str()));	//Name of our new playlist 
         
@@ -803,9 +803,9 @@ void update_playlist_time()
     gtk_label_set_text(GTK_LABEL(gtk_builder_get_object(builder, "playlisttime")), oss.str().c_str());
 }
 
-std::list<std::string> get_cur_playlist()
+std::list<song> get_cur_playlist()
 {
-    std::list<std::string> playlist;
+    std::list<song> playlist;
 
     GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
     GtkTreeIter iter;
@@ -815,12 +815,59 @@ std::list<std::string> get_cur_playlist()
     //Loop through tree model, populating list
     while(true)
     {
+    		song s;
         GValue value = G_VALUE_INIT;
+        //Filename
         gtk_tree_model_get_value(tree_model, &iter, 0, &value);
         const gchar* text = g_value_get_string(&value);
         if(text != NULL)
-            playlist.push_back(text);
+            s.filename = text;
         g_value_unset(&value);
+        
+        //title
+        gtk_tree_model_get_value(tree_model, &iter, 1, &value);
+        text = g_value_get_string(&value);
+        if(text != NULL)
+            s.title = text;
+        g_value_unset(&value);
+        
+        //artist
+        gtk_tree_model_get_value(tree_model, &iter, 2, &value);
+        text = g_value_get_string(&value);
+        if(text != NULL)
+            s.artist = text;
+        g_value_unset(&value);
+        
+        //album
+        gtk_tree_model_get_value(tree_model, &iter, 3, &value);
+        text = g_value_get_string(&value);
+        if(text != NULL)
+            s.album = text;
+        g_value_unset(&value);
+        
+        //track
+        std::istringstream track;
+        gtk_tree_model_get_value(tree_model, &iter, 6, &value);
+        text = g_value_get_string(&value);
+        if(text != NULL)
+            track.str(text);
+        g_value_unset(&value);
+        track >> s.track;
+        
+        //length
+        std::string sLen;
+        gtk_tree_model_get_value(tree_model, &iter, 4, &value);
+        text = g_value_get_string(&value);
+        if(text != NULL)
+            sLen = text;
+        g_value_unset(&value);
+        std::istringstream length(sLen);
+        int minutes, seconds;
+        length >> minutes >> seconds;
+        s.length = minutes * 60 + seconds;
+        
+        playlist.push_back(s);
+        
         if(!gtk_tree_model_iter_next(tree_model, &iter))
             break;
     }

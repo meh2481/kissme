@@ -6,6 +6,7 @@
 #include <tag.h>
 #include <fileref.h>
 #include <tyrsound.h>
+#include "song.h"
 
 //For changing audio file tags
 #define CHANGE_TITLE    0
@@ -24,6 +25,7 @@ void        rewind_song();                  //Rewinds the currently-playing song
 void        setVolume(float fVol);          //Set the current volume (between 0 and 1)
 float       getVolume();										//Get the current volume
 void        add_to_playlist(std::string sFilename);  //Add this song to the current playlist
+void 				add_to_playlist(song s);
 void        set_music_loc(float fPos);      //Set the music to play from pos (0.0 to 1.0)
 bool        change_tag(std::string sFilename, tagType tagToChange, gchar *sNewTag);    //Change the tag in a music file
 float				get_song_length(std::string sFilename);	//Get requested song's length in seconds
@@ -32,6 +34,7 @@ void 				loop_song(bool bLoop);					//Sets whether we should loop this one song 
 void 				stop_song();										//Stop playing the current song
 bool 				song_is_valid();								//See if our current song handle is valid
 bool				is_playing();										//See if the song is playing or not
+song 				song_get_tags(std::string sSongFilename);
 void				song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& sTitle, std::string& sArtist, uint& iTrack, int& iLength);
 
 //Callbacks (Don't call directly)

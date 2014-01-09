@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 #include <list>
 #include <string>
+#include "song.h"
 #ifdef _WIN32
 typedef unsigned int uint;
 #include <glib-object.h>
@@ -97,7 +98,7 @@ void show_pause();  //Show pause icon (for when music is playing)
 void init_signal_handler(); //Initialize variables used by the signal handler functions
 void update_play_slider(float fPos, float fLen);  //Update where our current song is playing
 void update_playlist_time();    //Update label that says X songs, X total minutes
-std::list<std::string> get_cur_playlist();  //Get the current playlist displayed in the GUI
+std::list<song> get_cur_playlist();  //Get the current playlist displayed in the GUI
 void draw_album_art(std::string sFilename); //Draw album art
 void play_this_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
 void next_song(bool bLoop = false);	//Play the next song on the playlist

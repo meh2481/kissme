@@ -6,6 +6,7 @@
 #include <list>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 #include <VFSTools.h>
 
 //Global variables for use by our functions here
@@ -13,7 +14,7 @@ tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
 extern int      iRepeatMode;
 extern bool bPaused;
 static float g_fVolume = 1.0f;
-std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
+//std::list<std::string>    g_lCurPlaylist; //Current list of songs we're playing
 
 void init_sound()
 {
@@ -185,6 +186,15 @@ void loop_song(bool bLoop)
 		tyrsound_setLoop(handle, 0.0f, 0);
 }
 
+song song_get_tags(std::string sSongFilename)
+{
+	song ret;
+	ret.filename = sSongFilename;
+	int len;
+	song_get_tags(sSongFilename, ret.album, ret.title, ret.artist, ret.track, ret.length);
+  return ret;
+}
+
 void song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& sTitle, std::string& sArtist, uint& iTrack, int& iLength)
 {
 	TagLib::FileRef f(sSongFilename.c_str());
@@ -204,6 +214,11 @@ void song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& 
   iLength = f.audioProperties()->length();
 }
 
+void add_to_playlist(song s)
+{
+	add_song(s.filename, s.title, s.artist, s.album, s.track, s.length);
+}
+
 void add_to_playlist(std::string sFilename)
 {
     //Get data for song
@@ -215,7 +230,7 @@ void add_to_playlist(std::string sFilename)
 
     //Write this all to the proper location in the table
     add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, iLength);
-    g_lCurPlaylist.push_back(sFilename);
+    //g_lCurPlaylist.push_back(sFilename);
 }
 
 float get_song_length(std::string sFilename)

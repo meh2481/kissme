@@ -29,3 +29,5 @@
 - Load all playlists in folder
 - Allow playlist renaming
 - generate autolist if no active playlist and "Add Files" selected
+- make .kiss format XML-based with track metadata stored within
+- make "delete playlist button" do stuff, and make it delete actual playlist files

@@ -31,6 +31,7 @@ void 				loop_song(bool bLoop);					//Sets whether we should loop this one song 
 void 				stop_song();										//Stop playing the current song
 bool 				song_is_valid();								//See if our current song handle is valid
 bool				is_playing();										//See if the song is playing or not
+void				song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& sTitle, std::string& sArtist, uint& iTrack, int& iLength);
 
 //Callbacks (Don't call directly)
 gboolean    check_music_playing(gpointer data); //Callback for every loop to update and check song playback

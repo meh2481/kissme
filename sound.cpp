@@ -6,6 +6,7 @@
 #include <list>
 #include <fstream>
 #include <sstream>
+#include <VFSTools.h>
 
 //Global variables for use by our functions here
 tyrsound_Handle handle = TYRSOUND_NULLHANDLE;
@@ -179,24 +180,36 @@ void loop_song(bool bLoop)
 		tyrsound_setLoop(handle, 0.0f, 0);
 }
 
+void song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& sTitle, std::string& sArtist, uint& iTrack, int& iLength)
+{
+	TagLib::FileRef f(sSongFilename.c_str());
+  if(f.isNull())
+  {
+      sAlbum = sArtist = "";
+      sTitle = sSongFilename;
+      iTrack = iLength = 0;
+      return;
+  }
+  sAlbum = f.tag()->album().to8Bit(true);
+  sTitle = f.tag()->title().to8Bit(true);
+  if(!sTitle.size())	//At least populate metadata if song filename isn't here
+  	sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(sSongFilename.c_str()));
+  sArtist = f.tag()->artist().to8Bit(true);
+  iTrack = f.tag()->track();
+  iLength = f.audioProperties()->length();
+}
+
 void add_to_playlist(std::string sFilename)
 {
     //Get data for song
-    //ID3_Tag mp3Tag(sFilename.c_str());
-    TagLib::FileRef f(sFilename.c_str());
-    if(f.isNull())
-    {
-        add_song(sFilename, "", "", "", 0, 0.0);
-        g_lCurPlaylist.push_back(sFilename);
-        return;
-    }
-    std::string sAlbum = f.tag()->album().to8Bit(true);
-    std::string sTitle = f.tag()->title().to8Bit(true);
-    std::string sArtist = f.tag()->artist().to8Bit(true);
-    uint iTrack = f.tag()->track();
+    std::string sAlbum, sTitle, sArtist;
+    uint iTrack;
+    int iLength;
+    
+    song_get_tags(sFilename, sAlbum, sTitle, sArtist, iTrack, iLength);
 
     //Write this all to the proper location in the table
-    add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, f.audioProperties()->length());
+    add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, iLength);
     g_lCurPlaylist.push_back(sFilename);
 }
 

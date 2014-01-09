@@ -155,7 +155,11 @@ std::list<std::string> playlist_load_PLS(std::string sFilename)
    		removecomment(s, ';');
    		strip_leading_whitespace(s);
    	}
-    if(s != "[playlist]") return ret;	//malformed
+    if(s != "[playlist]") 
+    {
+    	playlistFile.close();
+    	return ret;	//malformed
+    }
    	s.clear();
    	
    	//Next up is a line that tells us how many items
@@ -165,7 +169,11 @@ std::list<std::string> playlist_load_PLS(std::string sFilename)
    		removecomment(s, ';');
    		strip_leading_whitespace(s);
    	}
-   	if(s.find("NumberOfEntries") == std::string::npos) return ret;	//malformed if this missing
+   	if(s.find("NumberOfEntries") == std::string::npos) 
+   	{
+   		playlistFile.close();
+   		return ret;	//malformed if this missing
+   	}
    	s.erase(0, 15);	//Strip off "NumberOfEntries"
    	strip_leading_whitespace(s);	//Strip any whitespace
    	s.erase(0,1);	//Erase '=' character
@@ -347,6 +355,7 @@ std::list<std::string> playlist_load_iTunes(std::string sFilename)
 		}
 	}
 	
+	delete doc;
 	return ret;	//Worst. XML format. Ever.
 }
 
@@ -378,7 +387,23 @@ void playlist_save_kissme(std::string sFilename, std::list<std::string> sFiles)
 
 void playlist_save_M3U(std::string sFilename, std::list<std::string> sFiles)
 {
-	//TODO
+	std::ofstream pl(sFilename.c_str());
+	if(pl.fail())
+	{
+		std::cout << "Error creating playlist file " << sFilename << std::endl;
+		return;
+	}
+	pl << "#EXTM3U" << std::endl;	//Write header
+	for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
+  {
+  	std::string sAlbum, sTitle, sArtist;
+    uint iTrack;
+    int iLength;
+    song_get_tags(sFilename, sAlbum, sTitle, sArtist, iTrack, iLength);
+    pl << "#EXTINF:" << iLength << "," << sTitle << " - " << sArtist << std::endl;	//Write metadata
+  	pl << *i << std::endl;	//Write filename
+  }
+  pl.close();
 }
 
 void save_config()

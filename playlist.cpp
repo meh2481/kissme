@@ -408,22 +408,79 @@ void playlist_save_M3U(std::string sFilename, std::list<std::string> sFiles)
 
 void save_config()
 {
-	//TODO
-		
-		
-		
-    //std::list<std::string> playlist = get_cur_playlist();
-    //playlist_save_kissme("last.kiss", playlist);
+	std::string sConfigFilename = ttvfs::GetAppDir("kissme") + "/kissme.last";
+	
+	gint root_x, root_y;
+	gint width, height;
+	bool maximized = get_window_maximized();
+	get_window_position(&root_x, &root_y);
+	get_window_size(&width, &height);
+	
+	//Create XML document
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
+  tinyxml2::XMLElement* root = doc->NewElement("config");
+  doc->InsertFirstChild(root);
+  
+  //Save window data
+  tinyxml2::XMLElement* window = doc->NewElement("window");
+  root->InsertEndChild(window);
+  window->SetAttribute("maximized", maximized);
+  window->SetAttribute("posx", root_x);
+  window->SetAttribute("posy", root_y);
+  window->SetAttribute("width", width);
+  window->SetAttribute("height", height);
+	
+	//Done
+	doc->SaveFile(sConfigFilename.c_str());
+  delete doc;
 }
 
-void load_config()
+void load_config()	//Silently fail here if config isn't here already
 {
-	//TODO		
-		
-		
-	//	std::list<std::string> sFiles = playlist_load_kissme("last.kiss");
-  //  for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
-  //  	add_to_playlist(*i);
+	std::string sConfigFilename = ttvfs::GetAppDir("kissme") + "/kissme.last";
+	
+	//Open config file
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument;
+  int iErr = doc->LoadFile(sConfigFilename.c_str());
+  if(iErr != tinyxml2::XML_NO_ERROR)
+  {
+		delete doc;
+		return;
+  }
+  
+  //Grab root element
+  tinyxml2::XMLElement* root = doc->RootElement();
+  if(root == NULL)
+  {
+		delete doc;
+		return;
+  }
+  
+  //Load window
+  GtkWindow* w = GTK_WINDOW(gtk_builder_get_object(builder, "window1"));
+  tinyxml2::XMLElement* window = root->FirstChildElement("window");
+  if(window != NULL)
+  {
+  	int width, height, posx, posy;
+  	bool maximized = false;
+  	
+  	window->QueryBoolAttribute("maximized", &maximized);
+  	
+  	if(maximized)
+  		gtk_window_maximize(w);
+  	else
+  	{
+			if(window->QueryIntAttribute("posx", &posx) == tinyxml2::XML_NO_ERROR &&
+				 window->QueryIntAttribute("posy", &posy) == tinyxml2::XML_NO_ERROR)
+				gtk_window_move(w, posx, posy);
+				
+			if(window->QueryIntAttribute("width", &width) == tinyxml2::XML_NO_ERROR &&
+				 window->QueryIntAttribute("height", &height) == tinyxml2::XML_NO_ERROR)
+				gtk_window_resize(w, width, height);
+  	}
+	}
+	
+	delete doc;
 }
 
 std::list<std::string> convert_to_global(std::list<std::string> sFilenames, std::string sPath)

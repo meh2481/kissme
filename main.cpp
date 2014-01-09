@@ -55,9 +55,10 @@ int main(int argc, char **argv)
 
     gtk_builder_connect_signals( builder, data );
 
-    // Set reasonable defaults //TODO: Read last settings from file
+    // Every 10 ms, update tyrsound
     g_timeout_add(10, check_music_playing, data);
-
+    // Every half-second, check window pos
+		g_timeout_add(500, check_window_pos, data);
 
     // Show window. All other widgets are automatically shown by GtkBuilder
     gtk_widget_show( window );
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
     if(!ttvfs::IsDirectory(sUserDir))
     	ttvfs::CreateDirRec(sUserDir);
 
-    //Load our last playlist
+    //Load our config
     load_config();
 
     // Start main loop

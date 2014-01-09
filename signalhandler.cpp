@@ -932,13 +932,44 @@ void clear_now_playing()
 	g_fTotalPlaylistLength = 0;	//Reset total time counter
 }
 
+static bool g_bMaximized = false;
+static int g_posx, g_posy;
+static int g_sizex, g_sizey;
+G_MODULE_EXPORT gboolean window_changed(GtkWidget *widget, GdkEvent *event, gpointer user_data)
+{
+	if(event->window_state.new_window_state & GDK_WINDOW_STATE_MAXIMIZED)
+		g_bMaximized = true;
+	else
+		g_bMaximized = false;
+	
+	return false;
+}
 
+bool get_window_maximized()
+{
+	return g_bMaximized;
+}
 
+void get_window_position(int* x, int* y)
+{
+	*x = g_posx;
+	*y = g_posy;
+}
 
+void get_window_size(int* x, int* y)
+{
+	*x = g_sizex;
+	*y = g_sizey;
+}
 
-
-
-
+//I don't know why we have to do this... I blame GTK
+gboolean check_window_pos(gpointer data)
+{
+	GtkWindow* w = GTK_WINDOW(gtk_builder_get_object(builder, "window1"));
+	gtk_window_get_position(w, &g_posx, &g_posy);
+	gtk_window_get_size(w, &g_sizex, &g_sizey);
+	return true;
+}
 
 
 

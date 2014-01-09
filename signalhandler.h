@@ -82,6 +82,10 @@ extern "C"
 
     //Misc functions for playlist treeview
     G_MODULE_EXPORT void columns_changed(GtkTreeView *tree_view, gpointer user_data);   //Reorder the playing column to the far left, so it stays there
+
+		//Misc handlers
+		G_MODULE_EXPORT gboolean window_changed(GtkWidget *widget, GdkEvent *event, gpointer user_data);
+		G_MODULE_EXPORT gboolean check_window_pos(gpointer data);
 }
 
 //Helper functions
@@ -98,5 +102,8 @@ void play_this_song(GtkTreeModel *model, GtkTreePath *path);	//Play this song
 void next_song(bool bLoop = false);	//Play the next song on the playlist
 void clean_gui();										//Clean current-song data from GUI
 void clear_now_playing();			//Empties out the right "now playing" pane
+bool get_window_maximized();	//If the window is currently maximized
+void get_window_position(int* x, int* y);
+void get_window_size(int* x, int* y);
 
 #endif //GTKMM_EXAMPLEWINDOW_H

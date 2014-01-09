@@ -369,7 +369,6 @@ std::list<std::string> playlist_load_kissme(std::string sFilename)
 
 void playlist_save_kissme(std::string sFilename, std::list<std::string> sFiles)
 {
-	ttvfs::CreateDirRec(ttvfs::StripLastPath(sFilename).c_str());
 	std::ofstream playlistFile(sFilename.c_str());
   if(playlistFile.fail()) return;
   for(std::list<std::string>::iterator i = sFiles.begin(); i != sFiles.end(); i++)

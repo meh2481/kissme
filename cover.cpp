@@ -19,6 +19,7 @@
 #include <opusfile.h>
 #include <flacfile.h>
 #include <stdint.h>
+#include <VFSSystemPaths.h>
 
 #include <iostream>
 
@@ -42,12 +43,11 @@ private:
     virtual bool save() { return false; }
 };
 
-
-//TODO OS-independant temporary file
-static const std::string sTempName = "/tmp/kissme";
-
 std::string get_album_art(std::string sAudioFile)
 {
+		//Use kissme folder for temp album art location
+		std::string sTempName = ttvfs::GetAppDir("kissme") + "/tmpart";
+
     TagLib::String fileName = sAudioFile;
     TagLib::String fileType = fileName.substr(fileName.rfind(".")+1).upper();
 

@@ -64,6 +64,11 @@ int main(int argc, char **argv)
 
     //Initialize signal handler
     init_signal_handler();
+    
+    //Create user folder if it isn't there already
+    const char* sUserDir = ttvfs::GetAppDir("kissme").c_str();
+    if(!ttvfs::IsDirectory(sUserDir))
+    	ttvfs::CreateDirRec(sUserDir);
 
     //Load our last playlist
     load_config();
@@ -71,8 +76,8 @@ int main(int argc, char **argv)
     // Start main loop
     gtk_main();
 
-    //Save playlist and exit
-    save();
+    //Save config and exit
+    save_config();
     cleanup_sound();
 
     return( 0 );

@@ -23,8 +23,9 @@
 	- Songs
 	- Albums
 - Search feature
-- Highlight imported playlist on import
 - Highlight first playlist on load
-- Highlight created playlist on creation
 - Keep track of which song is playing on which playlist, so playing can continue even while you edit other playlists
 	- note: Shuffle button shuffles currently-viewing playlist, not currently-playing one
+- Load all playlists in folder
+- Allow playlist renaming
+- generate autolist if no active playlist and "Add Files" selected

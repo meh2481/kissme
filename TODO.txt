@@ -9,13 +9,10 @@
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
 - Replay Gain? http://en.wikipedia.org/wiki/ReplayGain
 - Start up in seconds. Load files/tags as needed rather than up-front
-- Save last window size on startup
 - Progress bar when adding a bajillion files recursively with "Import Folder"
 - Memory leaks. Memory leaks everywhere.
-- Test UTF-8
 - Use playlist data to populate tags, if possible and as needed
 - Update album data in GUI as tags are edited
-- Organize library by artist, song, album, etc
 - Play songs passed via commandline above all else
 - Make sure two playlists don't have the same name
 - Add library pane
@@ -23,13 +20,10 @@
 	- Songs
 	- Albums
 - Search feature
-- Highlight first playlist on load
 - Keep track of which song is playing on which playlist, so playing can continue even while you edit other playlists
 	- note: Shuffle button shuffles currently-viewing playlist, not currently-playing one
-- Load all playlists in folder
 - Allow playlist renaming
 - generate autolist if no active playlist and "Add Files" selected
-- make .kiss format XML-based with track metadata stored within
 - make "delete playlist" button do stuff, and make it delete actual playlist files
 - Fix GTK errors
-- Properly save playlists as they're edited
+- Properly handle songs that are broken. Should be able to skip backwards past them, and they should have an error icon

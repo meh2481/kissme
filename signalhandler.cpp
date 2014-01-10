@@ -370,28 +370,41 @@ G_MODULE_EXPORT void button_play_clicked(GtkButton *button, ChData *data)
     }
 }
 
+void set_repeat_mode(int iRepeat)
+{
+	iRepeatMode = iRepeat;
+	//Set to the right icon, and set behavior accordingly
+	GtkButton *button = GTK_BUTTON(gtk_builder_get_object(builder, "Repeat"));
+  switch(iRepeatMode)
+  {
+      case REPEAT_ALL:
+          gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatAll")));
+          loop_song(false);
+          break;
+      case REPEAT_NONE:
+          gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOff")));
+          loop_song(false);
+          break;
+      case REPEAT_ONE:
+          gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOne")));
+          loop_song(true);
+          break;
+  }
+}
+
+int get_repeat_mode()
+{
+	return iRepeatMode;
+}
+
 G_MODULE_EXPORT void button_repeat_clicked(GtkButton *button, ChData *data)
 {
 		//Cycle through repeat modes
     iRepeatMode++;
     if(iRepeatMode > REPEAT_ONE)
         iRepeatMode = REPEAT_NONE;
-    //Set to the right icon, and set behavior accordingly
-    switch(iRepeatMode)
-    {
-        case REPEAT_ALL:
-            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatAll")));
-            loop_song(false);
-            break;
-        case REPEAT_NONE:
-            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOff")));
-            loop_song(false);
-            break;
-        case REPEAT_ONE:
-            gtk_button_set_image(button, GTK_WIDGET(gtk_builder_get_object(builder, "ImgRepeatOne")));
-            loop_song(true);
-            break;
-    }
+    
+    set_repeat_mode(iRepeatMode);
 }
 
 G_MODULE_EXPORT void button_shuffle_enter(GtkButton *button, ChData *data)

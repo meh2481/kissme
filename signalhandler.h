@@ -108,5 +108,7 @@ bool get_window_maximized();	//If the window is currently maximized
 void get_window_position(int* x, int* y);
 void get_window_size(int* x, int* y);
 std::string playlist_currrently_viewing();	//Returns the name of the playlist we're currently looking at
+void set_repeat_mode(int iRepeat);			//Updates the GUI and sets the repeat mode accordingly
+int  get_repeat_mode();											//Returns the current repeat mode
 
 #endif //GTKMM_EXAMPLEWINDOW_H

@@ -521,6 +521,7 @@ void save_config()
   tinyxml2::XMLElement* audio = doc->NewElement("audio");
   root->InsertEndChild(audio);
   audio->SetAttribute("volume", getVolume());
+  audio->SetAttribute("repeat", get_repeat_mode());
 	
 	//Done
 	doc->SaveFile(sConfigFilename.c_str());
@@ -582,6 +583,11 @@ void load_config()	//Silently fail if config isn't here already
 		setVolume(fVolume);
 		//Update GUI to reflect this
 		gtk_scale_button_set_value(GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "volumebutton1")), fVolume);
+		
+		//Repeat
+		int iRepeat = REPEAT_NONE;
+		audio->QueryIntAttribute("repeat", &iRepeat);
+		set_repeat_mode(iRepeat);
 	}
 	
 	delete doc;

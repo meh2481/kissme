@@ -821,28 +821,34 @@ std::list<song> get_cur_playlist()
         gtk_tree_model_get_value(tree_model, &iter, 0, &value);
         const gchar* text = g_value_get_string(&value);
         if(text != NULL)
-            s.filename = text;
+          s.filename = text;
         g_value_unset(&value);
         
         //title
         gtk_tree_model_get_value(tree_model, &iter, 1, &value);
         text = g_value_get_string(&value);
         if(text != NULL)
-            s.title = text;
+          s.title = text;
+        else
+        	s.title = "";
         g_value_unset(&value);
         
         //artist
         gtk_tree_model_get_value(tree_model, &iter, 2, &value);
         text = g_value_get_string(&value);
         if(text != NULL)
-            s.artist = text;
+          s.artist = text;
+        else
+        	s.artist = "";
         g_value_unset(&value);
         
         //album
         gtk_tree_model_get_value(tree_model, &iter, 3, &value);
         text = g_value_get_string(&value);
         if(text != NULL)
-            s.album = text;
+          s.album = text;
+        else
+        	s.album = "";
         g_value_unset(&value);
         
         //track
@@ -852,7 +858,8 @@ std::list<song> get_cur_playlist()
         if(text != NULL)
             track.str(text);
         g_value_unset(&value);
-        track >> s.track;
+        if(!(track >> s.track))
+        	s.track = 0;
         
         //length
         std::string sLen;
@@ -865,8 +872,9 @@ std::list<song> get_cur_playlist()
         if(colon != std::string::npos)
         	sLen.replace(colon, 1, 1, ' ');
         std::istringstream length(sLen);
-        int minutes, seconds;
-        length >> minutes >> seconds;
+        int minutes=0, seconds=0;
+        if(!(length >> minutes >> seconds))
+        	minutes = seconds = 0;
         s.length = minutes * 60 + seconds;
         
         playlist.push_back(s);

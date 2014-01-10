@@ -821,7 +821,13 @@ bool is_playlist(std::string sName)
 	return false;
 }
 
-
+void delete_playlist(std::string sName)
+{
+	g_mPlaylists.erase(sName);	//Remove playlist from our list of playlists
+	std::string sFilename = ttvfs::GetAppDir("kissme") + "/" + sName + ".kiss";
+	remove(sFilename.c_str());	//Remove playlist file, if it's there
+	//Playlist pane removal is handled by code elsewhere
+}
 
 
 

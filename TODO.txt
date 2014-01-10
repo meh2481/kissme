@@ -27,3 +27,5 @@
 - make "delete playlist" button do stuff, and make it delete actual playlist files
 - Fix GTK errors
 - Properly handle songs that are broken. Should be able to skip backwards past them, and they should have an error icon
+- Song/playlist removal depends on where your mouse is when you press "Delete" key
+- Deleted song should stop playing (Also on clear_now_playing())

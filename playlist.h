@@ -39,6 +39,7 @@ std::string playlist_currently_playing();	//TODO
 GtkTreePath* path_currently_playing();		//TODO
 std::string song_currently_playing();			//TODO
 bool is_playlist(std::string sName);			//If this is a current playlist
+void delete_playlist(std::string sName);	//Remove playlist forever
 
 
 

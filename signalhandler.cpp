@@ -609,7 +609,22 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_deleteplaylist_clicked(GtkButton *button, ChData *data)
 {
-	//TODO
+	//Find selection
+	GtkTreeIter iter;
+	GtkTreeModel* tree_model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Playlists"));
+	GtkTreeSelection* treeselection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1")));
+	if(gtk_tree_selection_get_selected(treeselection, &tree_model, &iter))
+	{
+		GValue value = G_VALUE_INIT;
+    gtk_tree_model_get_value(tree_model, &iter, 0, &value);
+    const gchar* text = g_value_get_string(&value);
+    if(text != NULL)
+    	delete_playlist(text);	//Remove from our playlist manager
+    g_value_unset(&value);
+    
+    gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists")), &iter); //Remove from playlist pane
+	}
+	clear_now_playing();
 }
 
 G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data)

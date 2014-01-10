@@ -713,7 +713,7 @@ gboolean save_cur_playlist(gpointer data)
   }
 	sName += ".kiss";
 	
-	if(sPaneName == "last" && !playlist.size()) return true;	//Skip empty "last.kiss" files
+	if(!playlist.size()) return true;	//Skip empty files
 	
 	//Update our internal list
 	g_mPlaylists[sPaneName] = playlist;
@@ -729,6 +729,7 @@ void save_cur_playlist(std::string sName)
 	if(!sName.size()) return;
 	
 	std::list<song> playlist = get_cur_playlist();
+	if(!playlist.size()) return;
 	
 	//Get current playlist filename
 	std::string sFileName = ttvfs::GetAppDir("kissme") + "/" + sName + ".kiss";

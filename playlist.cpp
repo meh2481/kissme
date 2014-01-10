@@ -799,7 +799,27 @@ void resort_playlist_pane()
 	}
 }
 
+//Because Windows is stupid and case-insensitive and it makes me look bad otherwise
+bool are_equal(std::string first, std::string second)
+{
+	unsigned int i = 0;
+	while((i < first.length()) && (i < second.length()))
+	{
+	  if(tolower(first[i]) != tolower(second[i])) return false;
+	  ++i;
+	}
+	return(first.length() == second.length());
+}
 
+bool is_playlist(std::string sName)
+{
+	for(std::map<std::string, std::list<song> >::iterator i = g_mPlaylists.begin(); i != g_mPlaylists.end(); i++)
+	{
+		if(are_equal(sName, i->first)) 
+			return true;
+	}
+	return false;
+}
 
 
 

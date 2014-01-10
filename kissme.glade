@@ -95,6 +95,7 @@
               <object class="GtkButton" id="button7">
                 <property name="label" translatable="yes">OK</property>
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
@@ -139,6 +140,7 @@
             <property name="invisible_char">●</property>
             <property name="activates_default">True</property>
             <property name="caps_lock_warning">False</property>
+            <signal name="changed" handler="newplaylist_text_changed" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>

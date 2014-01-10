@@ -67,6 +67,7 @@ extern "C"
     //Playlist pane control
     G_MODULE_EXPORT void song_selected(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, ChData *data);
     G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data);
+    G_MODULE_EXPORT void newplaylist_text_changed(GtkEditable *editable, gpointer user_data);
 
     //Called whenever a data field in the playlist is edited
     G_MODULE_EXPORT void title_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data);

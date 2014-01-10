@@ -1026,6 +1026,20 @@ void clear_now_playing()
 	g_fTotalPlaylistLength = 0;	//Reset total time counter
 }
 
+G_MODULE_EXPORT void newplaylist_text_changed(GtkEditable *editable, gpointer user_data)
+{
+	GtkEntry* textbox = GTK_ENTRY(gtk_builder_get_object(builder, "entry1"));
+	const gchar* text = gtk_entry_get_text(textbox);
+  if(text != NULL)
+  {
+  	std::string sText = text;
+  	if(!sText.size() || is_playlist(sText))
+  		gtk_widget_set_sensitive(GTK_WIDGET(gtk_builder_get_object(builder, "button7")), false);	//Grey out "OK" button if this name is blank or already taken
+  	else
+  		gtk_widget_set_sensitive(GTK_WIDGET(gtk_builder_get_object(builder, "button7")), true);
+  }
+}
+
 static bool g_bMaximized = false;
 static int g_posx, g_posy;
 static int g_sizex, g_sizey;

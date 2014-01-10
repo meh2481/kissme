@@ -16,28 +16,29 @@ std::list<song> playlist_load_iTunes(std::string sFilename);
 std::list<song> playlist_load_kissme(std::string sFilename);
 
 void playlist_save_kissme(std::string sFilename, std::list<song> sFiles);	//Save given playlist in kissme format
-void playlist_save_M3U(std::string sFilename, std::list<song> sFiles);			//Save given playlist in M3U format
+void playlist_save_M3U(std::string sFilename, std::list<song> sFiles);		//Save given playlist in M3U format
 
-std::set<std::string> get_playlisttypes_supported();	//Get the types of playlists we support
-void        save_config();                //Save current playlist to file
-void        load_config();                //Load the playlist we saved
+std::set<std::string> get_playlisttypes_supported();								//Get the types of playlists we support
+void        save_config();                													//Save current playlist to file
+void        load_config();                													//Load the playlist we saved
 std::list<song>	convert_to_global(std::list<song> sFilenames, std::string sPath);	//Convert the list of filenames to be global, rather than relative, paths.
-std::string convert_to_path(std::string sURI);	//Convert a file:/// URI to an actual system path
+std::string convert_to_path(std::string sURI);											//Convert a file:/// URI to an actual system path
 std::list<song> fill_out(std::list<song> songs, std::string sPath);	//Fill out song metadata from filename (Warning: Can take a while if a lot of songs)
 
-void playlist_play(std::string sName);	//Show this playlist in the right pane
+void playlist_play(std::string sName);												//Show this playlist in the right pane
 void playlist_add(std::string sName, std::list<song> sSongs);	//Add this playlist to our playlist manager
 
-void save();	//Save both config and current playlist
-void load();	//Load both config and playlists
-void load_playlists();		//Load all playlists in user dir
+void save();																//Save both config and current playlist
+void load();																//Load both config and playlists
+void load_playlists();											//Load all playlists in user dir
 gboolean save_cur_playlist(gpointer data);	//Save the currently-viewing playlist
 void save_cur_playlist(std::string sName);	//Save the currently-viewing list under this name
-void resort_playlist_pane();	//Resort the playlist pane to display playlists alphabetically
+void resort_playlist_pane();								//Resort the playlist pane to display playlists alphabetically
 
 std::string playlist_currently_playing();	//TODO
 GtkTreePath* path_currently_playing();		//TODO
 std::string song_currently_playing();			//TODO
+bool is_playlist(std::string sName);			//If this is a current playlist
 
 
 

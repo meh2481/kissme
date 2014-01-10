@@ -11,8 +11,8 @@
 #include <string.h>
 
 extern GtkBuilder *builder;
-bool bPaused = true;
-int iRepeatMode = REPEAT_NONE;
+volatile bool bPaused = true;
+volatile int iRepeatMode = REPEAT_NONE;
 static float g_fTotalPlaylistLength = 0.0;
 static std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
 static std::string g_sCurPlayingSong;  //Filename of song we're currently playing
@@ -521,6 +521,9 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
                 
                 //Create new playlist
                 playlist_play(text);
+                
+                //Make sure alphabetically sorted
+                resort_playlist_pane();
             }
         }
     }
@@ -586,11 +589,14 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
     }
 
     gtk_widget_destroy (dialog);
+    
+    //Keep this alphabetically sorted
+    resort_playlist_pane();
 }
 
 G_MODULE_EXPORT void button_deleteplaylist_clicked(GtkButton *button, ChData *data)
 {
-	
+	//TODO
 }
 
 G_MODULE_EXPORT void newplaylist_ok(GtkButton *button, ChData *data)
@@ -973,7 +979,7 @@ static std::string sCurPlaylist = "";
 G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data)
 {
 	//Save old playlist
-	save_cur_playlist(sCurPlaylist);
+	save_cur_playlist(playlist_currrently_viewing());
 	save_config();
 	
 	//Find selection
@@ -987,13 +993,18 @@ G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer
     if(text != NULL)
     {
     	//The "changed" signal can be emitted at any time, so make sure we aren't switching to the same playlist we're already in
-    	if(sCurPlaylist == text)
+    	if(playlist_currrently_viewing() == text)
     		return;
     	playlist_play(text);
     	sCurPlaylist = text;
     }
     g_value_unset(&value);
 	}
+}
+
+std::string playlist_currrently_viewing()
+{
+	return sCurPlaylist;
 }
 
 void clear_now_playing()

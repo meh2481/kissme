@@ -613,6 +613,10 @@ void load_playlists()
       gtk_list_store_set_value(playlists, &iter, 0, &a);
 		}
 	}
+	
+	resort_playlist_pane();	//Make sure these are in alphabetical order
+	
+	
 }
 
 std::list<song> convert_to_global(std::list<song> sFilenames, std::string sPath)
@@ -734,13 +738,60 @@ std::list<song> fill_out(std::list<song> songs, std::string sPath)
 {
 	songs = convert_to_global(songs, sPath);
 	for(std::list<song>::iterator i = songs.begin(); i != songs.end(); i++)
-	{
 		*i = song_get_tags(i->filename);
-	}
 	return songs;
 }
 
+//Blindly stolen from http://www.cplusplus.com/reference/list/list/sort/ . Thanks, guys!
+bool compare_nocase (const std::string& first, const std::string& second)
+{
+  unsigned int i=0;
+  while ( (i<first.length()) && (i<second.length()) )
+  {
+    if (tolower(first[i])<tolower(second[i])) return true;
+    else if (tolower(first[i])>tolower(second[i])) return false;
+    ++i;
+  }
+  return ( first.length() < second.length() );
+}
 
+void resort_playlist_pane()
+{
+	GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
+  GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
+	gtk_list_store_clear(playlists);
+	GtkTreePath* path = NULL;
+	
+	//Grab the current playlists in a list (because maps sort case sensitive)
+	std::list<std::string> sPlaylists;
+	for(std::map<std::string, std::list<song> >::iterator i = g_mPlaylists.begin(); i != g_mPlaylists.end(); i++)
+		sPlaylists.push_back(i->first);
+		
+	//Sort this new list
+	sPlaylists.sort(compare_nocase);
+	
+	for(std::list<std::string>::iterator i = sPlaylists.begin(); i != sPlaylists.end(); i++)
+	{
+		//Add new playlist to our view
+    GtkTreeIter iter;
+    gtk_list_store_append(playlists, &iter);
+    GValue a = G_VALUE_INIT;
+    g_value_init (&a, G_TYPE_STRING);
+    g_value_set_static_string (&a, i->c_str());
+    gtk_list_store_set_value(playlists, &iter, 0, &a);
+    
+    //Test and see if this is the currently-selected playlist
+    if(*i == playlist_currrently_viewing())
+    	path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
+	}
+	
+	//Select current playlist
+	if(path != NULL)
+  {
+		gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
+		gtk_tree_path_free(path);
+	}
+}
 
 
 

@@ -33,6 +33,11 @@ void load();	//Load both config and playlists
 void load_playlists();		//Load all playlists in user dir
 gboolean save_cur_playlist(gpointer data);	//Save the currently-viewing playlist
 void save_cur_playlist(std::string sName);	//Save the currently-viewing list under this name
+void resort_playlist_pane();	//Resort the playlist pane to display playlists alphabetically
+
+std::string playlist_currently_playing();	//TODO
+GtkTreePath* path_currently_playing();		//TODO
+std::string song_currently_playing();			//TODO
 
 
 

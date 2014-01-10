@@ -96,6 +96,7 @@ void load_song(std::string sFilename)
     if(handle == TYRSOUND_NULLHANDLE)
     {
         std::cout << "Invalid handle for song " << sFilename << std::endl;
+        //next_song(iRepeatMode == REPEAT_ALL);
         return;
     }
 
@@ -201,7 +202,7 @@ void song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& 
   if(f.isNull())
   {
       sAlbum = sArtist = "";
-      sTitle = sSongFilename;
+      sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(sSongFilename.c_str()));
       iTrack = iLength = 0;
       return;
   }

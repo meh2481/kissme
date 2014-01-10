@@ -14,9 +14,9 @@
 
 #define MAPFILE "map.txt"
 
-std::map<std::string, std::string> g_mFileEncodeMap;
-std::list<std::string> g_lPlayList;
-GtkBuilder *builder;
+//std::map<std::string, std::string> g_mFileEncodeMap;
+//std::list<std::string> g_lPlayList;
+GtkBuilder *builder;	//NOTE: VOLATILE
 
 int main(int argc, char **argv)
 {
@@ -82,6 +82,7 @@ int main(int argc, char **argv)
     //Save config and exit
     save_config();
     cleanup_sound();
+    shutdown_fileio();
 
     return( 0 );
 }

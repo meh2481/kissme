@@ -794,12 +794,12 @@ G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *p
 		//First, make sure playlist name isn't already taken
 		if(is_playlist(new_text)) return;
 		
-		std::string sOld = playlist_currrently_viewing();
-		rename_playlist(sOld, new_text);
-		sCurPlaylist = new_text;
-    set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);
-    
-    resort_playlist_pane();
+		//HACK: I DON'T KNOW HOW THIS EVEN WORKS
+		std::string sOld = playlist_currrently_viewing();	//So we figure out what playlist we're on
+		rename_playlist(sOld, new_text);									//And we write the old playlist over the new or something
+		sCurPlaylist = new_text;	//But then we make sure we don't change our change back, and I don't even
+    set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);	//And then we change the stuff
+    resort_playlist_pane();	//And then we have to make the thing look good
 }
 
 void show_play()

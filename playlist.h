@@ -42,6 +42,7 @@ std::string song_currently_playing();			//TODO
 bool is_playlist(std::string sName);			//If this is a current playlist
 void delete_playlist(std::string sName);	//Remove playlist forever
 void rename_playlist(std::string sOldName, std::string sNewName);	//Rename a playlist to another
+void playlist_add_commandline(int argc, char** argv);	//Parse the commandline and add songs on it
 
 
 

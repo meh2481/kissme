@@ -1,6 +1,7 @@
 #include "playlist.h"
 #include "signalhandler.h"
 #include "sound.h"
+#include "fileoperations.h"
 #include "tinyxml2.h"
 #include <fstream>
 #include <VFSTools.h>
@@ -843,6 +844,44 @@ void rename_playlist(std::string sOldName, std::string sNewName)
 	std::string sNewFilename = ttvfs::GetAppDir("kissme") + "/" + sNewName + ".kiss";
 	rename(sOldFilename.c_str(), sNewFilename.c_str());
 }
+
+void playlist_add_commandline(int argc, char** argv)
+{
+	bool bPlay = false;
+	std::set<std::string> lFileFilters = get_filetypes_supported();
+	for(int i = 1; i < argc; i++)
+	{
+		std::string s = argv[i];
+		size_t pos = s.find_last_of('.');
+    if(pos != std::string::npos && pos != s.length()-1)
+    {
+        std::string substr = s.substr(pos+1);   //Get filename extension of song
+        //TODO to lower case
+        if(!lFileFilters.count(substr))
+            continue;
+    }
+    else
+        continue;
+    
+    add_to_playlist(s);
+    bPlay = true;
+	}
+	
+	if(bPlay)
+	{
+		button_play_clicked(NULL, NULL);	//Start playing
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

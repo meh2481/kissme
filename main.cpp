@@ -16,11 +16,11 @@
 
 GtkBuilder *builder;	//NOTE: VOLATILE
 
-//GTK IS INCREDIBLY FINNICKY WITH THIS CALLBACK FOR SOME STRANGE REASON
+//HACK: GTK IS INCREDIBLY FINNICKY WITH THIS CALLBACK FOR SOME STRANGE REASON
 extern int g_posx, g_posy;
 void window_moved(GtkWindow *window, GdkEvent *event, gpointer data)
 {
-   gtk_window_get_position(window, &g_posx, &g_posy);
+   gtk_window_get_position(window, &g_posx, &g_posy);	//Store this change of position
    //IF I DON'T DECLARE THIS, EVERYTHING BREAKS. GTK WHYYYYYYYYYY
    //SERIOUSLY. COMMENT THIS OUT AND WATCH IT DIE.
    char buf[10];
@@ -86,6 +86,9 @@ int main(int argc, char **argv)
 
     //Load our config
     load();
+    
+    //Parse our commandline
+    playlist_add_commandline(argc, argv);
 
     // Start main loop
     gtk_main();

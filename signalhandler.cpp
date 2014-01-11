@@ -710,6 +710,17 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
 }
 
+void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTreePath *path, guint new_text, gint column)
+{
+    GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, sTreeViewName.c_str())));
+    GtkTreeIter i;
+    gtk_tree_model_get_iter(mod, &i, path);
+    GValue a = G_VALUE_INIT;
+    g_value_init(&a, G_TYPE_UINT);
+    g_value_set_uint(&a, new_text);
+    gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
+}
+
 bool tag_edited(gchar *path, gchar *new_text, tagType change)
 {
     bool bReturn = false;
@@ -747,10 +758,15 @@ G_MODULE_EXPORT void album_edited(GtkCellRendererText *renderer, gchar *path, gc
         set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 3);
 }
 
-G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
+G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gchar* new_text, ChData *data)
 {
+		std::istringstream iss(new_text);
+		guint val;
+		std::string s = new_text;
+		strip_leading_whitespace(s);
+		if(!(iss >> val) || s[0] == '-') return;
     if(tag_edited(path, new_text, CHANGE_TRACK))
-        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), new_text, 6);
+        set_table_data("treeview2", "Tracks", gtk_tree_path_new_from_string(path), val, 6);
 }
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
@@ -886,14 +902,15 @@ std::list<song> get_cur_playlist()
         g_value_unset(&value);
         
         //track
-        std::istringstream track;
-        gtk_tree_model_get_value(tree_model, &iter, 6, &value);
-        text = g_value_get_string(&value);
-        if(text != NULL)
-            track.str(text);
-        g_value_unset(&value);
-        if(!(track >> s.track))
-        	s.track = 0;
+        //std::istringstream track;
+        GValue track = G_VALUE_INIT;
+        gtk_tree_model_get_value(tree_model, &iter, 6, &track);
+        s.track = g_value_get_uint(&track);
+        //if(text != NULL)
+        //    track.str(text);
+        //g_value_unset(&value);
+        //if(!(track >> s.track))
+        //	s.track = 0;
         
         //length
         std::string sLen;
@@ -928,16 +945,17 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     GtkTreeModel* mod = gtk_tree_view_get_model(GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview2")));
     GtkTreePath* path = gtk_tree_model_get_path(mod, &iter);
     std::ostringstream oss;
-    if(track > 0)   //Fill track column if this is a valid track number
-        oss << track;
+    //if(track > 0)   //Fill track column if this is a valid track number
+    //    oss << track;
     //Fill in list data
     set_table_data("treeview2", "Tracks", path, (gchar*)sFilename.c_str(), 0);
     set_table_data("treeview2", "Tracks", path, (gchar*)sTitle.c_str(), 1);
     set_table_data("treeview2", "Tracks", path, (gchar*)sArtist.c_str(), 2);
     set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
-    set_table_data("treeview2", "Tracks", path, (gchar*)oss.str().c_str(), 6);
+    if(track > 0)
+    	set_table_data("treeview2", "Tracks", path, track, 6);
     //Set length
-    oss.str("");
+    //oss.str("");
     if(fLength > 0.0)
     {
         oss.fill('0');

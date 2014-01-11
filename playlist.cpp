@@ -830,7 +830,17 @@ void delete_playlist(std::string sName)
 	//Playlist pane removal is handled by code elsewhere
 }
 
-
+void rename_playlist(std::string sOldName, std::string sNewName)
+{
+	g_mPlaylists[sNewName] = g_mPlaylists[sOldName];	//Copy over our playlist
+	g_mPlaylists.erase(sOldName);											//Remove old playlist
+	std::string sOldFilename = ttvfs::GetAppDir("kissme") + "/" + sOldName + ".kiss";
+	std::string sNewFilename = ttvfs::GetAppDir("kissme") + "/" + sNewName + ".kiss";
+	remove(sOldFilename.c_str());											//Delete old file
+	if(g_mPlaylists[sNewName].size())									//Save new file
+		playlist_save_kissme(sNewFilename, g_mPlaylists[sNewName]);
+	//Let playlist pane resorting and such be handled elsewhere
+}
 
 
 

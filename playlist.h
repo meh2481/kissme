@@ -23,6 +23,7 @@ void        save_config();                													//Save current playlist t
 void        load_config();                													//Load the playlist we saved
 std::list<song>	convert_to_global(std::list<song> sFilenames, std::string sPath);	//Convert the list of filenames to be global, rather than relative, paths.
 std::string convert_to_path(std::string sURI);											//Convert a file:/// URI to an actual system path
+void strip_leading_whitespace(std::string& s);
 std::list<song> fill_out(std::list<song> songs, std::string sPath);	//Fill out song metadata from filename (Warning: Can take a while if a lot of songs)
 
 void playlist_play(std::string sName);												//Show this playlist in the right pane
@@ -40,6 +41,7 @@ GtkTreePath* path_currently_playing();		//TODO
 std::string song_currently_playing();			//TODO
 bool is_playlist(std::string sName);			//If this is a current playlist
 void delete_playlist(std::string sName);	//Remove playlist forever
+void rename_playlist(std::string sOldName, std::string sNewName);	//Rename a playlist to another
 
 
 

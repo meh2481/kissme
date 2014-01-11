@@ -43,7 +43,7 @@
       <!-- column-name playback-icon -->
       <column type="gchararray"/>
       <!-- column-name Track -->
-      <column type="gchararray"/>
+      <column type="guint"/>
     </columns>
   </object>
   <object class="GtkImage" id="album">

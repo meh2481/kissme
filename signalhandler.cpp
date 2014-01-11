@@ -1024,6 +1024,9 @@ void clean_gui()
 static std::string sCurPlaylist = "";
 G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data)
 {
+	//Track sorting causes severe issues on playlist change, so disable
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
 	//Save old playlist
 	save_cur_playlist(playlist_currrently_viewing());
 	save_config();

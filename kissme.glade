@@ -157,11 +157,6 @@
       <action-widget response="0">button8</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkImage" id="imgError">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-no</property>
-  </object>
   <object class="GtkAdjustment" id="posadjustment">
     <property name="upper">100</property>
     <property name="step_increment">0.01</property>
@@ -941,6 +936,7 @@
                                 <property name="hover_selection">True</property>
                                 <signal name="row-activated" handler="song_selected" swapped="no"/>
                                 <signal name="columns-changed" handler="columns_changed" swapped="no"/>
+                                <signal name="drag-end" handler="drag_ends" swapped="no"/>
                                 <signal name="drag-begin" handler="drag_begins" swapped="no"/>
                                 <child internal-child="selection">
                                   <object class="GtkTreeSelection" id="selectedsongs">

@@ -20,7 +20,17 @@ static std::string g_sCurPlayingSong;  //Filename of song we're currently playin
 //Local functions
 gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
 {
-    set_table_data("treeview2", "Tracks", path, (gchar*)"", 5);
+    gchar *icon;
+		gtk_tree_model_get(model, iter, 5, &icon, -1);
+		if(icon == NULL) return false;
+		std::string s = icon;
+		if(s == "")
+			return false;
+		else if(s == PLAY_ICON)	//This song currently playing
+		{
+    	set_table_data("treeview2", "Tracks", path, (gchar*)"", 5);	//Clear it
+			return true;	//Done iterating
+		}
     return false;
 }
 
@@ -724,10 +734,10 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     {
     	std::ostringstream oss;
     	oss << new_text;
-    	set_table_data(sTreeViewName, sListStoreName, path, (gchar*)(oss.str().c_str()), 7);
+    	set_table_data(sTreeViewName, sListStoreName, path, (gchar*)oss.str().c_str(), 7);
 		}
 		else
-			set_table_data(sTreeViewName, sListStoreName, path, "", 7);
+			set_table_data(sTreeViewName, sListStoreName, path, (gchar*)"", 7);
 }
 
 bool tag_edited(gchar *path, gchar *new_text, tagType change)
@@ -993,6 +1003,11 @@ G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 }
 
+G_MODULE_EXPORT void drag_ends(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data)
+{
+	std::cout << "Drag ended." << std::endl;
+}
+
 G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data)
 {
     if(bSlider)
@@ -1093,7 +1108,7 @@ G_MODULE_EXPORT void newplaylist_text_changed(GtkEditable *editable, gpointer us
 }
 
 static bool g_bMaximized = false;
-static int g_posx, g_posy;
+int g_posx, g_posy;
 static int g_sizex, g_sizey;
 G_MODULE_EXPORT gboolean window_changed(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
@@ -1123,20 +1138,18 @@ void get_window_size(int* x, int* y)
 }
 
 //I don't know why we have to do this... I blame GTK
-gboolean check_window_pos(gpointer data)
-{
-	GtkWindow* w = GTK_WINDOW(gtk_builder_get_object(builder, "window1"));
-	gtk_window_get_position(w, &g_posx, &g_posy);
-	gtk_window_get_size(w, &g_sizex, &g_sizey);
-	return true;
-}
+//gboolean check_window_pos(gpointer data)
+//{
+//	GtkWindow* w = GTK_WINDOW(gtk_builder_get_object(builder, "window1"));
+//	gtk_window_get_position(w, &g_posx, &g_posy);
+//	return true;
+//}
 
 G_MODULE_EXPORT void mainwindow_hidden(GtkWidget *widget, gpointer user_data)
 {
+	gtk_window_get_size(GTK_WINDOW(widget), &g_sizex, &g_sizey);
 	save();		//Because playlist
 }
-
-
 
 
 

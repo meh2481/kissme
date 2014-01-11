@@ -24,7 +24,8 @@ typedef unsigned int uint;
 #define REPEAT_ONE  2
 
 #define NUM_COLUMNS 8
-#define PLAY_ICON   "media-playback-start"
+#define PLAY_ICON   	"media-playback-start"
+#define PLAY_ERR_ICON	"gtk-no"
 
 #define ALBUM_ART_ICON_WIDTH    42
 #define ALBUM_ART_ICON_HEIGHT   42
@@ -78,6 +79,7 @@ extern "C"
 
     //Sorting function callbacks
     G_MODULE_EXPORT void drag_begins(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data);
+    G_MODULE_EXPORT void drag_ends(GtkWidget *widget, GdkDragContext *drag_context, gpointer user_data);
 
     //For when the user drags on the slider for the current song
     G_MODULE_EXPORT void slider_move(GtkAdjustment *adjustment, gpointer user_data);
@@ -87,7 +89,7 @@ extern "C"
 
 		//Misc handlers
 		G_MODULE_EXPORT gboolean window_changed(GtkWidget *widget, GdkEvent *event, gpointer user_data);
-		G_MODULE_EXPORT gboolean check_window_pos(gpointer data);
+		//G_MODULE_EXPORT gboolean check_window_pos(gpointer data);
 		G_MODULE_EXPORT void mainwindow_hidden(GtkWidget *widget, gpointer user_data);
 }
 
@@ -112,5 +114,6 @@ void get_window_size(int* x, int* y);
 std::string playlist_currrently_viewing();	//Returns the name of the playlist we're currently looking at
 void set_repeat_mode(int iRepeat);			//Updates the GUI and sets the repeat mode accordingly
 int  get_repeat_mode();											//Returns the current repeat mode
+void window_moved(GtkWindow *window, GdkEvent *event, gpointer data);
 
 #endif //GTKMM_EXAMPLEWINDOW_H

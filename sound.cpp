@@ -82,6 +82,7 @@ void load_song(std::string sFilename)
     {
         tyrsound_stop(handle);
         tyrsound_unload(handle);
+        //TODO: Report failure
     }
 
     tyrsound_Stream strm;
@@ -231,7 +232,6 @@ void add_to_playlist(std::string sFilename)
 
     //Write this all to the proper location in the table
     add_song(sFilename, sTitle, sArtist, sAlbum, iTrack, iLength);
-    //g_lCurPlaylist.push_back(sFilename);
 }
 
 float get_song_length(std::string sFilename)

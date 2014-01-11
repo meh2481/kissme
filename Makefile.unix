@@ -11,7 +11,7 @@ kissme : $(OBJECTS)
 	g++ -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
 
 %.o: %.cpp
-	g++ -Wno-write-strings -c -MMD -ggdb -g -o $@ $< $(HEADER) $(GTKINCLUDE)
+	g++ -c -MMD -ggdb -g -o $@ $< $(HEADER) $(GTKINCLUDE)
 
 -include $(OBJECTS:.o=.d)
 

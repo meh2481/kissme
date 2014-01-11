@@ -14,9 +14,17 @@
 
 #define MAPFILE "map.txt"
 
-//std::map<std::string, std::string> g_mFileEncodeMap;
-//std::list<std::string> g_lPlayList;
 GtkBuilder *builder;	//NOTE: VOLATILE
+
+//GTK IS INCREDIBLY FINNICKY WITH THIS CALLBACK FOR SOME STRANGE REASON
+extern int g_posx, g_posy;
+void window_moved(GtkWindow *window, GdkEvent *event, gpointer data)
+{
+   gtk_window_get_position(window, &g_posx, &g_posy);
+   //IF I DON'T DECLARE THIS, EVERYTHING BREAKS. GTK WHYYYYYYYYYY
+   //SERIOUSLY. COMMENT THIS OUT AND WATCH IT DIE.
+   char buf[10];
+}
 
 int main(int argc, char **argv)
 {
@@ -54,11 +62,14 @@ int main(int argc, char **argv)
 #undef GW
 
     gtk_builder_connect_signals( builder, data );
+    
+    gtk_widget_add_events(GTK_WIDGET(window), GDK_CONFIGURE);
+  	g_signal_connect(G_OBJECT(window), "configure-event", G_CALLBACK(window_moved), NULL);
 
     // Every 10 ms, update tyrsound
     g_timeout_add(10, check_music_playing, data);
     // Every half-second, check window pos (because GTK doesn't let us do this after someone clicks the X button)
-		g_timeout_add(500, check_window_pos, data);
+		//g_timeout_add(500, check_window_pos, data);
 		// Every 5 minutes, autosave current playlist
 		g_timeout_add(300000, save_cur_playlist, data);
 

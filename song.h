@@ -1,6 +1,7 @@
 #ifndef SONG_H
 #define SONG_H
 #include <string>
+
 typedef struct
 {
 	std::string filename;
@@ -9,5 +10,7 @@ typedef struct
 	std::string album;
 	unsigned int track;
 	int length;
+	bool error;
 } song; 
+
 #endif

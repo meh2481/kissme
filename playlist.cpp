@@ -415,6 +415,7 @@ std::list<song> playlist_load_kissme(std::string sFilename)
 		song s;
 		s.track = 0;
 		s.length = 0;
+		s.error = false;
 		const char* cFilename = songelem->Attribute("file");
 		const char* cTitle = songelem->Attribute("title");
 		const char* cArtist = songelem->Attribute("artist");

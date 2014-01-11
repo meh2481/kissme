@@ -436,6 +436,7 @@ std::list<song> playlist_load_kissme(std::string sFilename)
 		ret.push_back(s);
 	}  
   
+  delete doc;
 	return ret;
 }
 
@@ -826,7 +827,8 @@ void delete_playlist(std::string sName)
 {
 	g_mPlaylists.erase(sName);	//Remove playlist from our list of playlists
 	std::string sFilename = ttvfs::GetAppDir("kissme") + "/" + sName + ".kiss";
-	remove(sFilename.c_str());	//Remove playlist file, if it's there
+	int result = remove(sFilename.c_str());	//Remove playlist file, if it's there
+	std::cout << "Result: " << result << std::endl;
 	//Playlist pane removal is handled by code elsewhere
 }
 

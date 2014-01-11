@@ -719,6 +719,15 @@ void set_table_data(std::string sTreeViewName, std::string sListStoreName, GtkTr
     g_value_init(&a, G_TYPE_UINT);
     g_value_set_uint(&a, new_text);
     gtk_list_store_set_value(GTK_LIST_STORE(gtk_builder_get_object(builder, sListStoreName.c_str())), &i, column, &a);
+    
+    if(new_text > 0)
+    {
+    	std::ostringstream oss;
+    	oss << new_text;
+    	set_table_data(sTreeViewName, sListStoreName, path, (gchar*)(oss.str().c_str()), 7);
+		}
+		else
+			set_table_data(sTreeViewName, sListStoreName, path, "", 7);
 }
 
 bool tag_edited(gchar *path, gchar *new_text, tagType change)
@@ -954,6 +963,13 @@ void add_song(std::string sFilename, std::string sTitle, std::string sArtist, st
     set_table_data("treeview2", "Tracks", path, (gchar*)sAlbum.c_str(), 3);
     if(track > 0)
     	set_table_data("treeview2", "Tracks", path, track, 6);
+    
+    //gtk_tree_view_column_set_attributes(GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "Track")), 
+    //																		GTK_CELL_RENDERER(gtk_builder_get_object(builder, "cellrenderertext8")),
+    //																		"text",
+    //																		1,
+    //																		NULL);
+		
     //Set length
     //oss.str("");
     if(fLength > 0.0)

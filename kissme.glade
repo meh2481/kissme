@@ -44,6 +44,8 @@
       <column type="gchararray"/>
       <!-- column-name Track -->
       <column type="guint"/>
+      <!-- column-name track-helper -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkImage" id="album">
@@ -1061,7 +1063,7 @@
                                         <signal name="edited" handler="track_edited" swapped="no"/>
                                       </object>
                                       <attributes>
-                                        <attribute name="text">6</attribute>
+                                        <attribute name="text">7</attribute>
                                       </attributes>
                                     </child>
                                   </object>

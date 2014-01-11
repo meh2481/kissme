@@ -26,10 +26,8 @@
 - generate autolist if no active playlist and "Add Files" selected
 - Fix GTK errors
 - Properly handle songs that are broken. Should be able to skip backwards past them, and they should have an error icon
-- Song/playlist removal depends on where your mouse is when you press "Delete" key
+- Song/playlist removal should depend on where your mouse is when you press "Delete" key
 - Deleted song should stop playing (Also on clear_now_playing())
-- Use date modified to reload tags if they change externally
-	- Refresh song tags as they're edited?
-- Sort tracks by actual number, not first char
-- Tags get botched if playlist changes while sorted
-- Don't display track number if 0
+- Use date modified to reload tags (on playlist load) if they've changed externally
+	- Refresh song tags as they're edited outside of kissme?
+- Playlists not deleting?

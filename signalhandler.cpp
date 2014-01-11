@@ -16,6 +16,7 @@ volatile int iRepeatMode = REPEAT_NONE;
 static float g_fTotalPlaylistLength = 0.0;
 static std::string g_sLastAlbumArt = NO_IMAGE;    //For showing the last album art image we clicked on
 static std::string g_sCurPlayingSong;  //Filename of song we're currently playing
+static std::string sCurPlaylist = "";	//Name of playlist we're currently playing
 
 //Local functions
 gboolean clear_play_icons(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
@@ -628,11 +629,11 @@ G_MODULE_EXPORT void button_deleteplaylist_clicked(GtkButton *button, ChData *da
 		GValue value = G_VALUE_INIT;
     gtk_tree_model_get_value(tree_model, &iter, 0, &value);
     const gchar* text = g_value_get_string(&value);
+    gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists")), &iter); //Remove from playlist pane
     if(text != NULL)
     	delete_playlist(text);	//Remove from our playlist manager
     g_value_unset(&value);
     
-    gtk_list_store_remove(GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists")), &iter); //Remove from playlist pane
 	}
 	clear_now_playing();
 }
@@ -790,8 +791,12 @@ G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gc
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
+		std::string sOld = playlist_currrently_viewing();
+		rename_playlist(sOld, new_text);
+		sCurPlaylist = new_text;
     set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);
-    //TODO Save under some new name or such
+    
+    resort_playlist_pane();
 }
 
 void show_play()
@@ -1052,15 +1057,10 @@ void clean_gui()
 	draw_album_art("logo.png");
 }
 
-static std::string sCurPlaylist = "";
 G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer user_data)
 {
 	//Track sorting causes severe issues on playlist change, so disable
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(gtk_builder_get_object(builder, "Tracks")), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
-
-	//Save old playlist
-	save_cur_playlist(playlist_currrently_viewing());
-	save_config();
 	
 	//Find selection
 	GtkTreeIter iter;
@@ -1075,6 +1075,9 @@ G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer
     	//The "changed" signal can be emitted at any time, so make sure we aren't switching to the same playlist we're already in
     	if(playlist_currrently_viewing() == text)
     		return;
+    	//Save old playlist
+			save_cur_playlist(playlist_currrently_viewing());
+			save_config();
     	playlist_play(text);
     	sCurPlaylist = text;
     }

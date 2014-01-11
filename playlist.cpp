@@ -768,13 +768,16 @@ void resort_playlist_pane()
 {
 	GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
   GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
-	gtk_list_store_clear(playlists);
 	GtkTreePath* path = NULL;
+	
+	gtk_list_store_clear(playlists);
 	
 	//Grab the current playlists in a list (because maps sort case sensitive)
 	std::list<std::string> sPlaylists;
 	for(std::map<std::string, std::list<song> >::iterator i = g_mPlaylists.begin(); i != g_mPlaylists.end(); i++)
+	{
 		sPlaylists.push_back(i->first);
+	}
 		
 	//Sort this new list
 	sPlaylists.sort(compare_nocase);
@@ -828,21 +831,17 @@ void delete_playlist(std::string sName)
 {
 	g_mPlaylists.erase(sName);	//Remove playlist from our list of playlists
 	std::string sFilename = ttvfs::GetAppDir("kissme") + "/" + sName + ".kiss";
-	int result = remove(sFilename.c_str());	//Remove playlist file, if it's there
-	std::cout << "Result: " << result << std::endl;
+	remove(sFilename.c_str());	//Remove playlist file, if it's there
 	//Playlist pane removal is handled by code elsewhere
 }
 
 void rename_playlist(std::string sOldName, std::string sNewName)
 {
 	g_mPlaylists[sNewName] = g_mPlaylists[sOldName];	//Copy over our playlist
-	g_mPlaylists.erase(sOldName);											//Remove old playlist
+	g_mPlaylists.erase(g_mPlaylists.find(sOldName));											//Remove old playlist
 	std::string sOldFilename = ttvfs::GetAppDir("kissme") + "/" + sOldName + ".kiss";
 	std::string sNewFilename = ttvfs::GetAppDir("kissme") + "/" + sNewName + ".kiss";
-	remove(sOldFilename.c_str());											//Delete old file
-	if(g_mPlaylists[sNewName].size())									//Save new file
-		playlist_save_kissme(sNewFilename, g_mPlaylists[sNewName]);
-	//Let playlist pane resorting and such be handled elsewhere
+	rename(sOldFilename.c_str(), sNewFilename.c_str());
 }
 
 

@@ -791,6 +791,9 @@ G_MODULE_EXPORT void track_edited(GtkCellRendererText *renderer, gchar *path, gc
 
 G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *path, gchar *new_text, ChData *data)
 {
+		//First, make sure playlist name isn't already taken
+		if(is_playlist(new_text)) return;
+		
 		std::string sOld = playlist_currrently_viewing();
 		rename_playlist(sOld, new_text);
 		sCurPlaylist = new_text;

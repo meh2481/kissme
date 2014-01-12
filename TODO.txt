@@ -13,7 +13,6 @@
 - Memory leaks. Memory leaks everywhere.
 - Use playlist data to populate tags, if possible and as needed
 - Update album data in GUI as tags are edited
-- Play songs passed via commandline above all else
 - Make sure two playlists don't have the same name
 - Add library pane
 	- Artists
@@ -22,7 +21,6 @@
 - Search feature
 - Keep track of which song is playing on which playlist, so playing can continue even while you edit other playlists
 	- note: Shuffle button shuffles currently-viewing playlist, not currently-playing one
-- Allow playlist renaming
 - generate autolist if no active playlist and "Add Files" selected
 - Fix GTK errors
 - Properly handle songs that are broken. Should be able to skip backwards past them, and they should have an error icon
@@ -30,6 +28,7 @@
 - Deleted song should stop playing (Also on clear_now_playing())
 - Use date modified to reload tags (on playlist load) if they've changed externally
 	- Refresh song tags as they're edited outside of kissme?
-- Playlists not deleting?
 - Don't accept unsupported files in playlists
 - Start playing playlist if double-clicked
+- Support multiple selection for both "Add Folder" and "Import playlist"
+- Reset GUI if last song in playlist deleted, and don't kick it back onto playlist on reload

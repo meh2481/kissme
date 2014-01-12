@@ -57,7 +57,6 @@ gboolean find_cur_song(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter
 
 G_MODULE_EXPORT void button_addfile_clicked(GtkButton *button, ChData *data)
 {
-    //TODO: Should I be using GTK+ instead of flat GTK?
     GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new ("Add Files",
                                           GTK_WINDOW(data->main_window),
@@ -156,8 +155,6 @@ G_MODULE_EXPORT gboolean key_pressed(GtkWidget *widget, GdkEvent *event, gpointe
 
 G_MODULE_EXPORT void button_removesongs_clicked(GtkButton *button, ChData *data)
 {
-    //TODO See if currently-playing song has been deleted, and stop playing it if so
-
     GtkTreeModel* model = GTK_TREE_MODEL(gtk_builder_get_object(builder, "Tracks"));
     //Get list of selected songs
     GList* selected = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(gtk_builder_get_object(builder, "selectedsongs")), &model);
@@ -293,9 +290,6 @@ G_MODULE_EXPORT void button_previous_clicked(GtkButton *button, ChData *data)
 		  gtk_tree_path_free(path);
 		  g_free(pathspec);
     }
-
-
-    //rewind_song(); //TODO Song list
 }
 
 G_MODULE_EXPORT void button_next_clicked(GtkButton *button, ChData *data)
@@ -527,7 +521,7 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
         const gchar* text = gtk_entry_get_text(textbox);
         if(text != NULL)
         {
-            if(strlen(text))    //TODO Test playlist name to be sure it's not taken yet
+            if(strlen(text))
             {
                 GtkTreeIter iter;
                 GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
@@ -1049,7 +1043,7 @@ void draw_album_art(std::string sFilename)
 {
     g_sLastAlbumArt = sFilename;
     GtkImage *image = GTK_IMAGE(gtk_builder_get_object(builder, "album"));
-    GdkPixbuf *pixbuf;  //TODO: Clean up?
+    GdkPixbuf *pixbuf;
     pixbuf=gdk_pixbuf_new_from_file(sFilename.c_str(),NULL);
     pixbuf=gdk_pixbuf_scale_simple(pixbuf, ALBUM_ART_ICON_WIDTH, ALBUM_ART_ICON_HEIGHT, GDK_INTERP_BILINEAR);
     gtk_image_set_from_pixbuf(image, pixbuf);

@@ -285,7 +285,7 @@ bool change_tag(std::string sFilename, tagType tagToChange, gchar *sNewTag)
                 f.tag()->setTrack(0);
                 break;
             }
-            if(!(iss >> track) || track <= 0)   //Only accept valid numbers; no negative numbers allowed    //TODO: What if we type something like "1noodle"? How should I handle this?
+            if(!(iss >> track) || track <= 0)   //Only accept valid numbers; no negative numbers allowed
                 return false;
             f.tag()->setTrack(track);
             break;

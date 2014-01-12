@@ -28,6 +28,5 @@
 - Deleted song should stop playing (Also on clear_now_playing())
 - Use date modified to reload tags (on playlist load) if they've changed externally
 	- Refresh song tags as they're edited outside of kissme?
-- Don't accept unsupported files in playlists
 - Start playing playlist if double-clicked
 - Reset GUI if last song in playlist deleted, and don't kick it back onto playlist on reload

@@ -630,7 +630,7 @@ void load_playlists()
 
 std::list<song> convert_to_global(std::list<song> sFilenames, std::string sPath)
 {
-	//std::list<song> ret;
+	std::set<std::string> lFileFilters = get_filetypes_supported();
 	for(std::list<song>::iterator i = sFilenames.begin(); i != sFilenames.end(); i++)
 	{
 		std::string s = convert_to_path(i->filename);
@@ -638,6 +638,23 @@ std::list<song> convert_to_global(std::list<song> sFilenames, std::string sPath)
 			i->filename.assign(ttvfs::FixPath(sPath + '/' + s));
 		else																							//Absolute path
 			i->filename.assign(ttvfs::FixPath(s));
+		
+		//Make sure this file type is supported
+		size_t pos = i->filename.find_last_of('.');
+    if(pos != std::string::npos && pos != i->filename.length()-1)
+    {
+        std::string substr = i->filename.substr(pos+1);   //Get filename extension of song
+        if(!lFileFilters.count(to_lowercase(substr)))
+        {
+        	i = sFilenames.erase(i);    //Remove from list if it doesn't pass our filter
+        	i--;
+        }
+    }
+    else
+    {
+    	i = sFilenames.erase(i);
+    	i--;
+    }
 	}
 	return sFilenames;
 }

@@ -475,8 +475,9 @@ void playlist_save_kissme(std::string sFilename, std::list<song> sFiles)
   delete doc;
 }
 
-void playlist_save_M3U(std::string sFilename, std::list<song> sFiles)
+void playlist_save_M3U(std::string sFilename, std::string sName)
 {
+	std::list<song> sFiles = g_mPlaylists[sName];
 	std::ofstream pl(sFilename.c_str());
 	if(pl.fail())
 	{
@@ -486,11 +487,7 @@ void playlist_save_M3U(std::string sFilename, std::list<song> sFiles)
 	pl << "#EXTM3U" << std::endl;	//Write header
 	for(std::list<song>::iterator i = sFiles.begin(); i != sFiles.end(); i++)
   {
-  	std::string sAlbum, sTitle, sArtist;
-    uint iTrack;
-    int iLength;
-    song_get_tags(sFilename, sAlbum, sTitle, sArtist, iTrack, iLength);
-    pl << "#EXTINF:" << iLength << "," << sTitle << " - " << sArtist << std::endl;	//Write metadata
+    pl << "#EXTINF:" << i->length << "," << i->title << " - " << i->artist << std::endl;	//Write metadata
   	pl << i->filename << std::endl;	//Write filename
   }
   pl.close();
@@ -811,7 +808,7 @@ void resort_playlist_pane()
     gtk_list_store_set_value(playlists, &iter, 0, &a);
     
     //Test and see if this is the currently-selected playlist
-    if(*i == playlist_currrently_viewing())
+    if(*i == playlist_currently_viewing())
     	path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
 	}
 	

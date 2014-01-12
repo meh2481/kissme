@@ -16,7 +16,7 @@ std::list<song> playlist_load_iTunes(std::string sFilename);
 std::list<song> playlist_load_kissme(std::string sFilename);
 
 void playlist_save_kissme(std::string sFilename, std::list<song> sFiles);	//Save given playlist in kissme format
-void playlist_save_M3U(std::string sFilename, std::list<song> sFiles);		//Save given playlist in M3U format
+void playlist_save_M3U(std::string sFilename, std::string sName);		//Save given playlist in M3U format
 
 std::set<std::string> get_playlisttypes_supported();								//Get the types of playlists we support
 void        save_config();                													//Save current playlist to file

@@ -1,19 +1,17 @@
-- Clipboard support
-- Undo/Redo
-- Drag-and-drop support
-- Drag multiple items
+- File->Duplicate Playlist or such
+- Drag-and-drop support (multiple items)
 - Support for lots of common media formats: wma, m4a, wav, etc
 - Save layout on exit and return to exactly the same state
 - Save song location on exit to start from exactly the same point
 - Support for exporting common playlist types?
 - Gapless playback? (See http://en.wikipedia.org/wiki/Gapless_playback)
 - Replay Gain? http://en.wikipedia.org/wiki/ReplayGain
+- GTK 3.0 - play song on single-click, play playlist on single-click
 - Start up in seconds. Load files/tags as needed rather than up-front
 - Progress bar when adding a bajillion files recursively with "Import Folder"
 - Memory leaks. Memory leaks everywhere.
 - Use playlist data to populate tags, if possible and as needed
 - Update album data in GUI as tags are edited
-- Make sure two playlists don't have the same name
 - Add library pane
 	- Artists
 	- Songs
@@ -28,5 +26,4 @@
 - Deleted song should stop playing (Also on clear_now_playing())
 - Use date modified to reload tags (on playlist load) if they've changed externally
 	- Refresh song tags as they're edited outside of kissme?
-- Start playing playlist if double-clicked
 - Reset GUI if last song in playlist deleted, and don't kick it back onto playlist on reload

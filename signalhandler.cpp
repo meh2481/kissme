@@ -582,7 +582,6 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         //Get filename and open
-        std::string sFilename = gtk_file_chooser_get_filename(filechooser);
         GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
         for(GSList* i = filenames; i != NULL; i=i->next)
         {
@@ -802,7 +801,7 @@ G_MODULE_EXPORT void playlistname_edited(GtkCellRendererText *renderer, gchar *p
 		if(is_playlist(new_text)) return;
 		
 		//HACK: I DON'T KNOW HOW THIS EVEN WORKS
-		std::string sOld = playlist_currrently_viewing();	//So we figure out what playlist we're on
+		std::string sOld = playlist_currently_viewing();	//So we figure out what playlist we're on
 		rename_playlist(sOld, new_text);									//And we write the old playlist over the new or something
 		sCurPlaylist = new_text;	//But then we make sure we don't change our change back, and I don't even
     set_table_data("treeview1", "Playlists", gtk_tree_path_new_from_string(path), new_text, 0);	//And then we change the stuff
@@ -1083,10 +1082,10 @@ G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer
     if(text != NULL)
     {
     	//The "changed" signal can be emitted at any time, so make sure we aren't switching to the same playlist we're already in
-    	if(playlist_currrently_viewing() == text)
+    	if(playlist_currently_viewing() == text)
     		return;
     	//Save old playlist
-			save_cur_playlist(playlist_currrently_viewing());
+			save_cur_playlist(playlist_currently_viewing());
 			save_config();
     	playlist_play(text);
     	sCurPlaylist = text;
@@ -1095,7 +1094,7 @@ G_MODULE_EXPORT void playlist_selected(GtkTreeSelection *treeselection, gpointer
 	}
 }
 
-std::string playlist_currrently_viewing()
+std::string playlist_currently_viewing()
 {
 	return sCurPlaylist;
 }
@@ -1164,7 +1163,36 @@ G_MODULE_EXPORT void mainwindow_hidden(GtkWidget *widget, gpointer user_data)
 	save();		//Because playlist
 }
 
+G_MODULE_EXPORT void menu_export_M3U(GtkMenuItem *menuitem, gpointer user_data)
+{
+	std::string sPlaylist = playlist_currently_viewing();
+	GtkWidget *dialog;
 
+	dialog = gtk_file_chooser_dialog_new("Export Playlist as M3U",
+		                                   GTK_WINDOW(gtk_builder_get_object(builder, "window1")),
+		                                   GTK_FILE_CHOOSER_ACTION_SAVE,
+		                                   GTK_STOCK_CANCEL, 
+		                                   GTK_RESPONSE_CANCEL,
+		                                   GTK_STOCK_SAVE, 
+		                                   GTK_RESPONSE_ACCEPT,
+		                                   NULL);
+	
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dialog), false);
+
+	std::string sFilename = sPlaylist + ".m3u";
+	gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), sFilename.c_str());
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
+	{
+	  char *filename;
+
+	  filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	  playlist_save_M3U(filename, sPlaylist);
+	  g_free(filename);
+	}
+
+	gtk_widget_destroy(dialog);
+}
 
 
 

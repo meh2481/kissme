@@ -15,6 +15,14 @@ void shutdown_fileio()
 
 }
 
+std::string to_lowercase(std::string s)
+{
+	std::string ret;
+	for(int i = 0; i < s.length(); i++)
+		ret.push_back(tolower(s[i]));
+	return ret;
+}
+
 std::deque<std::string> get_files_from_dir_rec(std::string sFolderName)
 {
     std::set<std::string> lFileFilters;
@@ -25,27 +33,25 @@ std::deque<std::string> get_files_from_dir_rec(std::string sFolderName, std::set
 {
     ttvfs::StringList lFilenames;
 
-	//Recursively get the filenames of all files contained within this folder
-	ttvfs::StringList lFolders;
-	ttvfs::GetDirList(sFolderName.c_str(), lFolders, -1);
-	if(!lFolders.empty())
-	{
-		for(ttvfs::StringList::iterator i = lFolders.begin(); i != lFolders.end(); i++)
-			ttvfs::GetFileList(i->c_str(), lFilenames);
-	}
+		//Recursively get the filenames of all files contained within this folder
+		ttvfs::StringList lFolders;
+		ttvfs::GetDirList(sFolderName.c_str(), lFolders, -1);
+		if(!lFolders.empty())
+		{
+			for(ttvfs::StringList::iterator i = lFolders.begin(); i != lFolders.end(); i++)
+				ttvfs::GetFileList(i->c_str(), lFilenames);
+		}
 
-    //ttvfs::GetFileListRecursive(sFolderName, lFilenames, true); //TODO: Can hang here for quite a long time. Anything I can do about it?
 
     if(!lFileFilters.empty() && !lFilenames.empty())
     {
-        for(ttvfs::StringList::iterator i = lFilenames.begin(); i != lFilenames.end(); i++) //TODO: Can hang here quite a while, too...
+        for(ttvfs::StringList::iterator i = lFilenames.begin(); i != lFilenames.end(); i++) //TODO: Can hang here quite a while...
         {
             size_t pos = i->find_last_of('.');
             if(pos != std::string::npos && pos != i->length()-1)
             {
                 std::string substr = i->substr(pos+1);   //Get filename extension of song
-                //TODO to lower case
-                if(!lFileFilters.count(substr))
+                if(!lFileFilters.count(to_lowercase(substr)))
                     i->clear();    //Remove from list if it doesn't pass our filter
             }
             else

@@ -14,6 +14,7 @@ std::deque<std::string> get_files_from_dir_rec(std::string sFolderName);
 std::deque<std::string> get_files_from_dir_rec(std::string sFolderName, std::set<std::string> lFileFilters);
 
 std::set<std::string> get_filetypes_supported();
+std::string to_lowercase(std::string s);
 
 
 

@@ -856,8 +856,7 @@ void playlist_add_commandline(int argc, char** argv)
     if(pos != std::string::npos && pos != s.length()-1)
     {
         std::string substr = s.substr(pos+1);   //Get filename extension of song
-        //TODO to lower case
-        if(!lFileFilters.count(substr))
+        if(!lFileFilters.count(to_lowercase(substr)))
             continue;
     }
     else

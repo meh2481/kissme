@@ -30,5 +30,4 @@
 	- Refresh song tags as they're edited outside of kissme?
 - Don't accept unsupported files in playlists
 - Start playing playlist if double-clicked
-- Support multiple selection for both "Add Folder" and "Import playlist"
 - Reset GUI if last song in playlist deleted, and don't kick it back onto playlist on reload

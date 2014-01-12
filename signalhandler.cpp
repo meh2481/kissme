@@ -549,7 +549,7 @@ G_MODULE_EXPORT void button_newplaylist_clicked(GtkButton *button, ChData *data)
 
 G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
 {	
-	GtkWidget *dialog;
+		GtkWidget *dialog;
     dialog = gtk_file_chooser_dialog_new ("Import Playlist",
                                           GTK_WINDOW(data->main_window),
                                           GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -560,7 +560,7 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
 
     GtkFileChooser *filechooser = GTK_FILE_CHOOSER(dialog);
 
-    gtk_file_chooser_set_select_multiple(filechooser, false);
+    gtk_file_chooser_set_select_multiple(filechooser, true);
 
     //Add filters to our file chooser
     GtkFileFilter* filter = gtk_file_filter_new();
@@ -583,27 +583,40 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
     {
         //Get filename and open
         std::string sFilename = gtk_file_chooser_get_filename(filechooser);
-        std::list<song> sFiles = playlist_load(sFilename);
-        
-        std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(sFilename.c_str()));	//Name of our new playlist 
-        
-        //Add playlist to our manager
-        playlist_add(sListName, sFiles);
-        
-        //Add new playlist to our view
-        GtkTreeIter iter;
-        GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
-        gtk_list_store_append(playlists, &iter);
-        GValue a = G_VALUE_INIT;
-        g_value_init (&a, G_TYPE_STRING);
-        g_value_set_static_string (&a, sListName.c_str());
-        gtk_list_store_set_value(playlists, &iter, 0, &a);
+        GSList* filenames = gtk_file_chooser_get_filenames(filechooser);
+        for(GSList* i = filenames; i != NULL; i=i->next)
+        {
+            std::string sFilename = (char*)i->data;
+            std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(sFilename.c_str()));	//Name of our new playlist 
+        		if(is_playlist(sListName))	//Don't duplicate playlist names
+        		{
+        			std::cout << "Discarding duplicate list " << sFilename << std::endl;
+        			g_free(i->data);
+        			continue;
+						}
+				    std::list<song> sFiles = playlist_load(sFilename);
+				    
+				    //Add playlist to our manager
+				    playlist_add(sListName, sFiles);
+				    
+				    //Add new playlist to our view
+				    GtkTreeIter iter;
+				    GtkListStore* playlists = GTK_LIST_STORE(gtk_builder_get_object(builder, "Playlists"));
+				    gtk_list_store_append(playlists, &iter);
+				    GValue a = G_VALUE_INIT;
+				    g_value_init (&a, G_TYPE_STRING);
+				    g_value_set_static_string (&a, sListName.c_str());
+				    gtk_list_store_set_value(playlists, &iter, 0, &a);
 
-				//Highlight this new list
-        GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
-        GtkTreePath* path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
-        gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
-        gtk_tree_path_free(path);
+						//Highlight this new list
+				    GtkTreeView* view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1"));
+				    GtkTreePath* path = gtk_tree_model_get_path(gtk_tree_view_get_model(view), &iter);
+				    gtk_tree_selection_select_path(gtk_tree_view_get_selection(view), path);
+				    gtk_tree_path_free(path);
+            
+            g_free(i->data);
+        }
+        g_slist_free(filenames);
     }
 
     gtk_widget_destroy (dialog);

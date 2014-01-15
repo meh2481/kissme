@@ -14,9 +14,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with the Gnome Library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -28,7 +26,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -36,7 +34,7 @@
 #define __GTK_ACTION_GROUP_H__
 
 #include <gtk/gtkaction.h>
-#include <gtk/gtktypeutils.h> /* for GtkTranslateFunc */
+#include <gtk/gtkstock.h>
 
 G_BEGIN_DECLS
 
@@ -59,8 +57,7 @@ struct _GtkActionGroup
   GObject parent;
 
   /*< private >*/
-
-  GtkActionGroupPrivate *GSEAL (private_data);
+  GtkActionGroupPrivate *priv;
 };
 
 struct _GtkActionGroupClass
@@ -77,6 +74,23 @@ struct _GtkActionGroupClass
   void (*_gtk_reserved4) (void);
 };
 
+/**
+ * GtkActionEntry:
+ * @name: The name of the action.
+ * @stock_id: The stock id for the action, or the name of an icon from the
+ *  icon theme.
+ * @label: The label for the action. This field should typically be marked
+ *  for translation, see gtk_action_group_set_translation_domain(). If
+ *  @label is %NULL, the label of the stock item with id @stock_id is used.
+ * @accelerator: The accelerator for the action, in the format understood by
+ *  gtk_accelerator_parse().
+ * @tooltip: The tooltip for the action. This field should typically be
+ *  marked for translation, see gtk_action_group_set_translation_domain().
+ * @callback: The function to call when the action is activated.
+ *
+ * #GtkActionEntry structs are used with gtk_action_group_add_actions() to
+ * construct actions.
+ */
 struct _GtkActionEntry 
 {
   const gchar     *name;
@@ -87,6 +101,23 @@ struct _GtkActionEntry
   GCallback  callback;
 };
 
+/**
+ * GtkToggleActionEntry:
+ * @name: The name of the action.
+ * @stock_id: The stock id for the action, or the name of an icon from the
+ *  icon theme.
+ * @label: The label for the action. This field should typically be marked
+ *  for translation, see gtk_action_group_set_translation_domain().
+ * @accelerator: The accelerator for the action, in the format understood by
+ *  gtk_accelerator_parse().
+ * @tooltip: The tooltip for the action. This field should typically be
+ *  marked for translation, see gtk_action_group_set_translation_domain().
+ * @callback: The function to call when the action is activated.
+ * @is_active: The initial state of the toggle action.
+ *
+ * #GtkToggleActionEntry structs are used with
+ * gtk_action_group_add_toggle_actions() to construct toggle actions.
+ */
 struct _GtkToggleActionEntry 
 {
   const gchar     *name;
@@ -98,6 +129,23 @@ struct _GtkToggleActionEntry
   gboolean   is_active;
 };
 
+/**
+ * GtkRadioActionEntry:
+ * @name: The name of the action.
+ * @stock_id: The stock id for the action, or the name of an icon from the
+ *  icon theme.
+ * @label: The label for the action. This field should typically be marked
+ *  for translation, see gtk_action_group_set_translation_domain().
+ * @accelerator: The accelerator for the action, in the format understood by
+ *  gtk_accelerator_parse().
+ * @tooltip: The tooltip for the action. This field should typically be
+ *  marked for translation, see gtk_action_group_set_translation_domain().
+ * @value: The value to set on the radio action. See
+ *  gtk_radio_action_get_current_value().
+ *
+ * #GtkRadioActionEntry structs are used with
+ * gtk_action_group_add_radio_actions() to construct groups of radio actions.
+ */
 struct _GtkRadioActionEntry 
 {
   const gchar *name;
@@ -110,13 +158,19 @@ struct _GtkRadioActionEntry
 
 GType           gtk_action_group_get_type                (void) G_GNUC_CONST;
 GtkActionGroup *gtk_action_group_new                     (const gchar                *name);
-const gchar *gtk_action_group_get_name          (GtkActionGroup             *action_group);
+const gchar    *gtk_action_group_get_name                (GtkActionGroup             *action_group);
 gboolean        gtk_action_group_get_sensitive           (GtkActionGroup             *action_group);
 void            gtk_action_group_set_sensitive           (GtkActionGroup             *action_group,
 							  gboolean                    sensitive);
 gboolean        gtk_action_group_get_visible             (GtkActionGroup             *action_group);
 void            gtk_action_group_set_visible             (GtkActionGroup             *action_group,
 							  gboolean                    visible);
+GDK_AVAILABLE_IN_3_6
+GtkAccelGroup  *gtk_action_group_get_accel_group         (GtkActionGroup             *action_group);
+GDK_AVAILABLE_IN_3_6
+void            gtk_action_group_set_accel_group         (GtkActionGroup             *action_group,
+                                                          GtkAccelGroup              *accel_group);
+
 GtkAction      *gtk_action_group_get_action              (GtkActionGroup             *action_group,
 							  const gchar                *action_name);
 GList          *gtk_action_group_list_actions            (GtkActionGroup             *action_group);
@@ -164,7 +218,7 @@ void            gtk_action_group_set_translate_func      (GtkActionGroup        
 							  GDestroyNotify              notify);
 void            gtk_action_group_set_translation_domain  (GtkActionGroup             *action_group,
 							  const gchar                *domain);
-const gchar *gtk_action_group_translate_string  (GtkActionGroup             *action_group,
+const gchar *   gtk_action_group_translate_string        (GtkActionGroup             *action_group,
   	                                                  const gchar                *string);
 
 /* Protected for use by GtkAction */

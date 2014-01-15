@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -25,9 +23,6 @@
 #define __GTK_TREE_MODEL_H__
 
 #include <glib-object.h>
-
-/* Not needed, retained for compatibility -Yosh */
-#include <gtk/gtkobject.h>
 
 G_BEGIN_DECLS
 
@@ -45,15 +40,55 @@ typedef struct _GtkTreePath         GtkTreePath;
 typedef struct _GtkTreeRowReference GtkTreeRowReference;
 typedef struct _GtkTreeModel        GtkTreeModel; /* Dummy typedef */
 typedef struct _GtkTreeModelIface   GtkTreeModelIface;
+
+/**
+ * GtkTreeModelForeachFunc:
+ * @model: the #GtkTreeModel being iterated
+ * @path: the current #GtkTreePath
+ * @iter: the current #GtkTreeIter
+ * @data: The user data passed to gtk_tree_model_foreach()
+ *
+ * Type of the callback passed to gtk_tree_model_foreach() to
+ * iterate over the rows in a tree model.
+ *
+ * Return value: %TRUE to stop iterating, %FALSE to continue
+ *
+ */
 typedef gboolean (* GtkTreeModelForeachFunc) (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
 
-
+/**
+ * GtkTreeModelFlags:
+ * @GTK_TREE_MODEL_ITERS_PERSIST: iterators survive all signals
+ *     emitted by the tree
+ * @GTK_TREE_MODEL_LIST_ONLY: the model is a list only, and never
+ *     has children
+ *
+ * These flags indicate various properties of a #GtkTreeModel.
+ *
+ * They are returned by gtk_tree_model_get_flags(), and must be
+ * static for the lifetime of the object. A more complete description
+ * of #GTK_TREE_MODEL_ITERS_PERSIST can be found in the overview of
+ * this section.
+ */
 typedef enum
 {
   GTK_TREE_MODEL_ITERS_PERSIST = 1 << 0,
   GTK_TREE_MODEL_LIST_ONLY = 1 << 1
 } GtkTreeModelFlags;
 
+/**
+ * GtkTreeIter:
+ * @stamp: a unique stamp to catch invalid iterators
+ * @user_data: model-specific data
+ * @user_data2: model-specific data
+ * @user_data3: model-specific data
+ *
+ * The <structname>GtkTreeIter</structname> is the primary structure
+ * for accessing a #GtkTreeModel. Models are expected to put a unique
+ * integer in the <structfield>stamp</structfield> member, and put
+ * model-specific data in the three <structfield>user_data</structfield>
+ * members.
+ */
 struct _GtkTreeIter
 {
   gint stamp;
@@ -100,6 +135,8 @@ struct _GtkTreeModelIface
 				    GValue       *value);
   gboolean     (* iter_next)       (GtkTreeModel *tree_model,
 				    GtkTreeIter  *iter);
+  gboolean     (* iter_previous)   (GtkTreeModel *tree_model,
+				    GtkTreeIter  *iter);
   gboolean     (* iter_children)   (GtkTreeModel *tree_model,
 				    GtkTreeIter  *iter,
 				    GtkTreeIter  *parent);
@@ -134,8 +171,10 @@ void         gtk_tree_path_prepend_index    (GtkTreePath       *path,
 					     gint               index_);
 gint         gtk_tree_path_get_depth        (GtkTreePath       *path);
 gint        *gtk_tree_path_get_indices      (GtkTreePath       *path);
+
 gint        *gtk_tree_path_get_indices_with_depth (GtkTreePath *path,
-                                                   gint        *depth);
+						   gint        *depth);
+
 void         gtk_tree_path_free             (GtkTreePath       *path);
 GtkTreePath *gtk_tree_path_copy             (const GtkTreePath *path);
 GType        gtk_tree_path_get_type         (void) G_GNUC_CONST;
@@ -151,13 +190,12 @@ gboolean     gtk_tree_path_is_ancestor      (GtkTreePath       *path,
 gboolean     gtk_tree_path_is_descendant    (GtkTreePath       *path,
                                              GtkTreePath       *ancestor);
 
-#ifndef GTK_DISABLE_DEPRECATED
-#define gtk_tree_path_new_root() gtk_tree_path_new_first()
-#endif /* !GTK_DISABLE_DEPRECATED */
-
-/* Row reference (an object that tracks model changes so it refers to the same
- * row always; a path refers to a position, not a fixed row).  You almost always
- * want to call gtk_tree_row_reference_new.
+/**
+ * GtkTreeRowReference:
+ *
+ * A GtkTreeRowReference tracks model changes so that it always refers to the
+ * same row (a #GtkTreePath refers to a position, not a fixed row). Create a
+ * new GtkTreeRowReference with gtk_tree_row_reference_new().
  */
 
 GType                gtk_tree_row_reference_get_type (void) G_GNUC_CONST;
@@ -211,6 +249,8 @@ void              gtk_tree_model_get_value       (GtkTreeModel *tree_model,
 						  GtkTreeIter  *iter,
 						  gint          column,
 						  GValue       *value);
+gboolean          gtk_tree_model_iter_previous   (GtkTreeModel *tree_model,
+						  GtkTreeIter  *iter);
 gboolean          gtk_tree_model_iter_next       (GtkTreeModel *tree_model,
 						  GtkTreeIter  *iter);
 gboolean          gtk_tree_model_iter_children   (GtkTreeModel *tree_model,
@@ -242,11 +282,6 @@ void              gtk_tree_model_get_valist      (GtkTreeModel *tree_model,
 void              gtk_tree_model_foreach         (GtkTreeModel            *model,
 						  GtkTreeModelForeachFunc  func,
 						  gpointer                 user_data);
-
-
-#ifndef GTK_DISABLE_DEPRECATED
-#define gtk_tree_model_get_iter_root(tree_model, iter) gtk_tree_model_get_iter_first(tree_model, iter)
-#endif /* !GTK_DISABLE_DEPRECATED */
 
 /* Signals */
 void gtk_tree_model_row_changed           (GtkTreeModel *tree_model,

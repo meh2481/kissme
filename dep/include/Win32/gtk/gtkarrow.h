@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -45,21 +43,27 @@ G_BEGIN_DECLS
 #define GTK_IS_ARROW_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_ARROW))
 #define GTK_ARROW_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_ARROW, GtkArrowClass))
 
-
-typedef struct _GtkArrow       GtkArrow;
-typedef struct _GtkArrowClass  GtkArrowClass;
+typedef struct _GtkArrow              GtkArrow;
+typedef struct _GtkArrowPrivate       GtkArrowPrivate;
+typedef struct _GtkArrowClass         GtkArrowClass;
 
 struct _GtkArrow
 {
   GtkMisc misc;
 
-  gint16 GSEAL (arrow_type);
-  gint16 GSEAL (shadow_type);
+  /*< private >*/
+  GtkArrowPrivate *priv;
 };
 
 struct _GtkArrowClass
 {
   GtkMiscClass parent_class;
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 

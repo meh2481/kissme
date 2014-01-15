@@ -13,12 +13,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -43,10 +41,10 @@ typedef struct _GtkRecentChooserMenuPrivate	GtkRecentChooserMenuPrivate;
 
 struct _GtkRecentChooserMenu
 {
-  /*< private >*/
   GtkMenu parent_instance;
 
-  GtkRecentChooserMenuPrivate *GSEAL (priv);
+  /*< private >*/
+  GtkRecentChooserMenuPrivate *priv;
 };
 
 struct _GtkRecentChooserMenuClass

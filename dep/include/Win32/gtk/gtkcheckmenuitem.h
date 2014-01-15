@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -45,17 +43,16 @@ G_BEGIN_DECLS
 #define GTK_CHECK_MENU_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_CHECK_MENU_ITEM, GtkCheckMenuItemClass))
 
 
-typedef struct _GtkCheckMenuItem       GtkCheckMenuItem;
-typedef struct _GtkCheckMenuItemClass  GtkCheckMenuItemClass;
+typedef struct _GtkCheckMenuItem              GtkCheckMenuItem;
+typedef struct _GtkCheckMenuItemPrivate       GtkCheckMenuItemPrivate;
+typedef struct _GtkCheckMenuItemClass         GtkCheckMenuItemClass;
 
 struct _GtkCheckMenuItem
 {
   GtkMenuItem menu_item;
 
-  guint GSEAL (active) : 1;
-  guint GSEAL (always_show_toggle) : 1;
-  guint GSEAL (inconsistent) : 1;
-  guint GSEAL (draw_as_radio) : 1;
+  /*< private >*/
+  GtkCheckMenuItemPrivate *priv;
 };
 
 struct _GtkCheckMenuItemClass
@@ -64,7 +61,7 @@ struct _GtkCheckMenuItemClass
 
   void (* toggled)	  (GtkCheckMenuItem *check_menu_item);
   void (* draw_indicator) (GtkCheckMenuItem *check_menu_item,
-			   GdkRectangle	    *area);
+			   cairo_t          *cr);
 
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
@@ -91,11 +88,10 @@ void       gtk_check_menu_item_set_draw_as_radio (GtkCheckMenuItem *check_menu_i
 gboolean   gtk_check_menu_item_get_draw_as_radio (GtkCheckMenuItem *check_menu_item);
 
 
-#ifndef GTK_DISABLE_DEPRECATED
-void	   gtk_check_menu_item_set_show_toggle (GtkCheckMenuItem *menu_item,
-						gboolean	  always);
-#define	gtk_check_menu_item_set_state		gtk_check_menu_item_set_active
-#endif
+/* private */
+void       _gtk_check_menu_item_set_active       (GtkCheckMenuItem *check_menu_item,
+                                                  gboolean          is_active);
+
 
 G_END_DECLS
 

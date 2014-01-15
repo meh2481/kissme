@@ -13,19 +13,17 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
 #ifndef __GTK_FILE_CHOOSER_BUTTON_H__
 #define __GTK_FILE_CHOOSER_BUTTON_H__
 
-#include <gtk/gtkhbox.h>
+#include <gtk/gtkbox.h>
 #include <gtk/gtkfilechooser.h>
 
 G_BEGIN_DECLS
@@ -43,39 +41,30 @@ typedef struct _GtkFileChooserButtonClass   GtkFileChooserButtonClass;
 
 struct _GtkFileChooserButton
 {
-  /*< private >*/
-  GtkHBox parent;
+  GtkBox parent;
 
-  GtkFileChooserButtonPrivate *GSEAL (priv);
+  /*< private >*/
+  GtkFileChooserButtonPrivate *priv;
 };
 
 struct _GtkFileChooserButtonClass
 {
   /*< private >*/
-  GtkHBoxClass parent_class;
+  GtkBoxClass parent_class;
 
   void (* file_set) (GtkFileChooserButton *fc);
 
+  /* Padding for future expansion */
   void (*__gtk_reserved1);
   void (*__gtk_reserved2);
   void (*__gtk_reserved3);
   void (*__gtk_reserved4);
-  void (*__gtk_reserved5);
-  void (*__gtk_reserved6);
-  void (*__gtk_reserved7);
 };
 
 
 GType                 gtk_file_chooser_button_get_type         (void) G_GNUC_CONST;
 GtkWidget *           gtk_file_chooser_button_new              (const gchar          *title,
 								GtkFileChooserAction  action);
-
-#ifndef GTK_DISABLE_DEPRECATED
-GtkWidget *           gtk_file_chooser_button_new_with_backend (const gchar          *title,
-								GtkFileChooserAction  action,
-								const gchar          *backend);
-#endif /* GTK_DISABLE_DEPRECATED */
-
 GtkWidget *           gtk_file_chooser_button_new_with_dialog  (GtkWidget            *dialog);
 const gchar *         gtk_file_chooser_button_get_title        (GtkFileChooserButton *button);
 void                  gtk_file_chooser_button_set_title        (GtkFileChooserButton *button,

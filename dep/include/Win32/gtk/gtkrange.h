@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -32,7 +30,6 @@
 #define __GTK_RANGE_H__
 
 
-#include <gtk/gtkadjustment.h>
 #include <gtk/gtkwidget.h>
 
 
@@ -46,60 +43,15 @@ G_BEGIN_DECLS
 #define GTK_IS_RANGE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_RANGE))
 #define GTK_RANGE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_RANGE, GtkRangeClass))
 
-/* These two are private/opaque types, ignore */
-typedef struct _GtkRangeLayout    GtkRangeLayout;
-typedef struct _GtkRangeStepTimer GtkRangeStepTimer;
-
-typedef struct _GtkRange        GtkRange;
-typedef struct _GtkRangeClass   GtkRangeClass;
+typedef struct _GtkRange              GtkRange;
+typedef struct _GtkRangePrivate       GtkRangePrivate;
+typedef struct _GtkRangeClass         GtkRangeClass;
 
 struct _GtkRange
 {
   GtkWidget widget;
 
-  GtkAdjustment *GSEAL (adjustment);
-  GtkUpdateType GSEAL (update_policy);
-  guint GSEAL (inverted) : 1;
-
-  /*< protected >*/
-
-  guint GSEAL (flippable) : 1;
-
-  /* Steppers are: < > ---- < >
-   *               a b      c d
-   */
-
-  guint GSEAL (has_stepper_a) : 1;
-  guint GSEAL (has_stepper_b) : 1;
-  guint GSEAL (has_stepper_c) : 1;
-  guint GSEAL (has_stepper_d) : 1;
-
-  guint GSEAL (need_recalc) : 1;
-
-  guint GSEAL (slider_size_fixed) : 1;
-
-  gint GSEAL (min_slider_size);
-
-  GtkOrientation GSEAL (orientation);
-
-  /* Area of entire stepper + trough assembly in widget->window coords */
-  GdkRectangle GSEAL (range_rect);
-  /* Slider range along the long dimension, in widget->window coords */
-  gint GSEAL (slider_start);
-  gint GSEAL (slider_end);
-
-  /* Round off value to this many digits, -1 for no rounding */
-  gint GSEAL (round_digits);
-
-  /*< private >*/
-  guint GSEAL (trough_click_forward) : 1;  /* trough click was on the forward side of slider */
-  guint GSEAL (update_pending) : 1;        /* need to emit value_changed */
-  GtkRangeLayout *GSEAL (layout);
-  GtkRangeStepTimer *GSEAL (timer);
-  gint GSEAL (slide_initial_slider_position);
-  gint GSEAL (slide_initial_coordinate);
-  guint GSEAL (update_timeout_id);
-  GdkWindow *GSEAL (event_window);
+  GtkRangePrivate *priv;
 };
 
 struct _GtkRangeClass
@@ -130,16 +82,11 @@ struct _GtkRangeClass
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 
 GType              gtk_range_get_type                      (void) G_GNUC_CONST;
-
-#ifndef GTK_DISABLE_DEPRECATED
-void               gtk_range_set_update_policy             (GtkRange      *range,
-                                                            GtkUpdateType  policy);
-GtkUpdateType      gtk_range_get_update_policy             (GtkRange      *range);
-#endif /* GTK_DISABLE_DEPRECATED */
 
 void               gtk_range_set_adjustment                (GtkRange      *range,
                                                             GtkAdjustment *adjustment);
@@ -158,7 +105,7 @@ void               gtk_range_set_slider_size_fixed         (GtkRange      *range
 gboolean           gtk_range_get_slider_size_fixed         (GtkRange      *range);
 
 void               gtk_range_set_min_slider_size           (GtkRange      *range,
-                                                            gboolean       min_size);
+                                                            gint           min_size);
 gint               gtk_range_get_min_slider_size           (GtkRange      *range);
 
 void               gtk_range_get_range_rect                (GtkRange      *range,
@@ -195,19 +142,24 @@ void               gtk_range_set_fill_level                (GtkRange      *range
 gdouble            gtk_range_get_fill_level                (GtkRange      *range);
 void               gtk_range_set_round_digits              (GtkRange      *range,
                                                             gint           round_digits);
-gint                gtk_range_get_round_digits             (GtkRange      *range);
-
+gint                gtk_range_get_round_digits              (GtkRange      *range);
 
 /* internal API */
-gdouble            _gtk_range_get_wheel_delta              (GtkRange      *range,
-                                                            GdkScrollDirection direction);
-
+gdouble            _gtk_range_get_wheel_delta              (GtkRange       *range,
+                                                            GdkEventScroll *event);
+void               _gtk_range_set_has_origin               (GtkRange      *range,
+                                                            gboolean       has_origin);
+gboolean           _gtk_range_get_has_origin               (GtkRange      *range);
 void               _gtk_range_set_stop_values              (GtkRange      *range,
                                                             gdouble       *values,
                                                             gint           n_values);
 gint               _gtk_range_get_stop_positions           (GtkRange      *range,
-                                                            gint         **values);          
-
+                                                            gint         **values);
+void               _gtk_range_set_steppers                 (GtkRange      *range,
+                                                            gboolean       has_a,
+                                                            gboolean       has_b,
+                                                            gboolean       has_c,
+                                                            gboolean       has_d);
 
 G_END_DECLS
 

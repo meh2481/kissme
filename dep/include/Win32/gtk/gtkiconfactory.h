@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -32,11 +30,11 @@
 #define __GTK_ICON_FACTORY_H__
 
 #include <gdk/gdk.h>
-#include <gtk/gtkrc.h>
+#include <gtk/gtkenums.h>
+#include <gtk/gtktypes.h>
 
 G_BEGIN_DECLS
 
-typedef struct _GtkIconFactoryClass GtkIconFactoryClass;
 
 #define GTK_TYPE_ICON_FACTORY              (gtk_icon_factory_get_type ())
 #define GTK_ICON_FACTORY(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), GTK_TYPE_ICON_FACTORY, GtkIconFactory))
@@ -47,11 +45,16 @@ typedef struct _GtkIconFactoryClass GtkIconFactoryClass;
 #define GTK_TYPE_ICON_SET                  (gtk_icon_set_get_type ())
 #define GTK_TYPE_ICON_SOURCE               (gtk_icon_source_get_type ())
 
+typedef struct _GtkIconFactory              GtkIconFactory;
+typedef struct _GtkIconFactoryPrivate       GtkIconFactoryPrivate;
+typedef struct _GtkIconFactoryClass         GtkIconFactoryClass;
+
 struct _GtkIconFactory
 {
   GObject parent_instance;
 
-  GHashTable *GSEAL (icons);
+  /*< private >*/
+  GtkIconFactoryPrivate *priv;
 };
 
 struct _GtkIconFactoryClass
@@ -64,12 +67,6 @@ struct _GtkIconFactoryClass
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 };
-
-#ifdef G_OS_WIN32
-/* Reserve old names for DLL ABI backward compatibility */
-#define gtk_icon_source_set_filename gtk_icon_source_set_filename_utf8
-#define gtk_icon_source_get_filename gtk_icon_source_get_filename_utf8
-#endif
 
 GType           gtk_icon_factory_get_type (void) G_GNUC_CONST;
 GtkIconFactory* gtk_icon_factory_new      (void);
@@ -112,7 +109,7 @@ GtkIconSize           gtk_icon_size_register       (const gchar *name,
 void                  gtk_icon_size_register_alias (const gchar *alias,
                                                     GtkIconSize  target);
 GtkIconSize           gtk_icon_size_from_name      (const gchar *name);
-const gchar *         gtk_icon_size_get_name       (GtkIconSize  size);
+const gchar*          gtk_icon_size_get_name       (GtkIconSize  size);
 
 /* Icon sets */
 
@@ -124,17 +121,14 @@ GtkIconSet* gtk_icon_set_ref             (GtkIconSet      *icon_set);
 void        gtk_icon_set_unref           (GtkIconSet      *icon_set);
 GtkIconSet* gtk_icon_set_copy            (GtkIconSet      *icon_set);
 
-/* Get one of the icon variants in the set, creating the variant if
- * necessary.
- */
+GDK_DEPRECATED_IN_3_0_FOR(gtk_icon_set_render_icon_pixbuf)
 GdkPixbuf*  gtk_icon_set_render_icon     (GtkIconSet      *icon_set,
                                           GtkStyle        *style,
                                           GtkTextDirection direction,
                                           GtkStateType     state,
                                           GtkIconSize      size,
                                           GtkWidget       *widget,
-                                          const char      *detail);
-
+                                          const gchar     *detail);
 
 void           gtk_icon_set_add_source   (GtkIconSet          *icon_set,
                                           const GtkIconSource *source);
@@ -155,9 +149,9 @@ void           gtk_icon_source_set_icon_name            (GtkIconSource       *so
 void           gtk_icon_source_set_pixbuf               (GtkIconSource       *source,
                                                          GdkPixbuf           *pixbuf);
 
-const gchar* gtk_icon_source_get_filename  (const GtkIconSource *source);
-const gchar* gtk_icon_source_get_icon_name (const GtkIconSource *source);
-GdkPixbuf*            gtk_icon_source_get_pixbuf    (const GtkIconSource *source);
+const gchar *    gtk_icon_source_get_filename             (const GtkIconSource *source);
+const gchar *    gtk_icon_source_get_icon_name            (const GtkIconSource *source);
+GdkPixbuf*       gtk_icon_source_get_pixbuf               (const GtkIconSource *source);
 
 void             gtk_icon_source_set_direction_wildcarded (GtkIconSource       *source,
                                                            gboolean             setting);

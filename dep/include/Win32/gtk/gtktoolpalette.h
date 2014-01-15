@@ -12,8 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
  *      Mathias Hasselmann
@@ -72,17 +71,11 @@ struct _GtkToolPaletteClass
 {
   GtkContainerClass parent_class;
 
-  void (*set_scroll_adjustments) (GtkWidget     *widget,
-                                  GtkAdjustment *hadjustment,
-                                  GtkAdjustment *vadjustment);
-
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
-  void (*_gtk_reserved5) (void);
-  void (*_gtk_reserved6) (void);
 };
 
 GType                          gtk_tool_palette_get_type              (void) G_GNUC_CONST;
@@ -132,11 +125,14 @@ void                           gtk_tool_palette_add_drag_dest         (GtkToolPa
                                                                        GtkToolPaletteDragTargets  targets,
                                                                        GdkDragAction              actions);
 
+
+GDK_DEPRECATED_IN_3_0_FOR(gtk_scrollable_get_hadjustment)
 GtkAdjustment*                 gtk_tool_palette_get_hadjustment       (GtkToolPalette            *palette);
+GDK_DEPRECATED_IN_3_0_FOR(gtk_scrollable_get_vadjustment)
 GtkAdjustment*                 gtk_tool_palette_get_vadjustment       (GtkToolPalette            *palette);
 
-const GtkTargetEntry *         gtk_tool_palette_get_drag_target_item  (void) G_GNUC_CONST;
-const GtkTargetEntry *         gtk_tool_palette_get_drag_target_group (void) G_GNUC_CONST;
+const GtkTargetEntry*          gtk_tool_palette_get_drag_target_item  (void) G_GNUC_CONST;
+const GtkTargetEntry*          gtk_tool_palette_get_drag_target_group (void) G_GNUC_CONST;
 
 
 G_END_DECLS

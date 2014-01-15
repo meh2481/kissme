@@ -14,9 +14,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with the Gnome Library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -28,7 +26,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -55,8 +53,7 @@ struct _GtkRadioAction
   GtkToggleAction parent;
 
   /*< private >*/
-
-  GtkRadioActionPrivate *GSEAL (private_data);
+  GtkRadioActionPrivate *private_data;
 };
 
 struct _GtkRadioActionClass
@@ -81,6 +78,8 @@ GtkRadioAction *gtk_radio_action_new               (const gchar           *name,
 GSList         *gtk_radio_action_get_group         (GtkRadioAction        *action);
 void            gtk_radio_action_set_group         (GtkRadioAction        *action,
                                                     GSList                *group);
+void            gtk_radio_action_join_group        (GtkRadioAction        *action,
+                                                    GtkRadioAction        *group_source);
 gint            gtk_radio_action_get_current_value (GtkRadioAction        *action);
 void            gtk_radio_action_set_current_value (GtkRadioAction        *action,
                                                     gint                   current_value);

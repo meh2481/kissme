@@ -12,8 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -23,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -46,8 +45,9 @@ G_BEGIN_DECLS
 #define GTK_LABEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_LABEL, GtkLabelClass))
 
 
-typedef struct _GtkLabel       GtkLabel;
-typedef struct _GtkLabelClass  GtkLabelClass;
+typedef struct _GtkLabel              GtkLabel;
+typedef struct _GtkLabelPrivate       GtkLabelPrivate;
+typedef struct _GtkLabelClass         GtkLabelClass;
 
 typedef struct _GtkLabelSelectionInfo GtkLabelSelectionInfo;
 
@@ -56,31 +56,7 @@ struct _GtkLabel
   GtkMisc misc;
 
   /*< private >*/
-  gchar  *GSEAL (label);
-  guint   GSEAL (jtype)            : 2;
-  guint   GSEAL (wrap)             : 1;
-  guint   GSEAL (use_underline)    : 1;
-  guint   GSEAL (use_markup)       : 1;
-  guint   GSEAL (ellipsize)        : 3;
-  guint   GSEAL (single_line_mode) : 1;
-  guint   GSEAL (have_transform)   : 1;
-  guint   GSEAL (in_click)         : 1;
-  guint   GSEAL (wrap_mode)        : 3;
-  guint   GSEAL (pattern_set)      : 1;
-  guint   GSEAL (track_links)      : 1;
-
-  guint   GSEAL (mnemonic_keyval);
-
-  gchar  *GSEAL (text);
-  PangoAttrList *GSEAL (attrs);
-  PangoAttrList *GSEAL (effective_attrs);
-
-  PangoLayout *GSEAL (layout);
-
-  GtkWidget *GSEAL (mnemonic_widget);
-  GtkWindow *GSEAL (mnemonic_window);
-
-  GtkLabelSelectionInfo *GSEAL (select_info);
+  GtkLabelPrivate *priv;
 };
 
 struct _GtkLabelClass
@@ -104,6 +80,11 @@ struct _GtkLabelClass
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+  void (*_gtk_reserved5) (void);
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+  void (*_gtk_reserved8) (void);
 };
 
 GType                 gtk_label_get_type          (void) G_GNUC_CONST;
@@ -111,7 +92,7 @@ GtkWidget*            gtk_label_new               (const gchar   *str);
 GtkWidget*            gtk_label_new_with_mnemonic (const gchar   *str);
 void                  gtk_label_set_text          (GtkLabel      *label,
 						   const gchar   *str);
-const gchar *         gtk_label_get_text          (GtkLabel      *label);
+const gchar*          gtk_label_get_text          (GtkLabel      *label);
 void                  gtk_label_set_attributes    (GtkLabel      *label,
 						   PangoAttrList *attrs);
 PangoAttrList        *gtk_label_get_attributes    (GtkLabel      *label);
@@ -177,30 +158,18 @@ void         gtk_label_set_single_line_mode  (GtkLabel *label,
                                               gboolean single_line_mode);
 gboolean     gtk_label_get_single_line_mode  (GtkLabel *label);
 
-const gchar *gtk_label_get_current_uri          (GtkLabel *label);
+const gchar *gtk_label_get_current_uri (GtkLabel *label);
 void         gtk_label_set_track_visited_links  (GtkLabel *label,
                                                  gboolean  track_links);
 gboolean     gtk_label_get_track_visited_links  (GtkLabel *label);
 
-#ifndef GTK_DISABLE_DEPRECATED
-
-#define  gtk_label_set           gtk_label_set_text
-void       gtk_label_get           (GtkLabel          *label,
-                                    gchar            **str);
-
-/* Convenience function to set the name and pattern by parsing
- * a string with embedded underscores, and return the appropriate
- * key symbol for the accelerator.
- */
-guint gtk_label_parse_uline            (GtkLabel    *label,
-					const gchar *string);
-
-#endif /* GTK_DISABLE_DEPRECATED */
 
 /* private */
 
 void _gtk_label_mnemonics_visible_apply_recursively (GtkWidget *widget,
                                                      gboolean   mnemonics_visible);
+gint _gtk_label_get_cursor_position (GtkLabel *label);
+gint _gtk_label_get_selection_bound (GtkLabel *label);
 
 G_END_DECLS
 

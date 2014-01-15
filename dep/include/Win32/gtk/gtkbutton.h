@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -45,28 +43,16 @@ G_BEGIN_DECLS
 #define GTK_IS_BUTTON_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_BUTTON))
 #define GTK_BUTTON_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_BUTTON, GtkButtonClass))
 
-typedef struct _GtkButton        GtkButton;
-typedef struct _GtkButtonClass   GtkButtonClass;
+typedef struct _GtkButton             GtkButton;
+typedef struct _GtkButtonPrivate      GtkButtonPrivate;
+typedef struct _GtkButtonClass        GtkButtonClass;
 
 struct _GtkButton
 {
+  /*< private >*/
   GtkBin bin;
 
-  GdkWindow *GSEAL (event_window);
-
-  gchar *GSEAL (label_text);
-
-  guint GSEAL (activate_timeout);
-
-  guint GSEAL (constructed) : 1;
-  guint GSEAL (in_button) : 1;
-  guint GSEAL (button_down) : 1;
-  guint GSEAL (relief) : 2;
-  guint GSEAL (use_underline) : 1;
-  guint GSEAL (use_stock) : 1;
-  guint GSEAL (depressed) : 1;
-  guint GSEAL (depress_on_activate) : 1;
-  guint GSEAL (focus_on_click) : 1;
+  GtkButtonPrivate *priv;
 };
 
 struct _GtkButtonClass
@@ -93,15 +79,15 @@ GtkWidget*     gtk_button_new               (void);
 GtkWidget*     gtk_button_new_with_label    (const gchar    *label);
 GtkWidget*     gtk_button_new_from_stock    (const gchar    *stock_id);
 GtkWidget*     gtk_button_new_with_mnemonic (const gchar    *label);
-#ifndef GTK_DISABLE_DEPRECATED
-void           gtk_button_pressed           (GtkButton      *button);
-void           gtk_button_released          (GtkButton      *button);
-#endif
 void           gtk_button_clicked           (GtkButton      *button);
-#ifndef GTK_DISABLE_DEPRECATED
+GDK_DEPRECATED
+void           gtk_button_pressed           (GtkButton      *button);
+GDK_DEPRECATED
+void           gtk_button_released          (GtkButton      *button);
+GDK_DEPRECATED
 void           gtk_button_enter             (GtkButton      *button);
+GDK_DEPRECATED
 void           gtk_button_leave             (GtkButton      *button);
-#endif
 
 void                  gtk_button_set_relief         (GtkButton      *button,
 						     GtkReliefStyle  newstyle);
@@ -130,17 +116,14 @@ GtkWidget*            gtk_button_get_image          (GtkButton      *button);
 void                  gtk_button_set_image_position (GtkButton      *button,
 						     GtkPositionType position);
 GtkPositionType       gtk_button_get_image_position (GtkButton      *button);
+GDK_AVAILABLE_IN_3_6
+void                  gtk_button_set_always_show_image (GtkButton   *button,
+                                                        gboolean     always_show);
+GDK_AVAILABLE_IN_3_6
+gboolean              gtk_button_get_always_show_image (GtkButton   *button);
 
 GdkWindow*            gtk_button_get_event_window   (GtkButton      *button);
 
-void _gtk_button_set_depressed             (GtkButton          *button,
-					    gboolean            depressed);
-void _gtk_button_paint                     (GtkButton          *button,
-					    const GdkRectangle *area,
-					    GtkStateType        state_type,
-					    GtkShadowType       shadow_type,
-					    const gchar        *main_detail,
-					    const gchar        *default_detail);
 
 G_END_DECLS
 

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -57,10 +55,11 @@ typedef enum
 
 
 /* --- typedefs & structures --- */
-typedef struct _GtkAccelGroup	   GtkAccelGroup;
-typedef struct _GtkAccelGroupClass GtkAccelGroupClass;
-typedef struct _GtkAccelKey        GtkAccelKey;
-typedef struct _GtkAccelGroupEntry GtkAccelGroupEntry;
+typedef struct _GtkAccelGroup	          GtkAccelGroup;
+typedef struct _GtkAccelGroupClass        GtkAccelGroupClass;
+typedef struct _GtkAccelGroupPrivate      GtkAccelGroupPrivate;
+typedef struct _GtkAccelKey               GtkAccelKey;
+typedef struct _GtkAccelGroupEntry        GtkAccelGroupEntry;
 typedef gboolean (*GtkAccelGroupActivate) (GtkAccelGroup  *accel_group,
 					   GObject        *acceleratable,
 					   guint           keyval,
@@ -70,7 +69,7 @@ typedef gboolean (*GtkAccelGroupActivate) (GtkAccelGroup  *accel_group,
  * GtkAccelGroupFindFunc:
  * @key: 
  * @closure: 
- * @data: 
+ * @data: (closure):
  * 
  * Since: 2.2
  */
@@ -85,13 +84,8 @@ typedef gboolean (*GtkAccelGroupFindFunc) (GtkAccelKey    *key,
  */
 struct _GtkAccelGroup
 {
-  GObject             parent;
-
-  guint               GSEAL (lock_count);
-  GdkModifierType     GSEAL (modifier_mask);
-  GSList             *GSEAL (acceleratables);
-  guint	              GSEAL (n_accels);
-  GtkAccelGroupEntry *GSEAL (priv_accels);
+  GObject               parent;
+  GtkAccelGroupPrivate *priv;
 };
 
 struct _GtkAccelGroupClass
@@ -167,12 +161,28 @@ gboolean gtk_accelerator_valid		      (guint	        keyval,
 void	 gtk_accelerator_parse		      (const gchar     *accelerator,
 					       guint	       *accelerator_key,
 					       GdkModifierType *accelerator_mods);
+GDK_AVAILABLE_IN_3_4
+void gtk_accelerator_parse_with_keycode       (const gchar     *accelerator,
+                                               guint           *accelerator_key,
+                                               guint          **accelerator_codes,
+                                               GdkModifierType *accelerator_mods);
 gchar*	 gtk_accelerator_name		      (guint	        accelerator_key,
 					       GdkModifierType  accelerator_mods);
+GDK_AVAILABLE_IN_3_4
+gchar*	 gtk_accelerator_name_with_keycode    (GdkDisplay      *display,
+                                               guint            accelerator_key,
+                                               guint            keycode,
+                                               GdkModifierType  accelerator_mods);
 gchar*   gtk_accelerator_get_label            (guint           accelerator_key,
                                                GdkModifierType accelerator_mods);
+GDK_AVAILABLE_IN_3_4
+gchar*   gtk_accelerator_get_label_with_keycode (GdkDisplay      *display,
+                                                 guint            accelerator_key,
+                                                 guint            keycode,
+                                                 GdkModifierType  accelerator_mods);
 void	 gtk_accelerator_set_default_mod_mask (GdkModifierType  default_mod_mask);
-guint	 gtk_accelerator_get_default_mod_mask (void);
+GdkModifierType
+	 gtk_accelerator_get_default_mod_mask (void);
 
 
 /* --- internal --- */
@@ -183,6 +193,7 @@ GtkAccelGroupEntry*	gtk_accel_group_query	(GtkAccelGroup	*accel_group,
 
 void		     _gtk_accel_group_reconnect (GtkAccelGroup *accel_group,
 						 GQuark         accel_path_quark);
+GSList*       _gtk_accel_group_get_accelerables (GtkAccelGroup *accel_group);
 
 struct _GtkAccelGroupEntry
 {
@@ -191,24 +202,6 @@ struct _GtkAccelGroupEntry
   GQuark       accel_path_quark;
 };
 
-
-#ifndef GTK_DISABLE_DEPRECATED
-/**
- * gtk_accel_group_ref:
- * 
- * Deprecated equivalent of g_object_ref().
- * 
- * Returns: the accel group that was passed in
- */
-#define	gtk_accel_group_ref	g_object_ref
-
-/**
- * gtk_accel_group_unref:
- * 
- * Deprecated equivalent of g_object_unref().
- */
-#define	gtk_accel_group_unref	g_object_unref
-#endif /* GTK_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

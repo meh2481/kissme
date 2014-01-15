@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -26,6 +24,8 @@
 
 #include <gtk/gtkwidget.h>
 #include <gtk/gtkcellrenderer.h>
+#include <gtk/gtkcellarea.h>
+#include <gtk/gtkcellareacontext.h>
 #include <gtk/gtktreemodel.h>
 
 G_BEGIN_DECLS
@@ -46,35 +46,49 @@ struct _GtkCellView
   GtkWidget parent_instance;
 
   /*< private >*/
-  GtkCellViewPrivate *GSEAL (priv);
+  GtkCellViewPrivate *priv;
 };
 
 struct _GtkCellViewClass
 {
   GtkWidgetClass parent_class;
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
-GType             gtk_cell_view_get_type               (void) G_GNUC_CONST;
-GtkWidget        *gtk_cell_view_new                    (void);
-GtkWidget        *gtk_cell_view_new_with_text          (const gchar     *text);
-GtkWidget        *gtk_cell_view_new_with_markup        (const gchar     *markup);
-GtkWidget        *gtk_cell_view_new_with_pixbuf        (GdkPixbuf       *pixbuf);
-
+GType             gtk_cell_view_get_type                (void) G_GNUC_CONST;
+GtkWidget        *gtk_cell_view_new                     (void);
+GtkWidget        *gtk_cell_view_new_with_context        (GtkCellArea        *area,
+                                                         GtkCellAreaContext *context);
+GtkWidget        *gtk_cell_view_new_with_text           (const gchar     *text);
+GtkWidget        *gtk_cell_view_new_with_markup         (const gchar     *markup);
+GtkWidget        *gtk_cell_view_new_with_pixbuf         (GdkPixbuf       *pixbuf);
 void              gtk_cell_view_set_model               (GtkCellView     *cell_view,
                                                          GtkTreeModel    *model);
 GtkTreeModel     *gtk_cell_view_get_model               (GtkCellView     *cell_view);
 void              gtk_cell_view_set_displayed_row       (GtkCellView     *cell_view,
                                                          GtkTreePath     *path);
 GtkTreePath      *gtk_cell_view_get_displayed_row       (GtkCellView     *cell_view);
+void              gtk_cell_view_set_background_rgba     (GtkCellView     *cell_view,
+                                                         const GdkRGBA   *rgba);
+gboolean          gtk_cell_view_get_draw_sensitive      (GtkCellView     *cell_view);
+void              gtk_cell_view_set_draw_sensitive      (GtkCellView     *cell_view,
+                                                         gboolean         draw_sensitive);
+gboolean          gtk_cell_view_get_fit_model           (GtkCellView     *cell_view);
+void              gtk_cell_view_set_fit_model           (GtkCellView     *cell_view,
+                                                         gboolean         fit_model);
+
+GDK_DEPRECATED_IN_3_0_FOR(gtk_widget_get_preferred_size)
 gboolean          gtk_cell_view_get_size_of_row         (GtkCellView     *cell_view,
                                                          GtkTreePath     *path,
                                                          GtkRequisition  *requisition);
-
+GDK_DEPRECATED_IN_3_4_FOR(gtk_cell_view_set_background_rgba)
 void              gtk_cell_view_set_background_color    (GtkCellView     *cell_view,
                                                          const GdkColor  *color);
-#ifndef GTK_DISABLE_DEPRECATED
-GList            *gtk_cell_view_get_cell_renderers      (GtkCellView     *cell_view);
-#endif
 
 G_END_DECLS
 

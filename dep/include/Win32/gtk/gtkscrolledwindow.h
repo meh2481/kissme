@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,18 +22,14 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
 #ifndef __GTK_SCROLLED_WINDOW_H__
 #define __GTK_SCROLLED_WINDOW_H__
 
-
-#include <gtk/gtkhscrollbar.h>
-#include <gtk/gtkvscrollbar.h>
-#include <gtk/gtkviewport.h>
-
+#include <gtk/gtkbin.h>
 
 G_BEGIN_DECLS
 
@@ -48,27 +42,15 @@ G_BEGIN_DECLS
 #define GTK_SCROLLED_WINDOW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_SCROLLED_WINDOW, GtkScrolledWindowClass))
 
 
-
-typedef struct _GtkScrolledWindow       GtkScrolledWindow;
-typedef struct _GtkScrolledWindowClass  GtkScrolledWindowClass;
+typedef struct _GtkScrolledWindow              GtkScrolledWindow;
+typedef struct _GtkScrolledWindowPrivate       GtkScrolledWindowPrivate;
+typedef struct _GtkScrolledWindowClass         GtkScrolledWindowClass;
 
 struct _GtkScrolledWindow
 {
   GtkBin container;
 
-  /*< public >*/
-  GtkWidget *GSEAL (hscrollbar);
-  GtkWidget *GSEAL (vscrollbar);
-
-  /*< private >*/
-  guint GSEAL (hscrollbar_policy)      : 2;
-  guint GSEAL (vscrollbar_policy)      : 2;
-  guint GSEAL (hscrollbar_visible)     : 1;
-  guint GSEAL (vscrollbar_visible)     : 1;
-  guint GSEAL (window_placement)       : 2;
-  guint GSEAL (focus_out)              : 1;	/* Flag used by ::move-focus-out implementation */
-
-  guint16 GSEAL (shadow_type);
+  GtkScrolledWindowPrivate *priv;
 };
 
 struct _GtkScrolledWindowClass
@@ -126,6 +108,24 @@ void           gtk_scrolled_window_set_shadow_type   (GtkScrolledWindow *scrolle
 GtkShadowType  gtk_scrolled_window_get_shadow_type   (GtkScrolledWindow *scrolled_window);
 void	       gtk_scrolled_window_add_with_viewport (GtkScrolledWindow *scrolled_window,
 						      GtkWidget		*child);
+
+gint           gtk_scrolled_window_get_min_content_width  (GtkScrolledWindow *scrolled_window);
+void           gtk_scrolled_window_set_min_content_width  (GtkScrolledWindow *scrolled_window,
+                                                           gint               width);
+gint           gtk_scrolled_window_get_min_content_height (GtkScrolledWindow *scrolled_window);
+void           gtk_scrolled_window_set_min_content_height (GtkScrolledWindow *scrolled_window,
+                                                           gint               height);
+GDK_AVAILABLE_IN_3_4
+void           gtk_scrolled_window_set_kinetic_scrolling  (GtkScrolledWindow        *scrolled_window,
+                                                           gboolean                  kinetic_scrolling);
+GDK_AVAILABLE_IN_3_4
+gboolean       gtk_scrolled_window_get_kinetic_scrolling  (GtkScrolledWindow        *scrolled_window);
+
+GDK_AVAILABLE_IN_3_4
+void           gtk_scrolled_window_set_capture_button_press (GtkScrolledWindow      *scrolled_window,
+                                                             gboolean                capture_button_press);
+GDK_AVAILABLE_IN_3_4
+gboolean       gtk_scrolled_window_get_capture_button_press (GtkScrolledWindow      *scrolled_window);
 
 gint _gtk_scrolled_window_get_scrollbar_spacing (GtkScrolledWindow *scrolled_window);
 

@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -35,8 +33,9 @@ G_BEGIN_DECLS
 #define GTK_IS_CELL_RENDERER_ACCEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_CELL_RENDERER_ACCEL))
 #define GTK_CELL_RENDERER_ACCEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_CELL_RENDERER_ACCEL, GtkCellRendererAccelClass))
 
-typedef struct _GtkCellRendererAccel      GtkCellRendererAccel;
-typedef struct _GtkCellRendererAccelClass GtkCellRendererAccelClass;
+typedef struct _GtkCellRendererAccel              GtkCellRendererAccel;
+typedef struct _GtkCellRendererAccelPrivate       GtkCellRendererAccelPrivate;
+typedef struct _GtkCellRendererAccelClass         GtkCellRendererAccelClass;
 
 
 typedef enum
@@ -51,14 +50,7 @@ struct _GtkCellRendererAccel
   GtkCellRendererText parent;
 
   /*< private >*/
-  guint GSEAL (accel_key);
-  GdkModifierType GSEAL (accel_mods);
-  guint GSEAL (keycode);
-  GtkCellRendererAccelMode GSEAL (accel_mode);
-
-  GtkWidget *GSEAL (edit_widget);
-  GtkWidget *GSEAL (grab_widget);
-  GtkWidget *GSEAL (sizing_label);
+  GtkCellRendererAccelPrivate *priv;
 };
 
 struct _GtkCellRendererAccelClass

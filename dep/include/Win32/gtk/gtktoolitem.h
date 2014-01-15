@@ -15,12 +15,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -28,7 +26,6 @@
 #define __GTK_TOOL_ITEM_H__
 
 #include <gtk/gtkbin.h>
-#include <gtk/gtktooltips.h>
 #include <gtk/gtkmenuitem.h>
 #include <gtk/gtksizegroup.h>
 
@@ -50,7 +47,7 @@ struct _GtkToolItem
   GtkBin parent;
 
   /*< private >*/
-  GtkToolItemPrivate *GSEAL (priv);
+  GtkToolItemPrivate *priv;
 };
 
 struct _GtkToolItemClass
@@ -60,14 +57,6 @@ struct _GtkToolItemClass
   /* signals */
   gboolean   (* create_menu_proxy)    (GtkToolItem *tool_item);
   void       (* toolbar_reconfigured) (GtkToolItem *tool_item);
-#ifndef GTK_DISABLE_DEPRECATED
-  gboolean   (* set_tooltip)	      (GtkToolItem *tool_item,
-				       GtkTooltips *tooltips,
-				       const gchar *tip_text,
-				       const gchar *tip_private);
-#else
-  gpointer _set_tooltip;
-#endif
 
   /* Padding for future expansion */
   void (* _gtk_reserved1) (void);
@@ -86,13 +75,6 @@ gboolean        gtk_tool_item_get_homogeneous          (GtkToolItem *tool_item);
 void            gtk_tool_item_set_expand               (GtkToolItem *tool_item,
 							gboolean     expand);
 gboolean        gtk_tool_item_get_expand               (GtkToolItem *tool_item);
-
-#ifndef GTK_DISABLE_DEPRECATED
-void            gtk_tool_item_set_tooltip              (GtkToolItem *tool_item,
-							GtkTooltips *tooltips,
-							const gchar *tip_text,
-							const gchar *tip_private);
-#endif /* GTK_DISABLE_DEPRECATED */
 void            gtk_tool_item_set_tooltip_text         (GtkToolItem *tool_item,
 							const gchar *text);
 void            gtk_tool_item_set_tooltip_markup       (GtkToolItem *tool_item,

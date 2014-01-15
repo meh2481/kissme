@@ -18,12 +18,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -43,15 +41,21 @@ G_BEGIN_DECLS
 
 /**
  * GtkAssistantPageType:
- * @GTK_ASSISTANT_PAGE_CONTENT: The page has regular contents.
+ * @GTK_ASSISTANT_PAGE_CONTENT: The page has regular contents. Both the
+ *  Back and forward buttons will be shown.
  * @GTK_ASSISTANT_PAGE_INTRO: The page contains an introduction to the
- *  assistant task.
+ *  assistant task. Only the Forward button will be shown if there is a
+ *   next page.
  * @GTK_ASSISTANT_PAGE_CONFIRM: The page lets the user confirm or deny the
- *  changes.
+ *  changes. The Back and Apply buttons will be shown.
  * @GTK_ASSISTANT_PAGE_SUMMARY: The page informs the user of the changes
- *  done.
+ *  done. Only the Close button will be shown.
  * @GTK_ASSISTANT_PAGE_PROGRESS: Used for tasks that take a long time to
  *  complete, blocks the assistant until the page is marked as complete.
+ *   Only the back button will be shown.
+ * @GTK_ASSISTANT_PAGE_CUSTOM: Used for when other page types are not
+ *  appropriate. No buttons will be shown, and the application must
+ *  add its own buttons through gtk_assistant_add_action_widget().
  *
  * An enum for determining the page role inside the #GtkAssistant. It's
  * used to handle buttons sensitivity and visibility.
@@ -59,6 +63,9 @@ G_BEGIN_DECLS
  * Note that an assistant needs to end its page flow with a page of type
  * %GTK_ASSISTANT_PAGE_CONFIRM, %GTK_ASSISTANT_PAGE_SUMMARY or
  * %GTK_ASSISTANT_PAGE_PROGRESS to be correct.
+ *
+ * The Cancel button will only be shown if the page isn't "committed".
+ * See gtk_assistant_commit() for details.
  */
 typedef enum
 {
@@ -66,7 +73,8 @@ typedef enum
   GTK_ASSISTANT_PAGE_INTRO,
   GTK_ASSISTANT_PAGE_CONFIRM,
   GTK_ASSISTANT_PAGE_SUMMARY,
-  GTK_ASSISTANT_PAGE_PROGRESS
+  GTK_ASSISTANT_PAGE_PROGRESS,
+  GTK_ASSISTANT_PAGE_CUSTOM
 } GtkAssistantPageType;
 
 typedef struct _GtkAssistant        GtkAssistant;
@@ -77,15 +85,8 @@ struct _GtkAssistant
 {
   GtkWindow  parent;
 
-  GtkWidget *GSEAL (cancel);
-  GtkWidget *GSEAL (forward);
-  GtkWidget *GSEAL (back);
-  GtkWidget *GSEAL (apply);
-  GtkWidget *GSEAL (close);
-  GtkWidget *GSEAL (last);
-
   /*< private >*/
-  GtkAssistantPrivate *GSEAL (priv);
+  GtkAssistantPrivate *priv;
 };
 
 struct _GtkAssistantClass
@@ -108,7 +109,7 @@ struct _GtkAssistantClass
 /**
  * GtkAssistantPageFunc:
  * @current_page: The page number used to calculate the next page.
- * @data: user data.
+ * @data: (closure): user data.
  *
  * A function used by gtk_assistant_set_forward_page_func() to know which
  * is the next page given a current one. It's called both for computing the
@@ -121,52 +122,63 @@ typedef gint (*GtkAssistantPageFunc) (gint current_page, gpointer data);
 
 GType                 gtk_assistant_get_type              (void) G_GNUC_CONST;
 GtkWidget            *gtk_assistant_new                   (void);
+void                  gtk_assistant_next_page             (GtkAssistant         *assistant);
+void                  gtk_assistant_previous_page         (GtkAssistant         *assistant);
 gint                  gtk_assistant_get_current_page      (GtkAssistant         *assistant);
 void                  gtk_assistant_set_current_page      (GtkAssistant         *assistant,
-							   gint                  page_num);
+                                                           gint                  page_num);
 gint                  gtk_assistant_get_n_pages           (GtkAssistant         *assistant);
 GtkWidget            *gtk_assistant_get_nth_page          (GtkAssistant         *assistant,
-							   gint                  page_num);
+                                                           gint                  page_num);
 gint                  gtk_assistant_prepend_page          (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
 gint                  gtk_assistant_append_page           (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
 gint                  gtk_assistant_insert_page           (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   gint                  position);
+                                                           GtkWidget            *page,
+                                                           gint                  position);
+GDK_AVAILABLE_IN_3_2
+void                  gtk_assistant_remove_page           (GtkAssistant         *assistant,
+                                                           gint                  page_num);
 void                  gtk_assistant_set_forward_page_func (GtkAssistant         *assistant,
-							   GtkAssistantPageFunc  page_func,
-							   gpointer              data,
-							   GDestroyNotify        destroy);
+                                                           GtkAssistantPageFunc  page_func,
+                                                           gpointer              data,
+                                                           GDestroyNotify        destroy);
 void                  gtk_assistant_set_page_type         (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   GtkAssistantPageType  type);
+                                                           GtkWidget            *page,
+                                                           GtkAssistantPageType  type);
 GtkAssistantPageType  gtk_assistant_get_page_type         (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
 void                  gtk_assistant_set_page_title        (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   const gchar          *title);
+                                                           GtkWidget            *page,
+                                                           const gchar          *title);
 const gchar *         gtk_assistant_get_page_title        (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
+
+GDK_DEPRECATED_IN_3_2
 void                  gtk_assistant_set_page_header_image (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   GdkPixbuf            *pixbuf);
+                                                           GtkWidget            *page,
+                                                           GdkPixbuf            *pixbuf);
+GDK_DEPRECATED_IN_3_2
 GdkPixbuf            *gtk_assistant_get_page_header_image (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
+GDK_DEPRECATED_IN_3_2
 void                  gtk_assistant_set_page_side_image   (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   GdkPixbuf            *pixbuf);
+                                                           GtkWidget            *page,
+                                                           GdkPixbuf            *pixbuf);
+GDK_DEPRECATED_IN_3_2
 GdkPixbuf            *gtk_assistant_get_page_side_image   (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
+
 void                  gtk_assistant_set_page_complete     (GtkAssistant         *assistant,
-							   GtkWidget            *page,
-							   gboolean              complete);
+                                                           GtkWidget            *page,
+                                                           gboolean              complete);
 gboolean              gtk_assistant_get_page_complete     (GtkAssistant         *assistant,
-							   GtkWidget            *page);
+                                                           GtkWidget            *page);
 void                  gtk_assistant_add_action_widget     (GtkAssistant         *assistant,
-							   GtkWidget            *child);
+                                                           GtkWidget            *child);
 void                  gtk_assistant_remove_action_widget  (GtkAssistant         *assistant,
-							   GtkWidget            *child);
+                                                           GtkWidget            *child);
 
 void                  gtk_assistant_update_buttons_state  (GtkAssistant *assistant);
 void                  gtk_assistant_commit                (GtkAssistant *assistant);

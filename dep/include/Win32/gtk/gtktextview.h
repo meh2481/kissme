@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -56,109 +54,28 @@ typedef enum
   GTK_TEXT_WINDOW_BOTTOM
 } GtkTextWindowType;
 
+/**
+ * GTK_TEXT_VIEW_PRIORITY_VALIDATE:
+ *
+ * The priority at which the text view validates onscreen lines
+ * in an idle job in the background.
+ */
 #define GTK_TEXT_VIEW_PRIORITY_VALIDATE (GDK_PRIORITY_REDRAW + 5)
 
-typedef struct _GtkTextView GtkTextView;
-typedef struct _GtkTextViewClass GtkTextViewClass;
-
-/* Internal private types. */
-typedef struct _GtkTextWindow GtkTextWindow;
-typedef struct _GtkTextPendingScroll GtkTextPendingScroll;
+typedef struct _GtkTextView        GtkTextView;
+typedef struct _GtkTextViewPrivate GtkTextViewPrivate;
+typedef struct _GtkTextViewClass   GtkTextViewClass;
 
 struct _GtkTextView
 {
   GtkContainer parent_instance;
 
-  struct _GtkTextLayout *GSEAL (layout);
-  GtkTextBuffer *GSEAL (buffer);
-
-  guint GSEAL (selection_drag_handler);
-  guint GSEAL (scroll_timeout);
-
-  /* Default style settings */
-  gint GSEAL (pixels_above_lines);
-  gint GSEAL (pixels_below_lines);
-  gint GSEAL (pixels_inside_wrap);
-  GtkWrapMode GSEAL (wrap_mode);
-  GtkJustification GSEAL (justify);
-  gint GSEAL (left_margin);
-  gint GSEAL (right_margin);
-  gint GSEAL (indent);
-  PangoTabArray *GSEAL (tabs);
-  guint GSEAL (editable) : 1;
-
-  guint GSEAL (overwrite_mode) : 1;
-  guint GSEAL (cursor_visible) : 1;
-
-  /* if we have reset the IM since the last character entered */  
-  guint GSEAL (need_im_reset) : 1;
-
-  guint GSEAL (accepts_tab) : 1;
-
-  guint GSEAL (width_changed) : 1;
-
-  /* debug flag - means that we've validated onscreen since the
-   * last "invalidate" signal from the layout
-   */
-  guint GSEAL (onscreen_validated) : 1;
-
-  guint GSEAL (mouse_cursor_obscured) : 1;
-
-  GtkTextWindow *GSEAL (text_window);
-  GtkTextWindow *GSEAL (left_window);
-  GtkTextWindow *GSEAL (right_window);
-  GtkTextWindow *GSEAL (top_window);
-  GtkTextWindow *GSEAL (bottom_window);
-
-  GtkAdjustment *GSEAL (hadjustment);
-  GtkAdjustment *GSEAL (vadjustment);
-
-  gint GSEAL (xoffset);         /* Offsets between widget coordinates and buffer coordinates */
-  gint GSEAL (yoffset);
-  gint GSEAL (width);           /* Width and height of the buffer */
-  gint GSEAL (height);
-
-  /* The virtual cursor position is normally the same as the
-   * actual (strong) cursor position, except in two circumstances:
-   *
-   * a) When the cursor is moved vertically with the keyboard
-   * b) When the text view is scrolled with the keyboard
-   *
-   * In case a), virtual_cursor_x is preserved, but not virtual_cursor_y
-   * In case b), both virtual_cursor_x and virtual_cursor_y are preserved.
-   */
-  gint GSEAL (virtual_cursor_x);   /* -1 means use actual cursor position */
-  gint GSEAL (virtual_cursor_y);   /* -1 means use actual cursor position */
-
-  GtkTextMark *GSEAL (first_para_mark); /* Mark at the beginning of the first onscreen paragraph */
-  gint GSEAL (first_para_pixels);       /* Offset of top of screen in the first onscreen paragraph */
-
-  GtkTextMark *GSEAL (dnd_mark);
-  guint GSEAL (blink_timeout);
-
-  guint GSEAL (first_validate_idle);        /* Idle to revalidate onscreen portion, runs before resize */
-  guint GSEAL (incremental_validate_idle);  /* Idle to revalidate offscreen portions, runs after redraw */
-
-  GtkIMContext *GSEAL (im_context);
-  GtkWidget *GSEAL (popup_menu);
-
-  gint GSEAL (drag_start_x);
-  gint GSEAL (drag_start_y);
-
-  GSList *GSEAL (children);
-
-  GtkTextPendingScroll *GSEAL (pending_scroll);
-
-  gint GSEAL (pending_place_cursor_button);
+  GtkTextViewPrivate *priv;
 };
 
 struct _GtkTextViewClass
 {
   GtkContainerClass parent_class;
-
-  void (* set_scroll_adjustments)   (GtkTextView    *text_view,
-                                     GtkAdjustment  *hadjustment,
-                                     GtkAdjustment  *vadjustment);
 
   void (* populate_popup)           (GtkTextView    *text_view,
                                      GtkMenu        *menu);
@@ -170,14 +87,6 @@ struct _GtkTextViewClass
                         GtkMovementStep step,
                         gint            count,
                         gboolean        extend_selection);
-
-  /* FIXME should be deprecated in favor of adding GTK_MOVEMENT_HORIZONTAL_PAGES
-   * or something in GTK 2.2, was put in to avoid adding enum values during
-   * the freeze.
-   */
-  void (* page_horizontally) (GtkTextView *text_view,
-                              gint         count,
-                              gboolean     extend_selection);
 
   /* move the "anchor" (what Emacs calls the mark) to the cursor position */
   void (* set_anchor)  (GtkTextView    *text_view);
@@ -197,13 +106,6 @@ struct _GtkTextViewClass
   /* overwrite */
   void (* toggle_overwrite) (GtkTextView *text_view);
 
-  /* as of GTK+ 2.12 the "move-focus" signal has been moved to GtkWidget,
-   * so this is merley a virtual function now. Overriding it in subclasses
-   * continues to work though.
-   */
-  void (* move_focus)       (GtkTextView     *text_view,
-                             GtkDirectionType direction);
-
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
@@ -212,6 +114,7 @@ struct _GtkTextViewClass
   void (*_gtk_reserved5) (void);
   void (*_gtk_reserved6) (void);
   void (*_gtk_reserved7) (void);
+  void (*_gtk_reserved8) (void);
 };
 
 GType          gtk_text_view_get_type              (void) G_GNUC_CONST;
@@ -244,6 +147,10 @@ void           gtk_text_view_set_cursor_visible    (GtkTextView   *text_view,
                                                     gboolean       setting);
 gboolean       gtk_text_view_get_cursor_visible    (GtkTextView   *text_view);
 
+void           gtk_text_view_get_cursor_locations  (GtkTextView       *text_view,
+                                                    const GtkTextIter *iter,
+                                                    GdkRectangle      *strong,
+                                                    GdkRectangle      *weak);
 void           gtk_text_view_get_iter_location     (GtkTextView   *text_view,
                                                     const GtkTextIter *iter,
                                                     GdkRectangle  *location);
@@ -279,8 +186,10 @@ void gtk_text_view_window_to_buffer_coords (GtkTextView       *text_view,
                                             gint              *buffer_x,
                                             gint              *buffer_y);
 
-GtkAdjustment* gtk_text_view_get_hadjustment (GtkTextView *text_view);
-GtkAdjustment* gtk_text_view_get_vadjustment (GtkTextView *text_view);
+GDK_DEPRECATED_IN_3_0_FOR(gtk_scrollable_get_hadjustment)
+GtkAdjustment*   gtk_text_view_get_hadjustment (GtkTextView   *text_view);
+GDK_DEPRECATED_IN_3_0_FOR(gtk_scrollable_get_vadjustment)
+GtkAdjustment*   gtk_text_view_get_vadjustment (GtkTextView   *text_view);
 
 GdkWindow*        gtk_text_view_get_window      (GtkTextView       *text_view,
                                                  GtkTextWindowType  win);
@@ -370,6 +279,19 @@ PangoTabArray*   gtk_text_view_get_tabs               (GtkTextView      *text_vi
 
 /* note that the return value of this changes with the theme */
 GtkTextAttributes* gtk_text_view_get_default_attributes (GtkTextView    *text_view);
+
+GDK_AVAILABLE_IN_3_6
+void             gtk_text_view_set_input_purpose      (GtkTextView      *text_view,
+                                                       GtkInputPurpose   purpose);
+GDK_AVAILABLE_IN_3_6
+GtkInputPurpose  gtk_text_view_get_input_purpose      (GtkTextView      *text_view);
+
+GDK_AVAILABLE_IN_3_6
+void             gtk_text_view_set_input_hints        (GtkTextView      *text_view,
+                                                       GtkInputHints     hints);
+GDK_AVAILABLE_IN_3_6
+GtkInputHints    gtk_text_view_get_input_hints        (GtkTextView      *text_view);
+
 
 G_END_DECLS
 

@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -27,6 +25,7 @@
 #include <gtk/gtkcontainer.h>
 #include <gtk/gtktreemodel.h>
 #include <gtk/gtkcellrenderer.h>
+#include <gtk/gtkcellarea.h>
 #include <gtk/gtkselection.h>
 #include <gtk/gtktooltip.h>
 
@@ -43,10 +42,30 @@ typedef struct _GtkIconView           GtkIconView;
 typedef struct _GtkIconViewClass      GtkIconViewClass;
 typedef struct _GtkIconViewPrivate    GtkIconViewPrivate;
 
+/**
+ * GtkIconViewForeachFunc:
+ * @icon_view: a #GtkIconView
+ * @path: The #GtkTreePath of a selected row
+ * @data: user data
+ *
+ * A function used by gtk_icon_view_selected_foreach() to map all
+ * selected rows.  It will be called on every selected row in the view.
+ */
 typedef void (* GtkIconViewForeachFunc)     (GtkIconView      *icon_view,
 					     GtkTreePath      *path,
 					     gpointer          data);
 
+/**
+ * GtkIconViewDropPosition:
+ * @GTK_ICON_VIEW_NO_DROP: no drop possible
+ * @GTK_ICON_VIEW_DROP_INTO: dropped item replaces the item
+ * @GTK_ICON_VIEW_DROP_LEFT: droppped item is inserted to the left
+ * @GTK_ICON_VIEW_DROP_RIGHT: dropped item is inserted to the right
+ * @GTK_ICON_VIEW_DROP_ABOVE: dropped item is inserted above
+ * @GTK_ICON_VIEW_DROP_BELOW: dropped item is inserted below
+ *
+ * An enum for determining where a dropped item goes.
+ */
 typedef enum
 {
   GTK_ICON_VIEW_NO_DROP,
@@ -61,17 +80,14 @@ struct _GtkIconView
 {
   GtkContainer parent;
 
-  GtkIconViewPrivate *GSEAL (priv);
+  /*< private >*/
+  GtkIconViewPrivate *priv;
 };
 
 struct _GtkIconViewClass
 {
   GtkContainerClass parent_class;
 
-  void    (* set_scroll_adjustments) (GtkIconView      *icon_view,
-				      GtkAdjustment    *hadjustment,
-				      GtkAdjustment    *vadjustment);
-  
   void    (* item_activated)         (GtkIconView      *icon_view,
 				      GtkTreePath      *path);
   void    (* selection_changed)      (GtkIconView      *icon_view);
@@ -85,10 +101,17 @@ struct _GtkIconViewClass
 				      GtkMovementStep   step,
 				      gint              count);
   gboolean (* activate_cursor_item)  (GtkIconView      *icon_view);
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 GType          gtk_icon_view_get_type          (void) G_GNUC_CONST;
 GtkWidget *    gtk_icon_view_new               (void);
+GtkWidget *    gtk_icon_view_new_with_area     (GtkCellArea    *area);
 GtkWidget *    gtk_icon_view_new_with_model    (GtkTreeModel   *model);
 
 void           gtk_icon_view_set_model         (GtkIconView    *icon_view,
@@ -104,11 +127,8 @@ void           gtk_icon_view_set_pixbuf_column (GtkIconView    *icon_view,
 					        gint            column);
 gint           gtk_icon_view_get_pixbuf_column (GtkIconView    *icon_view);
 
-void           gtk_icon_view_set_orientation   (GtkIconView    *icon_view,
-	   			                GtkOrientation  orientation);
-GtkOrientation gtk_icon_view_get_orientation   (GtkIconView    *icon_view);
 void           gtk_icon_view_set_item_orientation (GtkIconView    *icon_view,
-	   			                   GtkOrientation  orientation);
+                                                   GtkOrientation  orientation);
 GtkOrientation gtk_icon_view_get_item_orientation (GtkIconView    *icon_view);
 void           gtk_icon_view_set_columns       (GtkIconView    *icon_view,
 		 			        gint            columns);
@@ -131,7 +151,6 @@ gint           gtk_icon_view_get_margin        (GtkIconView    *icon_view);
 void           gtk_icon_view_set_item_padding  (GtkIconView    *icon_view, 
 					        gint            item_padding);
 gint           gtk_icon_view_get_item_padding  (GtkIconView    *icon_view);
-
 
 GtkTreePath *  gtk_icon_view_get_path_at_pos   (GtkIconView     *icon_view,
 						gint             x,
@@ -208,7 +227,7 @@ gboolean               gtk_icon_view_get_dest_item_at_pos     (GtkIconView      
 							       gint                      drag_y,
 							       GtkTreePath             **path,
 							       GtkIconViewDropPosition  *pos);
-GdkPixmap             *gtk_icon_view_create_drag_icon         (GtkIconView              *icon_view,
+cairo_surface_t       *gtk_icon_view_create_drag_icon         (GtkIconView              *icon_view,
 							       GtkTreePath              *path);
 
 void    gtk_icon_view_convert_widget_to_bin_window_coords     (GtkIconView *icon_view,
@@ -216,6 +235,11 @@ void    gtk_icon_view_convert_widget_to_bin_window_coords     (GtkIconView *icon
                                                                gint         wy,
                                                                gint        *bx,
                                                                gint        *by);
+GDK_AVAILABLE_IN_3_6
+gboolean gtk_icon_view_get_cell_rect                          (GtkIconView     *icon_view,
+							       GtkTreePath     *path,
+							       GtkCellRenderer *cell,
+							       GdkRectangle    *rect);
 
 
 void    gtk_icon_view_set_tooltip_item                        (GtkIconView     *icon_view,

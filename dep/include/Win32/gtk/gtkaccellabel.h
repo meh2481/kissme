@@ -15,9 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -27,7 +25,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -48,8 +46,9 @@ G_BEGIN_DECLS
 #define GTK_ACCEL_LABEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_ACCEL_LABEL, GtkAccelLabelClass))
 
 
-typedef struct _GtkAccelLabel	    GtkAccelLabel;
-typedef struct _GtkAccelLabelClass  GtkAccelLabelClass;
+typedef struct _GtkAccelLabel	     GtkAccelLabel;
+typedef struct _GtkAccelLabelClass   GtkAccelLabelClass;
+typedef struct _GtkAccelLabelPrivate GtkAccelLabelPrivate;
 
 /**
  * GtkAccelLabel:
@@ -60,14 +59,7 @@ typedef struct _GtkAccelLabelClass  GtkAccelLabelClass;
 struct _GtkAccelLabel
 {
   GtkLabel label;
-
-  guint          GSEAL (gtk_reserved);
-  guint          GSEAL (accel_padding);      /* should be style property? */
-  GtkWidget     *GSEAL (accel_widget);       /* done*/
-  GClosure      *GSEAL (accel_closure);      /* has set function */
-  GtkAccelGroup *GSEAL (accel_group);        /* set by set_accel_closure() */
-  gchar         *GSEAL (accel_string);       /* has set function */
-  guint16        GSEAL (accel_string_width); /* seems to be private */
+  GtkAccelLabelPrivate *priv;
 };
 
 struct _GtkAccelLabelClass
@@ -80,9 +72,7 @@ struct _GtkAccelLabelClass
   gchar		*mod_name_control;
   gchar		*mod_name_alt;
   gchar		*mod_separator;
-  gchar		*accel_seperator;
-  guint		 latin1_to_char : 1;
-  
+
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
@@ -90,9 +80,6 @@ struct _GtkAccelLabelClass
   void (*_gtk_reserved4) (void);
 };
 
-#ifndef GTK_DISABLE_DEPRECATED
-#define	gtk_accel_label_accelerator_width	gtk_accel_label_get_accel_width
-#endif /* GTK_DISABLE_DEPRECATED */
 
 GType	   gtk_accel_label_get_type	     (void) G_GNUC_CONST;
 GtkWidget* gtk_accel_label_new		     (const gchar   *string);
@@ -103,6 +90,10 @@ void	   gtk_accel_label_set_accel_widget  (GtkAccelLabel *accel_label,
 void	   gtk_accel_label_set_accel_closure (GtkAccelLabel *accel_label,
 					      GClosure	    *accel_closure);
 gboolean   gtk_accel_label_refetch           (GtkAccelLabel *accel_label);
+GDK_AVAILABLE_IN_3_6
+void       gtk_accel_label_set_accel         (GtkAccelLabel   *accel_label,
+                                              guint            accelerator_key,
+                                              GdkModifierType  accelerator_mods);
 
 /* private */
 gchar *    _gtk_accel_label_class_get_accelerator_label (GtkAccelLabelClass *klass,

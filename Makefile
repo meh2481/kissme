@@ -8,7 +8,7 @@ MAKEFILE = unix
 ifeq ($(OS), Darwin)
 	MAKEFILE = osx
 endif
-ifeq ($(OS), windows32)
+ifneq (,$(findstring MINGW,$(OS)))
 	MAKEFILE = mingw
 endif
 

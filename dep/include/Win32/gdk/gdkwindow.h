@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,14 +22,14 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GDK_H_INSIDE__) && !defined (GDK_COMPILATION)
+#if !defined (__GDK_H_INSIDE__) && !defined (GDK_COMPILATION)
 #error "Only <gdk/gdk.h> can be included directly."
 #endif
 
 #ifndef __GDK_WINDOW_H__
 #define __GDK_WINDOW_H__
 
-#include <gdk/gdkdrawable.h>
+#include <gdk/gdkversionmacros.h>
 #include <gdk/gdktypes.h>
 #include <gdk/gdkevents.h>
 
@@ -39,55 +37,66 @@ G_BEGIN_DECLS
 
 typedef struct _GdkGeometry          GdkGeometry;
 typedef struct _GdkWindowAttr        GdkWindowAttr;
-typedef struct _GdkPointerHooks      GdkPointerHooks;
 typedef struct _GdkWindowRedirect    GdkWindowRedirect;
 
-/* Classes of windows.
- *   InputOutput: Almost every window should be of this type. Such windows
- *		  receive events and are also displayed on screen.
- *   InputOnly: Used only in special circumstances when events need to be
- *		stolen from another window or windows. Input only windows
- *		have no visible output, so they are handy for placing over
- *		top of a group of windows in order to grab the events (or
- *		filter the events) from those windows.
+/**
+ * GdkWindowWindowClass:
+ * @GDK_INPUT_OUTPUT: window for graphics and events
+ * @GDK_INPUT_ONLY: window for events only
+ *
+ * @GDK_INPUT_OUTPUT windows are the standard kind of window you might expect.
+ * Such windows receive events and are also displayed on screen.
+ * @GDK_INPUT_ONLY windows are invisible; they are usually placed above other
+ * windows in order to trap or filter the events. You can't draw on
+ * @GDK_INPUT_ONLY windows.
  */
 typedef enum
 {
-  GDK_INPUT_OUTPUT,
-  GDK_INPUT_ONLY
-} GdkWindowClass;
+  GDK_INPUT_OUTPUT, /*< nick=input-output >*/
+  GDK_INPUT_ONLY    /*< nick=input-only >*/
+} GdkWindowWindowClass;
 
-/* Types of windows.
- *   Root: There is only 1 root window and it is initialized
- *	   at startup. Creating a window of type GDK_WINDOW_ROOT
- *	   is an error.
- *   Toplevel: Windows which interact with the window manager.
- *   Child: Windows which are children of some other type of window.
- *	    (Any other type of window). Most windows are child windows.
- *   Dialog: A special kind of toplevel window which interacts with
- *	     the window manager slightly differently than a regular
- *	     toplevel window. Dialog windows should be used for any
- *	     transient window.
- *   Foreign: A window that actually belongs to another application
+/**
+ * GdkWindowType:
+ * @GDK_WINDOW_ROOT: root window; this window has no parent, covers the entire
+ *  screen, and is created by the window system
+ * @GDK_WINDOW_TOPLEVEL: toplevel window (used to implement #GtkWindow)
+ * @GDK_WINDOW_CHILD: child window (used to implement e.g. #GtkEntry)
+ * @GDK_WINDOW_TEMP: override redirect temporary window (used to implement
+ *  #GtkMenu)
+ * @GDK_WINDOW_FOREIGN: foreign window (see gdk_window_foreign_new())
+ * @GDK_WINDOW_OFFSCREEN: offscreen window (see
+ *  <xref linkend="OFFSCREEN-WINDOWS"/>). Since 2.18
+ *
+ * Describes the kind of window.
  */
 typedef enum
 {
   GDK_WINDOW_ROOT,
   GDK_WINDOW_TOPLEVEL,
   GDK_WINDOW_CHILD,
-  GDK_WINDOW_DIALOG,
   GDK_WINDOW_TEMP,
   GDK_WINDOW_FOREIGN,
   GDK_WINDOW_OFFSCREEN
 } GdkWindowType;
 
-/* Window attribute mask values.
- *   GDK_WA_TITLE: The "title" field is valid.
- *   GDK_WA_X: The "x" field is valid.
- *   GDK_WA_Y: The "y" field is valid.
- *   GDK_WA_CURSOR: The "cursor" field is valid.
- *   GDK_WA_COLORMAP: The "colormap" field is valid.
- *   GDK_WA_VISUAL: The "visual" field is valid.
+/**
+ * GdkWindowAttributesType:
+ * @GDK_WA_TITLE: Honor the title field
+ * @GDK_WA_X: Honor the X coordinate field
+ * @GDK_WA_Y: Honor the Y coordinate field
+ * @GDK_WA_CURSOR: Honor the cursor field
+ * @GDK_WA_VISUAL: Honor the visual field
+ * @GDK_WA_WMCLASS: Honor the wmclass_class and wmclass_name fields
+ * @GDK_WA_NOREDIR: Honor the override_redirect field
+ * @GDK_WA_TYPE_HINT: Honor the type_hint field
+ *
+ * Used to indicate which fields in the #GdkWindowAttr struct should be honored.
+ * For example, if you filled in the "cursor" and "x" fields of #GdkWindowAttr,
+ * pass "@GDK_WA_X | @GDK_WA_CURSOR" to gdk_window_new(). Fields in
+ * #GdkWindowAttr not covered by a bit in this enum are required; for example,
+ * the @width/@height, @wclass, and @window_type fields are required, they have
+ * no corresponding flag in #GdkWindowAttributesType.
  */
 typedef enum
 {
@@ -95,14 +104,36 @@ typedef enum
   GDK_WA_X	   = 1 << 2,
   GDK_WA_Y	   = 1 << 3,
   GDK_WA_CURSOR	   = 1 << 4,
-  GDK_WA_COLORMAP  = 1 << 5,
-  GDK_WA_VISUAL	   = 1 << 6,
-  GDK_WA_WMCLASS   = 1 << 7,
-  GDK_WA_NOREDIR   = 1 << 8,
-  GDK_WA_TYPE_HINT = 1 << 9
+  GDK_WA_VISUAL	   = 1 << 5,
+  GDK_WA_WMCLASS   = 1 << 6,
+  GDK_WA_NOREDIR   = 1 << 7,
+  GDK_WA_TYPE_HINT = 1 << 8
 } GdkWindowAttributesType;
 
 /* Size restriction enumeration.
+ */
+/**
+ * GdkWindowHints:
+ * @GDK_HINT_POS: indicates that the program has positioned the window
+ * @GDK_HINT_MIN_SIZE: min size fields are set
+ * @GDK_HINT_MAX_SIZE: max size fields are set
+ * @GDK_HINT_BASE_SIZE: base size fields are set
+ * @GDK_HINT_ASPECT: aspect ratio fields are set
+ * @GDK_HINT_RESIZE_INC: resize increment fields are set
+ * @GDK_HINT_WIN_GRAVITY: window gravity field is set
+ * @GDK_HINT_USER_POS: indicates that the window's position was explicitly set
+ *  by the user
+ * @GDK_HINT_USER_SIZE: indicates that the window's size was explicitly set by
+ *  the user
+ *
+ * Used to indicate which fields of a #GdkGeometry struct should be paid
+ * attention to. Also, the presence/absence of @GDK_HINT_POS,
+ * @GDK_HINT_USER_POS, and @GDK_HINT_USER_SIZE is significant, though they don't
+ * directly refer to #GdkGeometry fields. @GDK_HINT_USER_POS will be set
+ * automatically by #GtkWindow if you call gtk_window_move().
+ * @GDK_HINT_USER_POS and @GDK_HINT_USER_SIZE should be set if the user
+ * specified a size/position using a --geometry command-line argument;
+ * gtk_window_parse_geometry() automatically sets these flags.
  */
 typedef enum
 {
@@ -118,17 +149,37 @@ typedef enum
 } GdkWindowHints;
 
 
-/* Window type hints.
- * These are hints for the window manager that indicate
- * what type of function the window has. The window manager
- * can use this when determining decoration and behaviour
- * of the window. The hint must be set before mapping the
- * window.
+/**
+ * GdkWindowTypeHint:
+ * @GDK_WINDOW_TYPE_HINT_NORMAL: Normal toplevel window.
+ * @GDK_WINDOW_TYPE_HINT_DIALOG: Dialog window.
+ * @GDK_WINDOW_TYPE_HINT_MENU: Window used to implement a menu; GTK+ uses
+ *  this hint only for torn-off menus, see #GtkTearoffMenuItem.
+ * @GDK_WINDOW_TYPE_HINT_TOOLBAR: Window used to implement toolbars.
+ * @GDK_WINDOW_TYPE_HINT_SPLASHSCREEN: Window used to display a splash
+ *  screen during application startup.
+ * @GDK_WINDOW_TYPE_HINT_UTILITY: Utility windows which are not detached
+ *  toolbars or dialogs.
+ * @GDK_WINDOW_TYPE_HINT_DOCK: Used for creating dock or panel windows.
+ * @GDK_WINDOW_TYPE_HINT_DESKTOP: Used for creating the desktop background
+ *  window.
+ * @GDK_WINDOW_TYPE_HINT_DROPDOWN_MENU: A menu that belongs to a menubar.
+ * @GDK_WINDOW_TYPE_HINT_POPUP_MENU: A menu that does not belong to a menubar,
+ *  e.g. a context menu.
+ * @GDK_WINDOW_TYPE_HINT_TOOLTIP: A tooltip.
+ * @GDK_WINDOW_TYPE_HINT_NOTIFICATION: A notification - typically a "bubble"
+ *  that belongs to a status icon.
+ * @GDK_WINDOW_TYPE_HINT_COMBO: A popup from a combo box.
+ * @GDK_WINDOW_TYPE_HINT_DND: A window that is used to implement a DND cursor.
  *
- *   Normal: Normal toplevel window
- *   Dialog: Dialog window
- *   Menu: Window used to implement a menu.
- *   Toolbar: Window used to implement toolbars.
+ * These are hints for the window manager that indicate what type of function
+ * the window has. The window manager can use this when determining decoration
+ * and behaviour of the window. The hint must be set before mapping the window.
+ *
+ * See the
+ * <ulink url="http://www.freedesktop.org/Standards/wm-spec">Extended
+ * Window Manager Hints</ulink> specification for more details about
+ * window types.
  */
 typedef enum
 {
@@ -153,6 +204,20 @@ typedef enum
  * of gdk_window_set_decorations/gdk_window_set_functions
  * will need to change as well.
  */
+/**
+ * GdkWMDecoration:
+ * @GDK_DECOR_ALL: all decorations should be applied.
+ * @GDK_DECOR_BORDER: a frame should be drawn around the window.
+ * @GDK_DECOR_RESIZEH: the frame should have resize handles.
+ * @GDK_DECOR_TITLE: a titlebar should be placed above the window.
+ * @GDK_DECOR_MENU: a button for opening a menu should be included.
+ * @GDK_DECOR_MINIMIZE: a minimize button should be included.
+ * @GDK_DECOR_MAXIMIZE: a maximize button should be included.
+ *
+ * These are hints originally defined by the Motif toolkit.
+ * The window manager can use them when determining how to decorate
+ * the window. The hint must be set before mapping the window.
+ */
 typedef enum
 {
   GDK_DECOR_ALL		= 1 << 0,
@@ -164,6 +229,19 @@ typedef enum
   GDK_DECOR_MAXIMIZE	= 1 << 6
 } GdkWMDecoration;
 
+/**
+ * GdkWMFunction:
+ * @GDK_FUNC_ALL: all functions should be offered.
+ * @GDK_FUNC_RESIZE: the window should be resizable.
+ * @GDK_FUNC_MOVE: the window should be movable.
+ * @GDK_FUNC_MINIMIZE: the window should be minimizable.
+ * @GDK_FUNC_MAXIMIZE: the window should be maximizable.
+ * @GDK_FUNC_CLOSE: the window should be closable.
+ *
+ * These are hints originally defined by the Motif toolkit. The window manager
+ * can use them when determining the functions to offer for the window. The
+ * hint must be set before mapping the window.
+ */
 typedef enum
 {
   GDK_FUNC_ALL		= 1 << 0,
@@ -177,6 +255,26 @@ typedef enum
 /* Currently, these are the same values numerically as in the
  * X protocol. If you change that, gdkwindow-x11.c/gdk_window_set_geometry_hints()
  * will need fixing.
+ */
+/**
+ * GdkGravity:
+ * @GDK_GRAVITY_NORTH_WEST: the reference point is at the top left corner.
+ * @GDK_GRAVITY_NORTH: the reference point is in the middle of the top edge.
+ * @GDK_GRAVITY_NORTH_EAST: the reference point is at the top right corner.
+ * @GDK_GRAVITY_WEST: the reference point is at the middle of the left edge.
+ * @GDK_GRAVITY_CENTER: the reference point is at the center of the window.
+ * @GDK_GRAVITY_EAST: the reference point is at the middle of the right edge.
+ * @GDK_GRAVITY_SOUTH_WEST: the reference point is at the lower left corner.
+ * @GDK_GRAVITY_SOUTH: the reference point is at the middle of the lower edge.
+ * @GDK_GRAVITY_SOUTH_EAST: the reference point is at the lower right corner.
+ * @GDK_GRAVITY_STATIC: the reference point is at the top left corner of the
+ *  window itself, ignoring window manager decorations.
+ *
+ * Defines the reference point of a window and the meaning of coordinates
+ * passed to gtk_window_move(). See gtk_window_move() and the "implementation
+ * notes" section of the
+ * <ulink url="http://www.freedesktop.org/Standards/wm-spec">Extended
+ * Window Manager Hints</ulink> specification for more details.
  */
 typedef enum
 {
@@ -193,6 +291,19 @@ typedef enum
 } GdkGravity;
 
 
+/**
+ * GdkWindowEdge:
+ * @GDK_WINDOW_EDGE_NORTH_WEST: the top left corner.
+ * @GDK_WINDOW_EDGE_NORTH: the top edge.
+ * @GDK_WINDOW_EDGE_NORTH_EAST: the top right corner.
+ * @GDK_WINDOW_EDGE_WEST: the left edge.
+ * @GDK_WINDOW_EDGE_EAST: the right edge.
+ * @GDK_WINDOW_EDGE_SOUTH_WEST: the lower left corner.
+ * @GDK_WINDOW_EDGE_SOUTH: the lower edge.
+ * @GDK_WINDOW_EDGE_SOUTH_EAST: the lower right corner.
+ *
+ * Determines a window edge or corner.
+ */
 typedef enum
 {
   GDK_WINDOW_EDGE_NORTH_WEST,
@@ -205,6 +316,26 @@ typedef enum
   GDK_WINDOW_EDGE_SOUTH_EAST  
 } GdkWindowEdge;
 
+/**
+ * GdkWindowAttr:
+ * @title: title of the window (for toplevel windows)
+ * @event_mask: event mask (see gdk_window_set_events())
+ * @x: X coordinate relative to parent window (see gdk_window_move())
+ * @y: Y coordinate relative to parent window (see gdk_window_move())
+ * @width: width of window
+ * @height: height of window
+ * @wclass: #GDK_INPUT_OUTPUT (normal window) or #GDK_INPUT_ONLY (invisible
+ *  window that receives events)
+ * @visual: #GdkVisual for window
+ * @window_type: type of window
+ * @cursor: cursor for the window (see gdk_window_set_cursor())
+ * @wmclass_name: don't use (see gtk_window_set_wmclass())
+ * @wmclass_class: don't use (see gtk_window_set_wmclass())
+ * @override_redirect: %TRUE to bypass the window manager
+ * @type_hint: a hint of the function of the window
+ *
+ * Attributes to use for a newly-created window.
+ */
 struct _GdkWindowAttr
 {
   gchar *title;
@@ -212,9 +343,8 @@ struct _GdkWindowAttr
   gint x, y;
   gint width;
   gint height;
-  GdkWindowClass wclass;
+  GdkWindowWindowClass wclass;
   GdkVisual *visual;
-  GdkColormap *colormap;
   GdkWindowType window_type;
   GdkCursor *cursor;
   gchar *wmclass_name;
@@ -223,6 +353,82 @@ struct _GdkWindowAttr
   GdkWindowTypeHint type_hint;
 };
 
+/**
+ * GdkGeometry:
+ * @min_width: minimum width of window (or -1 to use requisition, with
+ *  #GtkWindow only)
+ * @min_height: minimum height of window (or -1 to use requisition, with
+ *  #GtkWindow only)
+ * @max_width: maximum width of window (or -1 to use requisition, with
+ *  #GtkWindow only)
+ * @max_height: maximum height of window (or -1 to use requisition, with
+ *  #GtkWindow only)
+ * @base_width: allowed window widths are @base_width + @width_inc * N where N
+ *  is any integer (-1 allowed with #GtkWindow)
+ * @base_height: allowed window widths are @base_height + @height_inc * N where
+ *  N is any integer (-1 allowed with #GtkWindow)
+ * @width_inc: width resize increment
+ * @height_inc: height resize increment
+ * @min_aspect: minimum width/height ratio
+ * @max_aspect: maximum width/height ratio
+ * @win_gravity: window gravity, see gtk_window_set_gravity()
+ *
+ * The #GdkGeometry struct gives the window manager information about
+ * a window's geometry constraints. Normally you would set these on
+ * the GTK+ level using gtk_window_set_geometry_hints(). #GtkWindow
+ * then sets the hints on the #GdkWindow it creates.
+ *
+ * gdk_window_set_geometry_hints() expects the hints to be fully valid already
+ * and simply passes them to the window manager; in contrast,
+ * gtk_window_set_geometry_hints() performs some interpretation. For example,
+ * #GtkWindow will apply the hints to the geometry widget instead of the
+ * toplevel window, if you set a geometry widget. Also, the
+ * @min_width/@min_height/@max_width/@max_height fields may be set to -1, and
+ * #GtkWindow will substitute the size request of the window or geometry widget.
+ * If the minimum size hint is not provided, #GtkWindow will use its requisition
+ * as the minimum size. If the minimum size is provided and a geometry widget is
+ * set, #GtkWindow will take the minimum size as the minimum size of the
+ * geometry widget rather than the entire window. The base size is treated
+ * similarly.
+ *
+ * The canonical use-case for gtk_window_set_geometry_hints() is to get a
+ * terminal widget to resize properly. Here, the terminal text area should be
+ * the geometry widget; #GtkWindow will then automatically set the base size to
+ * the size of other widgets in the terminal window, such as the menubar and
+ * scrollbar. Then, the @width_inc and @height_inc fields should be set to the
+ * size of one character in the terminal. Finally, the base size should be set
+ * to the size of one character. The net effect is that the minimum size of the
+ * terminal will have a 1x1 character terminal area, and only terminal sizes on
+ * the "character grid" will be allowed.
+ *
+ * Here's an example of how the terminal example would be implemented, assuming
+ * a terminal area widget called "terminal" and a toplevel window "toplevel":
+ *
+ * <informalexample><programlisting><![CDATA[
+ * 	GdkGeometry hints;
+ *
+ * 	hints.base_width = terminal->char_width;
+ *         hints.base_height = terminal->char_height;
+ *         hints.min_width = terminal->char_width;
+ *         hints.min_height = terminal->char_height;
+ *         hints.width_inc = terminal->char_width;
+ *         hints.height_inc = terminal->char_height;
+ *
+ *  gtk_window_set_geometry_hints (GTK_WINDOW (toplevel),
+ *                                 GTK_WIDGET (terminal),
+ *                                 &hints,
+ *                                 GDK_HINT_RESIZE_INC |
+ *                                 GDK_HINT_MIN_SIZE |
+ *                                 GDK_HINT_BASE_SIZE);
+ * ]]></programlisting></informalexample>
+ *
+ * The other useful fields are the @min_aspect and @max_aspect fields; these
+ * contain a width/height ratio as a floating point number. If a geometry widget
+ * is set, the aspect applies to the geometry widget rather than the entire
+ * window. The most common use of these hints is probably to set @min_aspect and
+ * @max_aspect to the same value, thus forcing the window to keep a constant
+ * aspect ratio.
+ */
 struct _GdkGeometry
 {
   gint min_width;
@@ -238,97 +444,53 @@ struct _GdkGeometry
   GdkGravity win_gravity;
 };
 
-struct _GdkPointerHooks 
-{
-  GdkWindow* (*get_pointer)       (GdkWindow	   *window,
-			           gint	           *x,
-			           gint   	   *y,
-			           GdkModifierType *mask);
-  GdkWindow* (*window_at_pointer) (GdkScreen       *screen, /* unused */
-                                   gint            *win_x,
-                                   gint            *win_y);
-};
+typedef struct _GdkWindowClass GdkWindowClass;
 
-typedef struct _GdkWindowObject GdkWindowObject;
-typedef struct _GdkWindowObjectClass GdkWindowObjectClass;
-
-#define GDK_TYPE_WINDOW              (gdk_window_object_get_type ())
+#define GDK_TYPE_WINDOW              (gdk_window_get_type ())
 #define GDK_WINDOW(object)           (G_TYPE_CHECK_INSTANCE_CAST ((object), GDK_TYPE_WINDOW, GdkWindow))
-#define GDK_WINDOW_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), GDK_TYPE_WINDOW, GdkWindowObjectClass))
+#define GDK_WINDOW_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass), GDK_TYPE_WINDOW, GdkWindowClass))
 #define GDK_IS_WINDOW(object)        (G_TYPE_CHECK_INSTANCE_TYPE ((object), GDK_TYPE_WINDOW))
 #define GDK_IS_WINDOW_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GDK_TYPE_WINDOW))
-#define GDK_WINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), GDK_TYPE_WINDOW, GdkWindowObjectClass))
+#define GDK_WINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), GDK_TYPE_WINDOW, GdkWindowClass))
 
-#ifndef GDK_DISABLE_DEPRECATED
-#define GDK_WINDOW_OBJECT(object)    ((GdkWindowObject *) GDK_WINDOW (object))
 
-#ifndef GDK_COMPILATION
-
-/* We used to export all of GdkWindowObject, but we don't want to keep doing so.
-   However, there are various parts of it accessed by macros and other code,
-   so we keep the old exported version public, but in reality it is larger. */
-
-/**** DON'T CHANGE THIS STRUCT, the real version is in gdkinternals.h ****/
-struct _GdkWindowObject
+struct _GdkWindowClass
 {
-  GdkDrawable parent_instance;
+  GObjectClass      parent_class;
 
-  GdkDrawable *GSEAL (impl); /* window-system-specific delegate object */
-  
-  GdkWindowObject *GSEAL (parent);
+  GdkWindow       * (* pick_embedded_child) (GdkWindow *window,
+                                             gdouble    x,
+                                             gdouble    y);
 
-  gpointer GSEAL (user_data);
+  /*  the following 3 signals will only be emitted by offscreen windows */
+  void              (* to_embedder)         (GdkWindow *window,
+                                             gdouble    offscreen_x,
+                                             gdouble    offscreen_y,
+                                             gdouble   *embedder_x,
+                                             gdouble   *embedder_y);
+  void              (* from_embedder)       (GdkWindow *window,
+                                             gdouble    embedder_x,
+                                             gdouble    embedder_y,
+                                             gdouble   *offscreen_x,
+                                             gdouble   *offscreen_y);
+  cairo_surface_t * (* create_surface)      (GdkWindow *window,
+                                             gint       width,
+                                             gint       height);
 
-  gint GSEAL (x);
-  gint GSEAL (y);
-  
-  gint GSEAL (extension_events);
-
-  GList *GSEAL (filters);
-  GList *GSEAL (children);
-
-  GdkColor GSEAL (bg_color);
-  GdkPixmap *GSEAL (bg_pixmap);
-  
-  GSList *GSEAL (paint_stack);
-  
-  GdkRegion *GSEAL (update_area);
-  guint GSEAL (update_freeze_count);
-  
-  guint8 GSEAL (window_type);
-  guint8 GSEAL (depth);
-  guint8 GSEAL (resize_count);
-
-  GdkWindowState GSEAL (state);
-  
-  guint GSEAL (guffaw_gravity) : 1;
-  guint GSEAL (input_only) : 1;
-  guint GSEAL (modal_hint) : 1;
-  guint GSEAL (composited) : 1;
-  
-  guint GSEAL (destroyed) : 2;
-
-  guint GSEAL (accept_focus) : 1;
-  guint GSEAL (focus_on_map) : 1;
-  guint GSEAL (shaped) : 1;
-  
-  GdkEventMask GSEAL (event_mask);
-
-  guint GSEAL (update_and_descendants_freeze_count);
-
-  GdkWindowRedirect *GSEAL (redirect);
-};
-#endif
-#endif
-
-struct _GdkWindowObjectClass
-{
-  GdkDrawableClass parent_class;
+  /* Padding for future expansion */
+  void (*_gdk_reserved1) (void);
+  void (*_gdk_reserved2) (void);
+  void (*_gdk_reserved3) (void);
+  void (*_gdk_reserved4) (void);
+  void (*_gdk_reserved5) (void);
+  void (*_gdk_reserved6) (void);
+  void (*_gdk_reserved7) (void);
+  void (*_gdk_reserved8) (void);
 };
 
 /* Windows
  */
-GType         gdk_window_object_get_type       (void) G_GNUC_CONST;
+GType         gdk_window_get_type              (void) G_GNUC_CONST;
 GdkWindow*    gdk_window_new                   (GdkWindow     *parent,
                                                 GdkWindowAttr *attributes,
                                                 gint           attributes_mask);
@@ -336,14 +498,14 @@ void          gdk_window_destroy               (GdkWindow     *window);
 GdkWindowType gdk_window_get_window_type       (GdkWindow     *window);
 gboolean      gdk_window_is_destroyed          (GdkWindow     *window);
 
-GdkScreen*    gdk_window_get_screen            (GdkWindow     *window);
-GdkDisplay*   gdk_window_get_display           (GdkWindow     *window);
-GdkVisual*    gdk_window_get_visual            (GdkWindow     *window);
-int           gdk_window_get_width             (GdkWindow     *window);
-int           gdk_window_get_height            (GdkWindow     *window);
-
+GdkVisual *   gdk_window_get_visual            (GdkWindow     *window);
+GdkScreen *   gdk_window_get_screen            (GdkWindow     *window);
+GdkDisplay *  gdk_window_get_display           (GdkWindow     *window);
+#ifndef GDK_MULTIDEVICE_SAFE
+GDK_DEPRECATED_IN_3_0_FOR(gdk_device_get_window_at_position)
 GdkWindow*    gdk_window_at_pointer            (gint          *win_x,
                                                 gint          *win_y);
+#endif /* GDK_MULTIDEVICE_SAFE */
 void          gdk_window_show                  (GdkWindow     *window);
 void          gdk_window_hide                  (GdkWindow     *window);
 void          gdk_window_withdraw              (GdkWindow     *window);
@@ -363,17 +525,6 @@ void          gdk_window_reparent              (GdkWindow     *window,
                                                 GdkWindow     *new_parent,
                                                 gint           x,
                                                 gint           y);
-void          gdk_window_clear                 (GdkWindow     *window);
-void          gdk_window_clear_area            (GdkWindow     *window,
-                                                gint           x,
-                                                gint           y,
-                                                gint           width,
-                                                gint           height);
-void          gdk_window_clear_area_e          (GdkWindow     *window,
-                                                gint           x,
-                                                gint           y,
-                                                gint           width,
-                                                gint           height);
 void          gdk_window_raise                 (GdkWindow     *window);
 void          gdk_window_lower                 (GdkWindow     *window);
 void          gdk_window_restack               (GdkWindow     *window,
@@ -401,7 +552,7 @@ void          gdk_window_scroll                (GdkWindow     *window,
                                                 gint           dx,
                                                 gint           dy);
 void	      gdk_window_move_region           (GdkWindow       *window,
-						const GdkRegion *region,
+						const cairo_region_t *region,
 						gint             dx,
 						gint             dy);
 gboolean      gdk_window_ensure_native        (GdkWindow       *window);
@@ -409,15 +560,9 @@ gboolean      gdk_window_ensure_native        (GdkWindow       *window);
 /* 
  * This allows for making shaped (partially transparent) windows
  * - cool feature, needed for Drag and Drag for example.
- *  The shape_mask can be the mask
- *  from gdk_pixmap_create_from_xpm.   Stefan Wille
  */
-void gdk_window_shape_combine_mask  (GdkWindow	      *window,
-                                     GdkBitmap	      *mask,
-                                     gint	       x,
-                                     gint	       y);
 void gdk_window_shape_combine_region (GdkWindow	      *window,
-                                      const GdkRegion *shape_region,
+                                      const cairo_region_t *shape_region,
                                       gint	       offset_x,
                                       gint	       offset_y);
 
@@ -443,12 +588,8 @@ void gdk_window_set_composited   (GdkWindow *window,
  */
 void gdk_window_merge_child_shapes         (GdkWindow       *window);
 
-void gdk_window_input_shape_combine_mask   (GdkWindow       *window,
-					    GdkBitmap       *mask,
-					    gint             x,
-					    gint             y);
 void gdk_window_input_shape_combine_region (GdkWindow       *window,
-                                            const GdkRegion *shape_region,
+                                            const cairo_region_t *shape_region,
                                             gint             offset_x,
                                             gint             offset_y);
 void gdk_window_set_child_input_shapes     (GdkWindow       *window);
@@ -472,34 +613,11 @@ GdkWindowState gdk_window_get_state (GdkWindow *window);
  * window gravity on all children.
  */
 gboolean gdk_window_set_static_gravities (GdkWindow *window,
-					  gboolean   use_static);   
-
-/* Functions to create/lookup windows from their native equivalents */ 
-#if !defined(GDK_DISABLE_DEPRECATED) || defined(GDK_COMPILATION)
-#ifndef GDK_MULTIHEAD_SAFE
-GdkWindow*    gdk_window_foreign_new (GdkNativeWindow anid);
-GdkWindow*    gdk_window_lookup      (GdkNativeWindow anid);
-#endif
-GdkWindow    *gdk_window_foreign_new_for_display (GdkDisplay      *display,
-						  GdkNativeWindow  anid);
-GdkWindow*    gdk_window_lookup_for_display (GdkDisplay      *display,
-					     GdkNativeWindow  anid);
-#endif
-
+                                          gboolean   use_static);
 
 /* GdkWindow */
 
-gboolean      gdk_window_has_native      (GdkWindow       *window);
-#ifndef GDK_DISABLE_DEPRECATED
-void	      gdk_window_set_hints	 (GdkWindow	  *window,
-					  gint		   x,
-					  gint		   y,
-					  gint		   min_width,
-					  gint		   min_height,
-					  gint		   max_width,
-					  gint		   max_height,
-					  gint		   flags);
-#endif
+gboolean      gdk_window_has_native         (GdkWindow       *window);
 void              gdk_window_set_type_hint (GdkWindow        *window,
                                             GdkWindowTypeHint hint);
 GdkWindowTypeHint gdk_window_get_type_hint (GdkWindow        *window);
@@ -518,14 +636,15 @@ void gdk_window_set_urgency_hint      (GdkWindow *window,
 void          gdk_window_set_geometry_hints (GdkWindow          *window,
 					     const GdkGeometry  *geometry,
 					     GdkWindowHints      geom_mask);
-#if !defined(GDK_DISABLE_DEPRECATED) || defined(GDK_COMPILATION)
-void          gdk_set_sm_client_id          (const gchar        *sm_client_id);
-#endif
+
+cairo_region_t *gdk_window_get_clip_region  (GdkWindow          *window);
+cairo_region_t *gdk_window_get_visible_region(GdkWindow         *window);
+
 
 void	      gdk_window_begin_paint_rect   (GdkWindow          *window,
 					     const GdkRectangle *rectangle);
 void	      gdk_window_begin_paint_region (GdkWindow          *window,
-					     const GdkRegion    *region);
+					     const cairo_region_t    *region);
 void	      gdk_window_end_paint          (GdkWindow          *window);
 void	      gdk_window_flush             (GdkWindow          *window);
 
@@ -537,24 +656,32 @@ void          gdk_window_set_startup_id    (GdkWindow     *window,
 					    const gchar   *startup_id);
 void          gdk_window_set_transient_for (GdkWindow     *window,
 					    GdkWindow     *parent);
+GDK_DEPRECATED_IN_3_4_FOR(gdk_window_set_background_rgba)
 void	      gdk_window_set_background	 (GdkWindow	  *window,
 					  const GdkColor  *color);
-void	      gdk_window_set_back_pixmap (GdkWindow	  *window,
-					  GdkPixmap	  *pixmap,
-					  gboolean	   parent_relative);
+void          gdk_window_set_background_rgba (GdkWindow *window,
+                                              GdkRGBA   *rgba);
+void	      gdk_window_set_background_pattern (GdkWindow	 *window,
+                                                 cairo_pattern_t *pattern);
 cairo_pattern_t *gdk_window_get_background_pattern (GdkWindow     *window);
 
 void	      gdk_window_set_cursor	 (GdkWindow	  *window,
 					  GdkCursor	  *cursor);
 GdkCursor    *gdk_window_get_cursor      (GdkWindow       *window);
+void	      gdk_window_set_device_cursor (GdkWindow	  *window,
+                                            GdkDevice     *device,
+                                            GdkCursor	  *cursor);
+GdkCursor    *gdk_window_get_device_cursor (GdkWindow     *window,
+                                            GdkDevice     *device);
 void	      gdk_window_get_user_data	 (GdkWindow	  *window,
 					  gpointer	  *data);
 void	      gdk_window_get_geometry	 (GdkWindow	  *window,
 					  gint		  *x,
 					  gint		  *y,
 					  gint		  *width,
-					  gint		  *height,
-					  gint		  *depth);
+					  gint		  *height);
+int           gdk_window_get_width       (GdkWindow       *window);
+int           gdk_window_get_height      (GdkWindow       *window);
 void	      gdk_window_get_position	 (GdkWindow	  *window,
 					  gint		  *x,
 					  gint		  *y);
@@ -577,22 +704,24 @@ void       gdk_window_coords_from_parent (GdkWindow       *window,
                                           gdouble         *x,
                                           gdouble         *y);
 
-#if !defined (GDK_DISABLE_DEPRECATED) || defined (GDK_COMPILATION)
-/* Used by gtk_handle_box_button_changed () */
-gboolean      gdk_window_get_deskrelative_origin (GdkWindow	  *window,
-					  gint		  *x,
-					  gint		  *y);
-#endif
-
 void	      gdk_window_get_root_origin (GdkWindow	  *window,
 					  gint		  *x,
 					  gint		  *y);
 void          gdk_window_get_frame_extents (GdkWindow     *window,
                                             GdkRectangle  *rect);
-GdkWindow*    gdk_window_get_pointer	 (GdkWindow	  *window,
-					  gint		  *x,
-					  gint		  *y,
-					  GdkModifierType *mask);
+
+#ifndef GDK_MULTIDEVICE_SAFE
+GDK_DEPRECATED_IN_3_0_FOR(gdk_window_get_device_position)
+GdkWindow *   gdk_window_get_pointer     (GdkWindow       *window,
+                                          gint            *x,
+                                          gint            *y,
+                                          GdkModifierType *mask);
+#endif /* GDK_MULTIDEVICE_SAFE */
+GdkWindow *   gdk_window_get_device_position (GdkWindow       *window,
+                                              GdkDevice       *device,
+                                              gint            *x,
+                                              gint            *y,
+                                              GdkModifierType *mask);
 GdkWindow *   gdk_window_get_parent      (GdkWindow       *window);
 GdkWindow *   gdk_window_get_toplevel    (GdkWindow       *window);
 
@@ -604,13 +733,20 @@ GList *       gdk_window_peek_children   (GdkWindow       *window);
 GdkEventMask  gdk_window_get_events	 (GdkWindow	  *window);
 void	      gdk_window_set_events	 (GdkWindow	  *window,
 					  GdkEventMask	   event_mask);
+void          gdk_window_set_device_events (GdkWindow    *window,
+                                            GdkDevice    *device,
+                                            GdkEventMask  event_mask);
+GdkEventMask  gdk_window_get_device_events (GdkWindow    *window,
+                                            GdkDevice    *device);
+
+void          gdk_window_set_source_events (GdkWindow      *window,
+                                            GdkInputSource  source,
+                                            GdkEventMask    event_mask);
+GdkEventMask  gdk_window_get_source_events (GdkWindow      *window,
+                                            GdkInputSource  source);
 
 void          gdk_window_set_icon_list   (GdkWindow       *window,
 					  GList           *pixbufs);
-void	      gdk_window_set_icon	 (GdkWindow	  *window, 
-					  GdkWindow	  *icon_window,
-					  GdkPixmap	  *pixmap,
-					  GdkBitmap	  *mask);
 void	      gdk_window_set_icon_name	 (GdkWindow	  *window, 
 					  const gchar	  *name);
 void	      gdk_window_set_group	 (GdkWindow	  *window, 
@@ -622,9 +758,6 @@ gboolean      gdk_window_get_decorations (GdkWindow       *window,
 					  GdkWMDecoration *decorations);
 void	      gdk_window_set_functions	 (GdkWindow	  *window,
 					  GdkWMFunction	   functions);
-#if !defined(GDK_MULTIHEAD_SAFE) && !defined(GDK_DISABLE_DEPRECATED)
-GList *       gdk_window_get_toplevels   (void);
-#endif
 
 cairo_surface_t *
               gdk_window_create_similar_surface (GdkWindow *window,
@@ -649,30 +782,64 @@ void          gdk_window_set_opacity     (GdkWindow       *window,
                                           gdouble          opacity);
 void          gdk_window_register_dnd    (GdkWindow       *window);
 
-void gdk_window_begin_resize_drag (GdkWindow     *window,
-                                   GdkWindowEdge  edge,
-                                   gint           button,
-                                   gint           root_x,
-                                   gint           root_y,
-                                   guint32        timestamp);
-void gdk_window_begin_move_drag   (GdkWindow     *window,
-                                   gint           button,
-                                   gint           root_x,
-                                   gint           root_y,
-                                   guint32        timestamp);
+GdkDragProtocol
+              gdk_window_get_drag_protocol(GdkWindow      *window,
+                                           GdkWindow     **target);
+
+void gdk_window_begin_resize_drag            (GdkWindow     *window,
+                                              GdkWindowEdge  edge,
+                                              gint           button,
+                                              gint           root_x,
+                                              gint           root_y,
+                                              guint32        timestamp);
+GDK_AVAILABLE_IN_3_4
+void gdk_window_begin_resize_drag_for_device (GdkWindow     *window,
+                                              GdkWindowEdge  edge,
+                                              GdkDevice     *device,
+                                              gint           button,
+                                              gint           root_x,
+                                              gint           root_y,
+                                              guint32        timestamp);
+void gdk_window_begin_move_drag              (GdkWindow     *window,
+                                              gint           button,
+                                              gint           root_x,
+                                              gint           root_y,
+                                              guint32        timestamp);
+GDK_AVAILABLE_IN_3_4
+void gdk_window_begin_move_drag_for_device   (GdkWindow     *window,
+                                              GdkDevice     *device,
+                                              gint           button,
+                                              gint           root_x,
+                                              gint           root_y,
+                                              guint32        timestamp);
 
 /* Interface for dirty-region queueing */
 void       gdk_window_invalidate_rect           (GdkWindow          *window,
 					         const GdkRectangle *rect,
 					         gboolean            invalidate_children);
 void       gdk_window_invalidate_region         (GdkWindow          *window,
-					         const GdkRegion    *region,
+					         const cairo_region_t    *region,
 					         gboolean            invalidate_children);
-void       gdk_window_invalidate_maybe_recurse  (GdkWindow          *window,
-						 const GdkRegion    *region,
-						 gboolean (*child_func) (GdkWindow *, gpointer),
-						 gpointer   user_data);
-GdkRegion *gdk_window_get_update_area     (GdkWindow    *window);
+
+/**
+ * GdkWindowChildFunc:
+ * @window: a #GdkWindow
+ * @user_data: user data
+ *
+ * A function of this type is passed to gdk_window_invalidate_maybe_recurse().
+ * It gets called for each child of the window to determine whether to
+ * recursively invalidate it or now.
+ *
+ * Returns: %TRUE to invalidate @window recursively
+ */
+typedef gboolean (*GdkWindowChildFunc)          (GdkWindow *window,
+                                                 gpointer   user_data);
+
+void       gdk_window_invalidate_maybe_recurse  (GdkWindow            *window,
+						 const cairo_region_t *region,
+						 GdkWindowChildFunc    child_func,
+						 gpointer              user_data);
+cairo_region_t *gdk_window_get_update_area      (GdkWindow            *window);
 
 void       gdk_window_freeze_updates      (GdkWindow    *window);
 void       gdk_window_thaw_updates        (GdkWindow    *window);
@@ -694,49 +861,23 @@ void       gdk_window_constrain_size      (GdkGeometry  *geometry,
                                            gint         *new_width,
                                            gint         *new_height);
 
-void gdk_window_get_internal_paint_info (GdkWindow    *window,
-					 GdkDrawable **real_drawable,
-					 gint         *x_offset,
-					 gint         *y_offset);
-
 void gdk_window_enable_synchronized_configure (GdkWindow *window);
 void gdk_window_configure_finished            (GdkWindow *window);
 
 GdkWindow *gdk_get_default_root_window (void);
 
 /* Offscreen redirection */
-GdkPixmap *gdk_offscreen_window_get_pixmap     (GdkWindow     *window);
+cairo_surface_t *
+           gdk_offscreen_window_get_surface    (GdkWindow     *window);
 void       gdk_offscreen_window_set_embedder   (GdkWindow     *window,
 						GdkWindow     *embedder);
 GdkWindow *gdk_offscreen_window_get_embedder   (GdkWindow     *window);
 void       gdk_window_geometry_changed         (GdkWindow     *window);
 
-void       gdk_window_redirect_to_drawable   (GdkWindow     *window,
-                                              GdkDrawable   *drawable,
-                                              gint           src_x,
-                                              gint           src_y,
-                                              gint           dest_x,
-                                              gint           dest_y,
-                                              gint           width,
-                                              gint           height);
-void       gdk_window_remove_redirection     (GdkWindow     *window);
-
-#ifndef GDK_DISABLE_DEPRECATED
-#ifndef GDK_MULTIHEAD_SAFE
-GdkPointerHooks *gdk_set_pointer_hooks (const GdkPointerHooks *new_hooks);   
-#endif /* GDK_MULTIHEAD_SAFE */
-
-#define GDK_ROOT_PARENT()             (gdk_get_default_root_window ())
-#define gdk_window_get_size            gdk_drawable_get_size
-#define gdk_window_get_type            gdk_window_get_window_type
-#define gdk_window_get_colormap        gdk_drawable_get_colormap
-#define gdk_window_set_colormap        gdk_drawable_set_colormap
-#define gdk_window_ref                 g_object_ref
-#define gdk_window_unref               g_object_unref
-
-#define gdk_window_copy_area(drawable,gc,x,y,source_drawable,source_x,source_y,width,height) \
-   gdk_draw_pixmap(drawable,gc,source_drawable,source_x,source_y,x,y,width,height)
-#endif /* GDK_DISABLE_DEPRECATED */
+/* Multidevice support */
+void       gdk_window_set_support_multidevice (GdkWindow *window,
+                                               gboolean   support_multidevice);
+gboolean   gdk_window_get_support_multidevice (GdkWindow *window);
 
 G_END_DECLS
 

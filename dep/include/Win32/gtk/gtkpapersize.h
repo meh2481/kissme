@@ -13,12 +13,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -36,12 +34,53 @@ typedef struct _GtkPaperSize GtkPaperSize;
 #define GTK_TYPE_PAPER_SIZE    (gtk_paper_size_get_type ())
 
 /* Common names, from PWG 5101.1-2002 PWG: Standard for Media Standardized Names */
+/**
+ * GTK_PAPER_NAME_A3:
+ *
+ * Name for the A4 paper size.
+ */
 #define GTK_PAPER_NAME_A3 "iso_a3"
+
+/**
+ * GTK_PAPER_NAME_A4:
+ *
+ * Name for the A4 paper size.
+ */
 #define GTK_PAPER_NAME_A4 "iso_a4"
+
+/**
+ * GTK_PAPER_NAME_A5:
+ *
+ * Name for the A5 paper size.
+ */
 #define GTK_PAPER_NAME_A5 "iso_a5"
+
+/**
+ * GTK_PAPER_NAME_B5:
+ *
+ * Name for the B5 paper size.
+ */
 #define GTK_PAPER_NAME_B5 "iso_b5"
+
+/**
+ * GTK_PAPER_NAME_LETTER:
+ *
+ * Name for the Letter paper size.
+ */
 #define GTK_PAPER_NAME_LETTER "na_letter"
+
+/**
+ * GTK_PAPER_NAME_EXECUTIVE:
+ *
+ * Name for the Executive paper size.
+ */
 #define GTK_PAPER_NAME_EXECUTIVE "na_executive"
+
+/**
+ * GTK_PAPER_NAME_LEGAL:
+ *
+ * Name for the Legal paper size.
+ */
 #define GTK_PAPER_NAME_LEGAL "na_legal"
 
 GType gtk_paper_size_get_type (void) G_GNUC_CONST;

@@ -14,9 +14,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with the Gnome Library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -28,7 +26,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -55,8 +53,7 @@ struct _GtkToggleAction
   GtkAction parent;
 
   /*< private >*/
-
-  GtkToggleActionPrivate *GSEAL (private_data);
+  GtkToggleActionPrivate *private_data;
 };
 
 struct _GtkToggleActionClass
@@ -84,6 +81,10 @@ gboolean         gtk_toggle_action_get_active        (GtkToggleAction *action);
 void             gtk_toggle_action_set_draw_as_radio (GtkToggleAction *action,
                                                       gboolean         draw_as_radio);
 gboolean         gtk_toggle_action_get_draw_as_radio (GtkToggleAction *action);
+
+/* private */
+void             _gtk_toggle_action_set_active       (GtkToggleAction *toggle_action,
+                                                      gboolean         is_active);
 
 
 G_END_DECLS

@@ -12,12 +12,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -26,6 +24,7 @@
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdk.h>
+#include <gtk/gtkstylecontext.h>
 
 G_BEGIN_DECLS
 
@@ -38,17 +37,34 @@ G_BEGIN_DECLS
 #define GTK_IS_ICON_THEME_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_ICON_THEME))
 #define GTK_ICON_THEME_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_ICON_THEME, GtkIconThemeClass))
 
+/**
+ * GtkIconInfo:
+ *
+ * Contains information found when looking up an icon in
+ * an icon theme.
+ */
 typedef struct _GtkIconInfo         GtkIconInfo;
 typedef struct _GtkIconTheme        GtkIconTheme;
 typedef struct _GtkIconThemeClass   GtkIconThemeClass;
 typedef struct _GtkIconThemePrivate GtkIconThemePrivate;
 
+/**
+ * GtkIconTheme:
+ *
+ * Acts as a database of information about an icon theme.
+ * Normally, you retrieve the icon theme for a particular
+ * screen using gtk_icon_theme_get_for_screen() and it
+ * will contain information about current icon theme for
+ * that screen, but you can also create a new #GtkIconTheme
+ * object and set the icon theme name explicitely using
+ * gtk_icon_theme_set_custom_theme().
+ */
 struct _GtkIconTheme
 {
   /*< private >*/
   GObject parent_instance;
 
-  GtkIconThemePrivate *GSEAL (priv);
+  GtkIconThemePrivate *priv;
 };
 
 struct _GtkIconThemeClass
@@ -56,6 +72,12 @@ struct _GtkIconThemeClass
   GObjectClass parent_class;
 
   void (* changed)  (GtkIconTheme *icon_theme);
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 /**
@@ -86,6 +108,11 @@ typedef enum
   GTK_ICON_LOOKUP_FORCE_SIZE       = 1 << 4
 } GtkIconLookupFlags;
 
+/**
+ * GTK_ICON_THEME_ERROR:
+ *
+ * The #GQuark used for #GtkIconThemeError errors.
+ */
 #define GTK_ICON_THEME_ERROR gtk_icon_theme_error_quark ()
 
 /**
@@ -101,15 +128,6 @@ typedef enum {
 } GtkIconThemeError;
 
 GQuark gtk_icon_theme_error_quark (void);
-
-#ifdef G_OS_WIN32
-/* Reserve old name for DLL ABI backward compatibility */
-#define gtk_icon_theme_set_search_path gtk_icon_theme_set_search_path_utf8
-#define gtk_icon_theme_get_search_path gtk_icon_theme_get_search_path_utf8
-#define gtk_icon_theme_append_search_path gtk_icon_theme_append_search_path_utf8
-#define gtk_icon_theme_prepend_search_path gtk_icon_theme_prepend_search_path_utf8
-#define gtk_icon_info_get_filename gtk_icon_info_get_filename_utf8
-#endif
 
 GType         gtk_icon_theme_get_type              (void) G_GNUC_CONST;
 
@@ -179,6 +197,23 @@ const gchar *         gtk_icon_info_get_filename       (GtkIconInfo   *icon_info
 GdkPixbuf *           gtk_icon_info_get_builtin_pixbuf (GtkIconInfo   *icon_info);
 GdkPixbuf *           gtk_icon_info_load_icon          (GtkIconInfo   *icon_info,
 							GError       **error);
+GdkPixbuf *           gtk_icon_info_load_symbolic      (GtkIconInfo   *icon_info,
+                                                        const GdkRGBA *fg,
+                                                        const GdkRGBA *success_color,
+                                                        const GdkRGBA *warning_color,
+                                                        const GdkRGBA *error_color,
+                                                        gboolean      *was_symbolic,
+                                                        GError       **error);
+GdkPixbuf *           gtk_icon_info_load_symbolic_for_context (GtkIconInfo      *icon_info,
+                                                               GtkStyleContext  *context,
+                                                               gboolean         *was_symbolic,
+                                                               GError          **error);
+GDK_DEPRECATED_IN_3_0_FOR(gtk_icon_info_load_symbol_for_context)
+GdkPixbuf *           gtk_icon_info_load_symbolic_for_style  (GtkIconInfo   *icon_info,
+                                                              GtkStyle      *style,
+                                                              GtkStateType   state,
+                                                              gboolean      *was_symbolic,
+                                                              GError       **error);
 void                  gtk_icon_info_set_raw_coordinates (GtkIconInfo  *icon_info,
 							 gboolean      raw_coordinates);
 

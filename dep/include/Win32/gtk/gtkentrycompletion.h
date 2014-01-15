@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -26,6 +24,7 @@
 
 #include <gtk/gtktreemodel.h>
 #include <gtk/gtkliststore.h>
+#include <gtk/gtkcellarea.h>
 #include <gtk/gtktreeviewcolumn.h>
 #include <gtk/gtktreemodelfilter.h>
 
@@ -42,6 +41,23 @@ typedef struct _GtkEntryCompletion            GtkEntryCompletion;
 typedef struct _GtkEntryCompletionClass       GtkEntryCompletionClass;
 typedef struct _GtkEntryCompletionPrivate     GtkEntryCompletionPrivate;
 
+/**
+ * GtkEntryCompletionMatchFunc:
+ * @completion: the #GtkEntryCompletion
+ * @key: the string to match, normalized and case-folded
+ * @iter: a #GtkTreeIter indicating the row to match
+ * @user_data: user data given to gtk_entry_completion_set_match_func()
+ *
+ * A function which decides whether the row indicated by @iter matches
+ * a given @key, and should be displayed as a possible completion for @key.
+ * Note that @key is normalized and case-folded (see g_utf8_normalize()
+ * and g_utf8_casefold()). If this is not appropriate, match functions
+ * have access to the unmodified key via
+ * <literal>gtk_entry_get_text (GTK_ENTRY (gtk_entry_completion_get_entry (<!-- -->)))</literal>.
+ *
+ * Returns: %TRUE if @iter should be displayed as a possible completion
+ *     for @key
+ */
 typedef gboolean (* GtkEntryCompletionMatchFunc) (GtkEntryCompletion *completion,
                                                   const gchar        *key,
                                                   GtkTreeIter        *iter,
@@ -53,7 +69,7 @@ struct _GtkEntryCompletion
   GObject parent_instance;
 
   /*< private >*/
-  GtkEntryCompletionPrivate *GSEAL (priv);
+  GtkEntryCompletionPrivate *priv;
 };
 
 struct _GtkEntryCompletionClass
@@ -66,19 +82,22 @@ struct _GtkEntryCompletionClass
   void     (* action_activated) (GtkEntryCompletion *completion,
                                  gint                index_);
   gboolean (* insert_prefix)    (GtkEntryCompletion *completion,
-				 const gchar        *prefix);
+                                 const gchar        *prefix);
   gboolean (* cursor_on_match)  (GtkEntryCompletion *completion,
-				 GtkTreeModel       *model,
-				 GtkTreeIter        *iter);
+                                 GtkTreeModel       *model,
+                                 GtkTreeIter        *iter);
 
   /* Padding for future expansion */
   void (*_gtk_reserved0) (void);
   void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
 };
 
 /* core */
 GType               gtk_entry_completion_get_type               (void) G_GNUC_CONST;
 GtkEntryCompletion *gtk_entry_completion_new                    (void);
+GtkEntryCompletion *gtk_entry_completion_new_with_area          (GtkCellArea                 *area);
 
 GtkWidget          *gtk_entry_completion_get_entry              (GtkEntryCompletion          *completion);
 
@@ -93,6 +112,9 @@ void                gtk_entry_completion_set_match_func         (GtkEntryComplet
 void                gtk_entry_completion_set_minimum_key_length (GtkEntryCompletion          *completion,
                                                                  gint                         length);
 gint                gtk_entry_completion_get_minimum_key_length (GtkEntryCompletion          *completion);
+GDK_AVAILABLE_IN_3_4
+gchar *             gtk_entry_completion_compute_prefix         (GtkEntryCompletion          *completion,
+                                                                 const char                  *key);
 void                gtk_entry_completion_complete               (GtkEntryCompletion          *completion);
 void                gtk_entry_completion_insert_prefix          (GtkEntryCompletion          *completion);
 

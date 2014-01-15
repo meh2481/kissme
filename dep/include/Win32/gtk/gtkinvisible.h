@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -43,15 +41,16 @@ G_BEGIN_DECLS
 #define GTK_INVISIBLE_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_INVISIBLE, GtkInvisibleClass))
 
 
-typedef struct _GtkInvisible	   GtkInvisible;
-typedef struct _GtkInvisibleClass  GtkInvisibleClass;
+typedef struct _GtkInvisible              GtkInvisible;
+typedef struct _GtkInvisiblePrivate       GtkInvisiblePrivate;
+typedef struct _GtkInvisibleClass         GtkInvisibleClass;
 
 struct _GtkInvisible
 {
   GtkWidget widget;
 
-  gboolean   GSEAL (has_user_ref_count);
-  GdkScreen *GSEAL (screen);
+  /*< private >*/
+  GtkInvisiblePrivate *priv;
 };
 
 struct _GtkInvisibleClass

@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -45,16 +43,16 @@ G_BEGIN_DECLS
 #define GTK_SCALE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_SCALE, GtkScaleClass))
 
 
-typedef struct _GtkScale        GtkScale;
-typedef struct _GtkScaleClass   GtkScaleClass;
+typedef struct _GtkScale              GtkScale;
+typedef struct _GtkScalePrivate       GtkScalePrivate;
+typedef struct _GtkScaleClass         GtkScaleClass;
 
 struct _GtkScale
 {
   GtkRange range;
 
-  gint  GSEAL (digits);
-  guint GSEAL (draw_value) : 1;
-  guint GSEAL (value_pos) : 2;
+  /*< private >*/
+  GtkScalePrivate *priv;
 };
 
 struct _GtkScaleClass
@@ -74,15 +72,27 @@ struct _GtkScaleClass
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 GType             gtk_scale_get_type           (void) G_GNUC_CONST;
+GtkWidget       * gtk_scale_new                (GtkOrientation   orientation,
+                                                GtkAdjustment   *adjustment);
+GtkWidget       * gtk_scale_new_with_range     (GtkOrientation   orientation,
+                                                gdouble          min,
+                                                gdouble          max,
+                                                gdouble          step);
 void              gtk_scale_set_digits         (GtkScale        *scale,
                                                 gint             digits);
 gint              gtk_scale_get_digits         (GtkScale        *scale);
 void              gtk_scale_set_draw_value     (GtkScale        *scale,
                                                 gboolean         draw_value);
 gboolean          gtk_scale_get_draw_value     (GtkScale        *scale);
+GDK_AVAILABLE_IN_3_4
+void              gtk_scale_set_has_origin     (GtkScale        *scale,
+                                                gboolean         has_origin);
+GDK_AVAILABLE_IN_3_4
+gboolean          gtk_scale_get_has_origin     (GtkScale        *scale);
 void              gtk_scale_set_value_pos      (GtkScale        *scale,
                                                 GtkPositionType  pos);
 GtkPositionType   gtk_scale_get_value_pos      (GtkScale        *scale);
@@ -98,13 +108,6 @@ void              gtk_scale_add_mark           (GtkScale        *scale,
                                                 const gchar     *markup);
 void              gtk_scale_clear_marks        (GtkScale        *scale);
 
-/* internal API */
-void              _gtk_scale_clear_layout      (GtkScale        *scale);
-void              _gtk_scale_get_value_size    (GtkScale        *scale,
-                                                gint            *width,
-                                                gint            *height);
-gchar           * _gtk_scale_format_value      (GtkScale        *scale,
-                                                gdouble          value);
 
 G_END_DECLS
 

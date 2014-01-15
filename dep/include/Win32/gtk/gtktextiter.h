@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,22 +22,24 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
 #ifndef __GTK_TEXT_ITER_H__
 #define __GTK_TEXT_ITER_H__
 
-#include <gtk/gtktexttag.h>
+#include <gtk/gtktextattributes.h>
 #include <gtk/gtktextchild.h>
+#include <gtk/gtktexttag.h>
 
 G_BEGIN_DECLS
 
 typedef enum {
-  GTK_TEXT_SEARCH_VISIBLE_ONLY = 1 << 0,
-  GTK_TEXT_SEARCH_TEXT_ONLY    = 1 << 1
-  /* Possible future plans: SEARCH_CASE_INSENSITIVE, SEARCH_REGEXP */
+  GTK_TEXT_SEARCH_VISIBLE_ONLY     = 1 << 0,
+  GTK_TEXT_SEARCH_TEXT_ONLY        = 1 << 1,
+  GTK_TEXT_SEARCH_CASE_INSENSITIVE = 1 << 2
+  /* Possible future plans: SEARCH_REGEXP */
 } GtkTextSearchFlags;
 
 /*
@@ -86,6 +86,9 @@ GtkTextBuffer *gtk_text_iter_get_buffer (const GtkTextIter *iter);
 
 GtkTextIter *gtk_text_iter_copy     (const GtkTextIter *iter);
 void         gtk_text_iter_free     (GtkTextIter       *iter);
+GDK_AVAILABLE_IN_3_2
+void         gtk_text_iter_assign   (GtkTextIter       *iter,
+                                     const GtkTextIter *other);
 
 GType        gtk_text_iter_get_type (void) G_GNUC_CONST;
 
@@ -232,7 +235,6 @@ gboolean gtk_text_iter_forward_visible_cursor_positions  (GtkTextIter *iter,
 gboolean gtk_text_iter_backward_visible_cursor_positions (GtkTextIter *iter,
                                                           gint         count);
 
-
 void     gtk_text_iter_set_offset         (GtkTextIter *iter,
                                            gint         char_offset);
 void     gtk_text_iter_set_line           (GtkTextIter *iter,
@@ -284,7 +286,6 @@ gboolean gtk_text_iter_backward_search (const GtkTextIter *iter,
                                         GtkTextIter       *match_end,
                                         const GtkTextIter *limit);
 
-
 /*
  * Comparisons
  */
@@ -303,5 +304,3 @@ void     gtk_text_iter_order           (GtkTextIter *first,
 G_END_DECLS
 
 #endif
-
-

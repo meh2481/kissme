@@ -15,8 +15,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -26,7 +25,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -35,9 +34,6 @@
 
 
 #include <gtk/gtkwidget.h>
-
-/* Not needed, retained for compatibility -Yosh */
-#include <gtk/gtksignal.h>
 
 
 G_BEGIN_DECLS
@@ -62,8 +58,6 @@ typedef struct _GtkCalendarPrivate     GtkCalendarPrivate;
  * @GTK_CALENDAR_NO_MONTH_CHANGE: Prevents the user from switching months with the calendar.
  * @GTK_CALENDAR_SHOW_WEEK_NUMBERS: Displays each week numbers of the current year, down the
  * left side of the calendar.
- * @GTK_CALENDAR_WEEK_START_MONDAY: Since GTK+ 2.4, this option is deprecated and ignored by GTK+.
- * The information on which day the calendar week starts is derived from the locale.
  * @GTK_CALENDAR_SHOW_DETAILS: Just show an indicator, not the full details
  * text when details are provided. See gtk_calendar_set_detail_func().
  *
@@ -75,7 +69,6 @@ typedef enum
   GTK_CALENDAR_SHOW_DAY_NAMES		= 1 << 1,
   GTK_CALENDAR_NO_MONTH_CHANGE		= 1 << 2,
   GTK_CALENDAR_SHOW_WEEK_NUMBERS	= 1 << 3,
-  GTK_CALENDAR_WEEK_START_MONDAY	= 1 << 4,
   GTK_CALENDAR_SHOW_DETAILS		= 1 << 5
 } GtkCalendarDisplayOptions;
 
@@ -105,39 +98,8 @@ typedef gchar* (*GtkCalendarDetailFunc) (GtkCalendar *calendar,
 struct _GtkCalendar
 {
   GtkWidget widget;
-  
-  GtkStyle  *GSEAL (header_style);
-  GtkStyle  *GSEAL (label_style);
-  
-  gint GSEAL (month);
-  gint GSEAL (year);
-  gint GSEAL (selected_day);
-  
-  gint GSEAL (day_month[6][7]);
-  gint GSEAL (day[6][7]);
-  
-  gint GSEAL (num_marked_dates);
-  gint GSEAL (marked_date[31]);
-  GtkCalendarDisplayOptions  GSEAL (display_flags);
-  GdkColor GSEAL (marked_date_color[31]);
-  
-  GdkGC *GSEAL (gc);			/* unused */
-  GdkGC *GSEAL (xor_gc);		/* unused */
 
-  gint GSEAL (focus_row);
-  gint GSEAL (focus_col);
-
-  gint GSEAL (highlight_row);
-  gint GSEAL (highlight_col);
-  
-  GtkCalendarPrivate *GSEAL (priv);
-  gchar GSEAL (grow_space [32]);
-
-  /* Padding for future expansion */
-  void (*_gtk_reserved1) (void);
-  void (*_gtk_reserved2) (void);
-  void (*_gtk_reserved3) (void);
-  void (*_gtk_reserved4) (void);
+  GtkCalendarPrivate *priv;
 };
 
 struct _GtkCalendarClass
@@ -152,22 +114,27 @@ struct _GtkCalendarClass
   void (* next_month)			(GtkCalendar *calendar);
   void (* prev_year)			(GtkCalendar *calendar);
   void (* next_year)			(GtkCalendar *calendar);
-  
+
+  /* Padding for future expansion */
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
 
 GType	   gtk_calendar_get_type	(void) G_GNUC_CONST;
 GtkWidget* gtk_calendar_new		(void);
 
-gboolean   gtk_calendar_select_month	(GtkCalendar *calendar,
+void       gtk_calendar_select_month	(GtkCalendar *calendar,
 					 guint	      month,
 					 guint	      year);
 void	   gtk_calendar_select_day	(GtkCalendar *calendar,
 					 guint	      day);
 
-gboolean   gtk_calendar_mark_day	(GtkCalendar *calendar,
+void       gtk_calendar_mark_day	(GtkCalendar *calendar,
 					 guint	      day);
-gboolean   gtk_calendar_unmark_day	(GtkCalendar *calendar,
+void       gtk_calendar_unmark_day	(GtkCalendar *calendar,
 					 guint	      day);
 void	   gtk_calendar_clear_marks	(GtkCalendar *calendar);
 
@@ -176,11 +143,6 @@ void	   gtk_calendar_set_display_options (GtkCalendar    	      *calendar,
 					     GtkCalendarDisplayOptions flags);
 GtkCalendarDisplayOptions
            gtk_calendar_get_display_options (GtkCalendar   	      *calendar);
-#ifndef GTK_DISABLE_DEPRECATED
-void	   gtk_calendar_display_options (GtkCalendar		  *calendar,
-					 GtkCalendarDisplayOptions flags);
-#endif
-
 void	   gtk_calendar_get_date	(GtkCalendar *calendar, 
 					 guint	     *year,
 					 guint	     *month,
@@ -199,10 +161,8 @@ void       gtk_calendar_set_detail_height_rows (GtkCalendar    *calendar,
 gint       gtk_calendar_get_detail_width_chars (GtkCalendar    *calendar);
 gint       gtk_calendar_get_detail_height_rows (GtkCalendar    *calendar);
 
-#ifndef GTK_DISABLE_DEPRECATED
-void	   gtk_calendar_freeze		(GtkCalendar *calendar);
-void	   gtk_calendar_thaw		(GtkCalendar *calendar);
-#endif
+gboolean   gtk_calendar_get_day_is_marked      (GtkCalendar    *calendar,
+                                                guint           day);
 
 G_END_DECLS
 

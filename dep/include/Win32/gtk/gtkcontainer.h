@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -33,7 +31,6 @@
 
 
 #include <gtk/gtkwidget.h>
-#include <gtk/gtkadjustment.h>
 
 
 G_BEGIN_DECLS
@@ -45,25 +42,17 @@ G_BEGIN_DECLS
 #define GTK_IS_CONTAINER_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_CONTAINER))
 #define GTK_CONTAINER_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_CONTAINER, GtkContainerClass))
 
-#define GTK_IS_RESIZE_CONTAINER(widget) (GTK_IS_CONTAINER (widget) && ((GtkContainer*) (widget))->resize_mode != GTK_RESIZE_PARENT)
 
-
-typedef struct _GtkContainer	   GtkContainer;
-typedef struct _GtkContainerClass  GtkContainerClass;
+typedef struct _GtkContainer              GtkContainer;
+typedef struct _GtkContainerPrivate       GtkContainerPrivate;
+typedef struct _GtkContainerClass         GtkContainerClass;
 
 struct _GtkContainer
 {
   GtkWidget widget;
 
-  GtkWidget *GSEAL (focus_child);
-
-  guint GSEAL (border_width) : 16;
-
   /*< private >*/
-  guint GSEAL (need_resize) : 1;
-  guint GSEAL (resize_mode) : 2;
-  guint GSEAL (reallocate_redraws) : 1;
-  guint GSEAL (has_focus_chain) : 1;
+  GtkContainerPrivate *priv;
 };
 
 struct _GtkContainerClass
@@ -80,7 +69,7 @@ struct _GtkContainerClass
 				 GtkCallback	  callback,
 				 gpointer	  callback_data);
   void    (*set_focus_child)	(GtkContainer	 *container,
-				 GtkWidget	 *widget);
+				 GtkWidget	 *child);
   GType   (*child_type)		(GtkContainer	 *container);
   gchar*  (*composite_name)	(GtkContainer	 *container,
 				 GtkWidget	 *child);
@@ -94,13 +83,25 @@ struct _GtkContainerClass
 				 guint            property_id,
 				 GValue          *value,
 				 GParamSpec      *pspec);
+  GtkWidgetPath * (*get_path_for_child) (GtkContainer *container,
+                                         GtkWidget    *child);
+
+
+  /*< private >*/
+
+  unsigned int _handle_border_width : 1;
 
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
+  void (*_gtk_reserved5) (void);
+  void (*_gtk_reserved6) (void);
+  void (*_gtk_reserved7) (void);
+  void (*_gtk_reserved8) (void);
 };
+
 
 /* Application-level methods */
 
@@ -122,28 +123,20 @@ void    gtk_container_check_resize       (GtkContainer     *container);
 void     gtk_container_foreach      (GtkContainer       *container,
 				     GtkCallback         callback,
 				     gpointer            callback_data);
-#ifndef GTK_DISABLE_DEPRECATED
-void     gtk_container_foreach_full (GtkContainer       *container,
-				     GtkCallback         callback,
-				     GtkCallbackMarshal  marshal,
-				     gpointer            callback_data,
-				     GDestroyNotify      notify);
-#endif /*  GTK_DISABLE_DEPRECATED */
 GList*   gtk_container_get_children     (GtkContainer       *container);
 
-#ifndef GTK_DISABLE_DEPRECATED
-#define gtk_container_children gtk_container_get_children
-#endif
-
-void     gtk_container_propagate_expose (GtkContainer   *container,
+void     gtk_container_propagate_draw   (GtkContainer   *container,
 					 GtkWidget      *child,
-					 GdkEventExpose *event);
+					 cairo_t        *cr);
 
 void     gtk_container_set_focus_chain  (GtkContainer   *container,
                                          GList          *focusable_widgets);
 gboolean gtk_container_get_focus_chain  (GtkContainer   *container,
 					 GList         **focusable_widgets);
 void     gtk_container_unset_focus_chain (GtkContainer  *container);
+
+#define GTK_IS_RESIZE_CONTAINER(widget) (GTK_IS_CONTAINER (widget) && \
+                                        (gtk_container_get_resize_mode (GTK_CONTAINER (widget)) != GTK_RESIZE_PARENT))
 
 /* Widget-level methods */
 
@@ -199,8 +192,23 @@ void	     gtk_container_child_set_property		(GtkContainer	   *container,
 void	     gtk_container_child_get_property		(GtkContainer	   *container,
 							 GtkWidget	   *child,
 							 const gchar	   *property_name,
-							 GValue		   *value);
+	                                                 GValue		   *value);
 
+GDK_AVAILABLE_IN_3_2
+void gtk_container_child_notify (GtkContainer *container,
+                                 GtkWidget    *child,
+                                 const gchar  *child_property);
+
+/**
+ * GTK_CONTAINER_WARN_INVALID_CHILD_PROPERTY_ID:
+ * @object: the #GObject on which set_child_property() or get_child_property()
+ *  was called
+ * @property_id: the numeric id of the property
+ * @pspec: the #GParamSpec of the property
+ *
+ * This macro should be used to emit a standard warning about unexpected
+ * properties in set_child_property() and get_child_property() implementations.
+ */
 #define GTK_CONTAINER_WARN_INVALID_CHILD_PROPERTY_ID(object, property_id, pspec) \
     G_OBJECT_WARN_INVALID_PSPEC ((object), "child property id", (property_id), (pspec))
 
@@ -209,20 +217,10 @@ void    gtk_container_forall		     (GtkContainer *container,
 					      GtkCallback   callback,
 					      gpointer	    callback_data);
 
-/* Non-public methods */
-void	_gtk_container_queue_resize	     (GtkContainer *container);
-void    _gtk_container_clear_resize_widgets   (GtkContainer *container);
-gchar*	_gtk_container_child_composite_name   (GtkContainer *container,
-					      GtkWidget	   *child);
-void   _gtk_container_dequeue_resize_handler (GtkContainer *container);
-GList *_gtk_container_focus_sort             (GtkContainer     *container,
-					      GList            *children,
-					      GtkDirectionType  direction,
-					      GtkWidget        *old_focus);
+void    gtk_container_class_handle_border_width (GtkContainerClass *klass);
 
-#ifndef GTK_DISABLE_DEPRECATED
-#define	gtk_container_border_width		gtk_container_set_border_width
-#endif /* GTK_DISABLE_DEPRECATED */
+GtkWidgetPath * gtk_container_get_path_for_child (GtkContainer      *container,
+                                                  GtkWidget         *child);
 
 G_END_DECLS
 

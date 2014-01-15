@@ -12,19 +12,17 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
 #ifndef __GTK_TREE_STORE_H__
 #define __GTK_TREE_STORE_H__
 
-#include <gdkconfig.h>
+#include <gdk/gdk.h>
 #include <gtk/gtktreemodel.h>
 #include <gtk/gtktreesortable.h>
 #include <stdarg.h>
@@ -40,25 +38,15 @@ G_BEGIN_DECLS
 #define GTK_IS_TREE_STORE_CLASS(klass)		(G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_TREE_STORE))
 #define GTK_TREE_STORE_GET_CLASS(obj)		(G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_TREE_STORE, GtkTreeStoreClass))
 
-typedef struct _GtkTreeStore       GtkTreeStore;
-typedef struct _GtkTreeStoreClass  GtkTreeStoreClass;
+typedef struct _GtkTreeStore        GtkTreeStore;
+typedef struct _GtkTreeStoreClass   GtkTreeStoreClass;
+typedef struct _GtkTreeStorePrivate GtkTreeStorePrivate;
 
 struct _GtkTreeStore
 {
   GObject parent;
 
-  gint GSEAL (stamp);
-  gpointer GSEAL (root);
-  gpointer GSEAL (last);
-  gint GSEAL (n_columns);
-  gint GSEAL (sort_column_id);
-  GList *GSEAL (sort_list);
-  GtkSortType GSEAL (order);
-  GType *GSEAL (column_headers);
-  GtkTreeIterCompareFunc GSEAL (default_sort_func);
-  gpointer GSEAL (default_sort_data);
-  GDestroyNotify GSEAL (default_sort_destroy);
-  guint GSEAL (columns_dirty) : 1;
+  GtkTreeStorePrivate *priv;
 };
 
 struct _GtkTreeStoreClass

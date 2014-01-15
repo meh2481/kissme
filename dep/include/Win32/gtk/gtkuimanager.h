@@ -14,9 +14,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with the Gnome Library; see the file COPYING.LIB.  If not,
- * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -28,7 +26,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -58,26 +56,25 @@ struct _GtkUIManager {
   GObject parent;
 
   /*< private >*/
-
-  GtkUIManagerPrivate *GSEAL (private_data);
+  GtkUIManagerPrivate *private_data;
 };
 
 struct _GtkUIManagerClass {
   GObjectClass parent_class;
 
   /* Signals */
-  void (* add_widget)       (GtkUIManager *merge,
+  void (* add_widget)       (GtkUIManager *manager,
                              GtkWidget    *widget);
-  void (* actions_changed)  (GtkUIManager *merge);
-  void (* connect_proxy)    (GtkUIManager *merge,
+  void (* actions_changed)  (GtkUIManager *manager);
+  void (* connect_proxy)    (GtkUIManager *manager,
 			     GtkAction    *action,
 			     GtkWidget    *proxy);
-  void (* disconnect_proxy) (GtkUIManager *merge,
+  void (* disconnect_proxy) (GtkUIManager *manager,
 			     GtkAction    *action,
 			     GtkWidget    *proxy);
-  void (* pre_activate)     (GtkUIManager *merge,
+  void (* pre_activate)     (GtkUIManager *manager,
 			     GtkAction    *action);
-  void (* post_activate)    (GtkUIManager *merge,
+  void (* post_activate)    (GtkUIManager *manager,
 			     GtkAction    *action);
 
   /* Virtual functions */
@@ -89,8 +86,28 @@ struct _GtkUIManagerClass {
   /* Padding for future expansion */
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
 };
 
+/**
+ * GtkUIManagerItemType:
+ * @GTK_UI_MANAGER_AUTO: Pick the type of the UI element according to context.
+ * @GTK_UI_MANAGER_MENUBAR: Create a menubar.
+ * @GTK_UI_MANAGER_MENU: Create a menu.
+ * @GTK_UI_MANAGER_TOOLBAR: Create a toolbar.
+ * @GTK_UI_MANAGER_PLACEHOLDER: Insert a placeholder.
+ * @GTK_UI_MANAGER_POPUP: Create a popup menu.
+ * @GTK_UI_MANAGER_MENUITEM: Create a menuitem.
+ * @GTK_UI_MANAGER_TOOLITEM: Create a toolitem.
+ * @GTK_UI_MANAGER_SEPARATOR: Create a separator.
+ * @GTK_UI_MANAGER_ACCELERATOR: Install an accelerator.
+ * @GTK_UI_MANAGER_POPUP_WITH_ACCELS: Same as %GTK_UI_MANAGER_POPUP, but the
+ *   actions' accelerators are shown.
+ *
+ * These enumeration values are used by gtk_ui_manager_add_ui() to determine
+ * what UI element to create.
+ */
 typedef enum {
   GTK_UI_MANAGER_AUTO              = 0,
   GTK_UI_MANAGER_MENUBAR           = 1 << 0,
@@ -105,48 +122,49 @@ typedef enum {
   GTK_UI_MANAGER_POPUP_WITH_ACCELS = 1 << 9
 } GtkUIManagerItemType;
 
-#ifdef G_OS_WIN32
-/* Reserve old name for DLL ABI backward compatibility */
-#define gtk_ui_manager_add_ui_from_file gtk_ui_manager_add_ui_from_file_utf8
-#endif
-
 GType          gtk_ui_manager_get_type            (void) G_GNUC_CONST;
 GtkUIManager  *gtk_ui_manager_new                 (void);
-void           gtk_ui_manager_set_add_tearoffs    (GtkUIManager          *self,
-						   gboolean               add_tearoffs);
-gboolean       gtk_ui_manager_get_add_tearoffs    (GtkUIManager          *self);
-void           gtk_ui_manager_insert_action_group (GtkUIManager          *self,
+GDK_DEPRECATED_IN_3_4
+void           gtk_ui_manager_set_add_tearoffs    (GtkUIManager          *manager,
+                                                   gboolean               add_tearoffs);
+GDK_DEPRECATED_IN_3_4
+gboolean       gtk_ui_manager_get_add_tearoffs    (GtkUIManager          *manager);
+
+void           gtk_ui_manager_insert_action_group (GtkUIManager          *manager,
 						   GtkActionGroup        *action_group,
 						   gint                   pos);
-void           gtk_ui_manager_remove_action_group (GtkUIManager          *self,
+void           gtk_ui_manager_remove_action_group (GtkUIManager          *manager,
 						   GtkActionGroup        *action_group);
-GList         *gtk_ui_manager_get_action_groups   (GtkUIManager          *self);
-GtkAccelGroup *gtk_ui_manager_get_accel_group     (GtkUIManager          *self);
-GtkWidget     *gtk_ui_manager_get_widget          (GtkUIManager          *self,
+GList         *gtk_ui_manager_get_action_groups   (GtkUIManager          *manager);
+GtkAccelGroup *gtk_ui_manager_get_accel_group     (GtkUIManager          *manager);
+GtkWidget     *gtk_ui_manager_get_widget          (GtkUIManager          *manager,
 						   const gchar           *path);
-GSList        *gtk_ui_manager_get_toplevels       (GtkUIManager          *self,
+GSList        *gtk_ui_manager_get_toplevels       (GtkUIManager          *manager,
 						   GtkUIManagerItemType   types);
-GtkAction     *gtk_ui_manager_get_action          (GtkUIManager          *self,
+GtkAction     *gtk_ui_manager_get_action          (GtkUIManager          *manager,
 						   const gchar           *path);
-guint          gtk_ui_manager_add_ui_from_string  (GtkUIManager          *self,
+guint          gtk_ui_manager_add_ui_from_string  (GtkUIManager          *manager,
 						   const gchar           *buffer,
 						   gssize                 length,
 						   GError               **error);
-guint          gtk_ui_manager_add_ui_from_file    (GtkUIManager          *self,
+guint          gtk_ui_manager_add_ui_from_file    (GtkUIManager          *manager,
 						   const gchar           *filename,
 						   GError               **error);
-void           gtk_ui_manager_add_ui              (GtkUIManager          *self,
+guint          gtk_ui_manager_add_ui_from_resource(GtkUIManager          *manager,
+						   const gchar           *resource_path,
+						   GError               **error);
+void           gtk_ui_manager_add_ui              (GtkUIManager          *manager,
 						   guint                  merge_id,
 						   const gchar           *path,
 						   const gchar           *name,
 						   const gchar           *action,
 						   GtkUIManagerItemType   type,
 						   gboolean               top);
-void           gtk_ui_manager_remove_ui           (GtkUIManager          *self,
+void           gtk_ui_manager_remove_ui           (GtkUIManager          *manager,
 						   guint                  merge_id);
-gchar         *gtk_ui_manager_get_ui              (GtkUIManager          *self);
-void           gtk_ui_manager_ensure_update       (GtkUIManager          *self);
-guint          gtk_ui_manager_new_merge_id        (GtkUIManager          *self);
+gchar         *gtk_ui_manager_get_ui              (GtkUIManager          *manager);
+void           gtk_ui_manager_ensure_update       (GtkUIManager          *manager);
+guint          gtk_ui_manager_new_merge_id        (GtkUIManager          *manager);
 
 G_END_DECLS
 

@@ -23,8 +23,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  * Original Tk license:
  *
@@ -109,7 +108,6 @@ typedef struct _GtkTextLineData GtkTextLineData;
 typedef struct _GtkTextLayout         GtkTextLayout;
 typedef struct _GtkTextLayoutClass    GtkTextLayoutClass;
 typedef struct _GtkTextLineDisplay    GtkTextLineDisplay;
-typedef struct _GtkTextCursorDisplay  GtkTextCursorDisplay;
 typedef struct _GtkTextAttrAppearance GtkTextAttrAppearance;
 
 struct _GtkTextLayout
@@ -225,20 +223,12 @@ struct _GtkTextAttrAppearance
   PangoAttribute attr;
   GtkTextAppearance appearance;
 };
-struct _GtkTextCursorDisplay
-{
-  gint x;
-  gint y;
-  gint height;
-  guint is_strong : 1;
-  guint is_weak : 1;
-};
+
 struct _GtkTextLineDisplay
 {
   PangoLayout *layout;
-  GSList *cursors;
-  GSList *shaped_objects;	/* Only for backwards compatibility */
-  
+  GArray *cursors;      /* indexes of cursors in the PangoLayout */
+
   GtkTextDirection direction;
 
   gint width;                   /* Width of layout */
@@ -254,7 +244,6 @@ struct _GtkTextLineDisplay
   gint bottom_margin;
   gint insert_index;		/* Byte index of insert cursor within para or -1 */
 
-  gboolean size_only;
   GtkTextLine *line;
   
   GdkColor *pg_bg_color;
@@ -263,9 +252,14 @@ struct _GtkTextLineDisplay
   guint cursors_invalid : 1;
   guint has_block_cursor : 1;
   guint cursor_at_line_end : 1;
+  guint size_only : 1;
+
+  GdkRGBA *pg_bg_rgba;
 };
 
-extern PangoAttrType gtk_text_attr_appearance_type;
+#ifdef GTK_COMPILATION
+extern G_GNUC_INTERNAL PangoAttrType gtk_text_attr_appearance_type;
+#endif
 
 GType         gtk_text_layout_get_type    (void) G_GNUC_CONST;
 

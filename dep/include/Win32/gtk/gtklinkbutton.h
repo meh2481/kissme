@@ -18,11 +18,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Cambridge, MA 02139, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -44,21 +43,37 @@ typedef struct _GtkLinkButton		GtkLinkButton;
 typedef struct _GtkLinkButtonClass	GtkLinkButtonClass;
 typedef struct _GtkLinkButtonPrivate	GtkLinkButtonPrivate;
 
-typedef void (*GtkLinkButtonUriFunc) (GtkLinkButton *button,
-				      const gchar   *link_,
-				      gpointer       user_data);
-
+/**
+ * GtkLinkButton:
+ *
+ * The <structname>GtkLinkButton</structname> structure contains only
+ * private data and should be accessed using the provided API.
+ */
 struct _GtkLinkButton
 {
+  /*< private >*/
   GtkButton parent_instance;
 
-  GtkLinkButtonPrivate *GSEAL (priv);
+  GtkLinkButtonPrivate *priv;
 };
 
+/**
+ * GtkLinkButtonClass:
+ * @activate_link: class handler for the #GtkLinkButton::activate-link signal
+ *
+ * The <structname>GtkLinkButtonClass</structname> structure contains only
+ * private data.
+ */
 struct _GtkLinkButtonClass
 {
+  /*< private >*/
   GtkButtonClass parent_class;
 
+  /*< public >*/
+  gboolean (* activate_link) (GtkLinkButton *button);
+
+  /*< private >*/
+  /* Padding for future expansion */
   void (*_gtk_padding1) (void);
   void (*_gtk_padding2) (void);
   void (*_gtk_padding3) (void);
@@ -74,12 +89,6 @@ GtkWidget *           gtk_link_button_new_with_label    (const gchar   *uri,
 const gchar *         gtk_link_button_get_uri           (GtkLinkButton *link_button);
 void                  gtk_link_button_set_uri           (GtkLinkButton *link_button,
 						         const gchar   *uri);
-
-#ifndef GTK_DISABLE_DEPRECATED
-GtkLinkButtonUriFunc  gtk_link_button_set_uri_hook      (GtkLinkButtonUriFunc func,
-							 gpointer             data,
-							 GDestroyNotify       destroy);
-#endif
 
 gboolean              gtk_link_button_get_visited       (GtkLinkButton *link_button);
 void                  gtk_link_button_set_visited       (GtkLinkButton *link_button,

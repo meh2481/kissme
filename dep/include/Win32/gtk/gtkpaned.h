@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -51,37 +49,8 @@ struct _GtkPaned
 {
   GtkContainer container;
 
-  GtkWidget *GSEAL (child1);
-  GtkWidget *GSEAL (child2);
-
-  GdkWindow *GSEAL (handle);
-  GdkGC *GSEAL (xor_gc);
-  GdkCursorType GSEAL (cursor_type);
-
   /*< private >*/
-  GdkRectangle GSEAL (handle_pos);
-
-  gint GSEAL (child1_size);
-  gint GSEAL (last_allocation);
-  gint GSEAL (min_position);
-  gint GSEAL (max_position);
-
-  guint GSEAL (position_set) : 1;
-  guint GSEAL (in_drag) : 1;
-  guint GSEAL (child1_shrink) : 1;
-  guint GSEAL (child1_resize) : 1;
-  guint GSEAL (child2_shrink) : 1;
-  guint GSEAL (child2_resize) : 1;
-  guint GSEAL (orientation) : 1;
-  guint GSEAL (in_recursion) : 1;
-  guint GSEAL (handle_prelit) : 1;
-
-  GtkWidget *GSEAL (last_child1_focus);
-  GtkWidget *GSEAL (last_child2_focus);
-  GtkPanedPrivate *GSEAL (priv);
-
-  gint GSEAL (drag_pos);
-  gint GSEAL (original_position);
+  GtkPanedPrivate *priv;
 };
 
 struct _GtkPanedClass
@@ -107,6 +76,7 @@ struct _GtkPanedClass
 
 
 GType       gtk_paned_get_type     (void) G_GNUC_CONST;
+GtkWidget * gtk_paned_new          (GtkOrientation orientation);
 void        gtk_paned_add1         (GtkPaned       *paned,
                                     GtkWidget      *child);
 void        gtk_paned_add2         (GtkPaned       *paned,
@@ -129,15 +99,6 @@ GtkWidget * gtk_paned_get_child2   (GtkPaned       *paned);
 
 GdkWindow * gtk_paned_get_handle_window (GtkPaned  *paned);
 
-#ifndef GTK_DISABLE_DEPRECATED
-/* Internal function */
-void    gtk_paned_compute_position (GtkPaned  *paned,
-                                    gint       allocation,
-                                    gint       child1_req,
-                                    gint       child2_req);
-#define	gtk_paned_gutter_size(p,s)		(void) 0
-#define	gtk_paned_set_gutter_size(p,s)		(void) 0
-#endif /* GTK_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

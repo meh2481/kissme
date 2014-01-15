@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -39,22 +37,20 @@ G_BEGIN_DECLS
 
 #define GTK_TYPE_EDITABLE             (gtk_editable_get_type ())
 #define GTK_EDITABLE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_EDITABLE, GtkEditable))
-#define GTK_EDITABLE_CLASS(vtable)    (G_TYPE_CHECK_CLASS_CAST ((vtable), GTK_TYPE_EDITABLE, GtkEditableClass))
 #define GTK_IS_EDITABLE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GTK_TYPE_EDITABLE))
-#define GTK_IS_EDITABLE_CLASS(vtable) (G_TYPE_CHECK_CLASS_TYPE ((vtable), GTK_TYPE_EDITABLE))
-#define GTK_EDITABLE_GET_CLASS(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), GTK_TYPE_EDITABLE, GtkEditableClass))
+#define GTK_EDITABLE_GET_IFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), GTK_TYPE_EDITABLE, GtkEditableInterface))
 
-typedef struct _GtkEditable       GtkEditable;         /* Dummy typedef */
-typedef struct _GtkEditableClass  GtkEditableClass;
+typedef struct _GtkEditable          GtkEditable;         /* Dummy typedef */
+typedef struct _GtkEditableInterface GtkEditableInterface;
 
-struct _GtkEditableClass
+struct _GtkEditableInterface
 {
   GTypeInterface		   base_iface;
 
   /* signals */
   void (* insert_text)              (GtkEditable    *editable,
-				     const gchar    *text,
-				     gint            length,
+				     const gchar    *new_text,
+				     gint            new_text_length,
 				     gint           *position);
   void (* delete_text)              (GtkEditable    *editable,
 				     gint            start_pos,
@@ -63,8 +59,8 @@ struct _GtkEditableClass
 
   /* vtable */
   void (* do_insert_text)           (GtkEditable    *editable,
-				     const gchar    *text,
-				     gint            length,
+				     const gchar    *new_text,
+				     gint            new_text_length,
 				     gint           *position);
   void (* do_delete_text)           (GtkEditable    *editable,
 				     gint            start_pos,

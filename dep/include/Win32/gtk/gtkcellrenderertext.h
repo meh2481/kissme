@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -38,44 +36,16 @@ G_BEGIN_DECLS
 #define GTK_IS_CELL_RENDERER_TEXT_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_CELL_RENDERER_TEXT))
 #define GTK_CELL_RENDERER_TEXT_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_CELL_RENDERER_TEXT, GtkCellRendererTextClass))
 
-typedef struct _GtkCellRendererText      GtkCellRendererText;
-typedef struct _GtkCellRendererTextClass GtkCellRendererTextClass;
+typedef struct _GtkCellRendererText              GtkCellRendererText;
+typedef struct _GtkCellRendererTextPrivate       GtkCellRendererTextPrivate;
+typedef struct _GtkCellRendererTextClass         GtkCellRendererTextClass;
 
 struct _GtkCellRendererText
 {
   GtkCellRenderer parent;
 
   /*< private >*/
-  gchar *GSEAL (text);
-  PangoFontDescription *GSEAL (font);
-  gdouble GSEAL (font_scale);
-  PangoColor GSEAL (foreground);
-  PangoColor GSEAL (background);
-
-  PangoAttrList *GSEAL (extra_attrs);
-
-  PangoUnderline GSEAL (underline_style);
-
-  gint GSEAL (rise);
-  gint GSEAL (fixed_height_rows);
-
-  guint GSEAL (strikethrough) : 1;
-
-  guint GSEAL (editable)  : 1;
-
-  guint GSEAL (scale_set) : 1;
-
-  guint GSEAL (foreground_set) : 1;
-  guint GSEAL (background_set) : 1;
-
-  guint GSEAL (underline_set) : 1;
-
-  guint GSEAL (rise_set) : 1;
-
-  guint GSEAL (strikethrough_set) : 1;
-
-  guint GSEAL (editable_set) : 1;
-  guint GSEAL (calc_fixed_height) : 1;
+  GtkCellRendererTextPrivate *priv;
 };
 
 struct _GtkCellRendererTextClass

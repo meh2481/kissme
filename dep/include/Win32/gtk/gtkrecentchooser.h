@@ -14,12 +14,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -46,11 +44,13 @@ G_BEGIN_DECLS
  * @GTK_RECENT_SORT_LRU: Sort the returned list with the least recently used
  *   items first.
  * @GTK_RECENT_SORT_CUSTOM: Sort the returned list using a custom sorting
- *   function passed using gtk_recent_manager_set_sort_func().
+ *   function passed using gtk_recent_chooser_set_sort_func().
  *
  * Used to specify the sorting method to be applyed to the recently
  * used resource list.
- **/
+ *
+ * Since: 2.10
+ */
 typedef enum
 {
   GTK_RECENT_SORT_NONE = 0,
@@ -67,8 +67,25 @@ typedef gint (*GtkRecentSortFunc) (GtkRecentInfo *a,
 typedef struct _GtkRecentChooser      GtkRecentChooser; /* dummy */
 typedef struct _GtkRecentChooserIface GtkRecentChooserIface;
 
+/**
+ * GTK_RECENT_CHOOSER_ERROR:
+ *
+ * Used to get the #GError quark for #GtkRecentChooser errors.
+ *
+ * Since: 2.10
+ */
 #define GTK_RECENT_CHOOSER_ERROR	(gtk_recent_chooser_error_quark ())
 
+/**
+ * GtkRecentChooserError:
+ * @GTK_RECENT_CHOOSER_ERROR_NOT_FOUND: Indicates that a file does not exist
+ * @GTK_RECENT_CHOOSER_ERROR_INVALID_URI: Indicates a malformed URI
+ *
+ * These identify the various errors that can occur while calling
+ * #GtkRecentChooser functions.
+ *
+ * Since: 2.10
+ */
 typedef enum
 {
   GTK_RECENT_CHOOSER_ERROR_NOT_FOUND,
@@ -105,8 +122,8 @@ struct _GtkRecentChooserIface
   GSList *          (* list_filters)       (GtkRecentChooser  *chooser);
   void              (* set_sort_func)      (GtkRecentChooser  *chooser,
   					    GtkRecentSortFunc  sort_func,
-  					    gpointer           data,
-  					    GDestroyNotify     destroy);
+  					    gpointer           sort_data,
+  					    GDestroyNotify     data_destroy);
 
   /*
    * Signals
@@ -138,11 +155,6 @@ gboolean          gtk_recent_chooser_get_local_only      (GtkRecentChooser  *cho
 void              gtk_recent_chooser_set_show_tips       (GtkRecentChooser  *chooser,
 							  gboolean           show_tips);
 gboolean          gtk_recent_chooser_get_show_tips       (GtkRecentChooser  *chooser);
-#ifndef GTK_DISABLE_DEPRECATED
-void              gtk_recent_chooser_set_show_numbers    (GtkRecentChooser  *chooser,
-							  gboolean           show_numbers);
-gboolean          gtk_recent_chooser_get_show_numbers    (GtkRecentChooser  *chooser);
-#endif /* GTK_DISABLE_DEPRECATED */
 void              gtk_recent_chooser_set_show_icons      (GtkRecentChooser  *chooser,
 							  gboolean           show_icons);
 gboolean          gtk_recent_chooser_get_show_icons      (GtkRecentChooser  *chooser);

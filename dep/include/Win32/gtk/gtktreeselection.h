@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -36,11 +34,39 @@ G_BEGIN_DECLS
 #define GTK_IS_TREE_SELECTION_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE ((klass), GTK_TYPE_TREE_SELECTION))
 #define GTK_TREE_SELECTION_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_TREE_SELECTION, GtkTreeSelectionClass))
 
+typedef struct _GtkTreeSelectionPrivate      GtkTreeSelectionPrivate;
+
+/**
+ * GtkTreeSelectionFunc:
+ * @selection: A #GtkTreeSelection
+ * @model: A #GtkTreeModel being viewed
+ * @path: The #GtkTreePath of the row in question
+ * @path_currently_selected: %TRUE, if the path is currently selected
+ * @data: (closure): user data
+ *
+ * A function used by gtk_tree_selection_set_select_function() to filter
+ * whether or not a row may be selected.  It is called whenever a row's
+ * state might change.  A return value of %TRUE indicates to @selection
+ * that it is okay to change the selection.
+ *
+ * Returns: %TRUE, if the selection state of the row can be toggled
+ */
 typedef gboolean (* GtkTreeSelectionFunc)    (GtkTreeSelection  *selection,
 					      GtkTreeModel      *model,
 					      GtkTreePath       *path,
                                               gboolean           path_currently_selected,
 					      gpointer           data);
+
+/**
+ * GtkTreeSelectionForeachFunc:
+ * @model: The #GtkTreeModel being viewed
+ * @path: The #GtkTreePath of a selected row
+ * @iter: A #GtkTreeIter pointing to a selected row
+ * @data: (closure): user data
+ *
+ * A function used by gtk_tree_selection_selected_foreach() to map all
+ * selected rows.  It will be called on every selected row in the view.
+ */
 typedef void (* GtkTreeSelectionForeachFunc) (GtkTreeModel      *model,
 					      GtkTreePath       *path,
 					      GtkTreeIter       *iter,
@@ -48,15 +74,10 @@ typedef void (* GtkTreeSelectionForeachFunc) (GtkTreeModel      *model,
 
 struct _GtkTreeSelection
 {
+  /*< private >*/
   GObject parent;
 
-  /*< private >*/
-
-  GtkTreeView *GSEAL (tree_view);
-  GtkSelectionMode GSEAL (type);
-  GtkTreeSelectionFunc GSEAL (user_func);
-  gpointer GSEAL (user_data);
-  GDestroyNotify GSEAL (destroy);
+  GtkTreeSelectionPrivate *priv;
 };
 
 struct _GtkTreeSelectionClass

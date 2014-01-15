@@ -2,15 +2,15 @@ OBJECTS = main.o signalhandler.o sound.o base64.o cover.o fileoperations.o tinyx
 LIBS = -ltyrsound.dll -logg -lopusfile -L./dep/lib/Win32 -lttvfs  -lOpenAL32.dll -ltag.dll -lssl -lcrypto 
 HEADER = -I./dep/include -I./dep/include/Win32
 
-GTKLIB = -latk-1.0.dll -lcairo-gobject.dll -lcairo-script-interpreter.dll -lcairo.dll -lgailutil-3.dll -lgdk-3.dll -lgdk_pixbuf-2.0.dll -lgio-2.0.dll -lglib-2.0.dll -lgmodule-2.0.dll -lgobject-2.0.dll -lgthread-2.0.dll -lgtk-3.dll -lgtk-win32-2.0.dll -lpango-1.0.dll -lpangocairo-1.0.dll -lpangoft2-1.0.dll -lpangowin32-1.0.dll
+GTKLIB = -latk-1.0.dll -lcairo-gobject.dll -lcairo-script-interpreter.dll -lcairo.dll -lcroco-0.6.dll -lffi.dll -lfontconfig.dll -lfreetype.dll -lgailutil-3.dll -lgdk-3.dll -lgdk_pixbuf-2.0.dll -lgio-2.0.dll -lglib-2.0.dll -lgmodule-2.0.dll -lgobject-2.0.dll -lgthread-2.0.dll -lgtk-3.dll -liconv.dll -lintl.dll -ljasper.dll -ljpeg.dll -llzma.dll -lpango-1.0.dll -lpangocairo-1.0.dll -lpangoft2-1.0.dll -lpangowin32-1.0.dll -lpixman-1.dll -lpng.dll -lpng15.dll -lrsvg-2.dll -ltiff.dll -lxml2.dll -lz.dll 
 
 all : kissme
 
 kissme : $(OBJECTS)
-	g++ -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
+	g++ -mms-bitfields -Wall -ggdb -g -O2 -o $@ $^ $(LIBS) $(GTKLIB)
 
 %.o: %.cpp
-	g++ -c -MMD -ggdb -g -o $@ $< $(HEADER) 
+	g++ -mms-bitfields -c -MMD -ggdb -g -o $@ $< $(HEADER) 
 
 -include $(OBJECTS:.o=.d)
 

@@ -14,11 +14,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -81,14 +80,29 @@ struct _GtkRecentData
   gboolean is_private;
 };
 
+/**
+ * GtkRecentManager:
+ *
+ * #GtkRecentManager contains only private data
+ * and should be accessed using the provided API.
+ *
+ * Since: 2.10
+ */
 struct _GtkRecentManager
 {
   /*< private >*/
   GObject parent_instance;
 
-  GtkRecentManagerPrivate *GSEAL (priv);
+  GtkRecentManagerPrivate *priv;
 };
 
+/**
+ * GtkRecentManagerClass:
+ *
+ * #GtkRecentManagerClass contains only private data.
+ *
+ * Since: 2.10
+ */
 struct _GtkRecentManagerClass
 {
   /*< private >*/
@@ -118,8 +132,10 @@ struct _GtkRecentManagerClass
  *   resources file.
  * @GTK_RECENT_MANAGER_ERROR_UNKNOWN: unspecified error.
  *
- * Error codes for GtkRecentManager operations
- **/
+ * Error codes for #GtkRecentManager operations
+ *
+ * Since: 2.10
+ */
 typedef enum
 {
   GTK_RECENT_MANAGER_ERROR_NOT_FOUND,
@@ -131,6 +147,13 @@ typedef enum
   GTK_RECENT_MANAGER_ERROR_UNKNOWN
 } GtkRecentManagerError;
 
+/**
+ * GTK_RECENT_MANAGER_ERROR:
+ *
+ * The #GError domain for #GtkRecentManager errors.
+ *
+ * Since: 2.10
+ */
 #define GTK_RECENT_MANAGER_ERROR	(gtk_recent_manager_error_quark ())
 GQuark 	gtk_recent_manager_error_quark (void);
 
@@ -139,12 +162,6 @@ GType 		  gtk_recent_manager_get_type       (void) G_GNUC_CONST;
 
 GtkRecentManager *gtk_recent_manager_new            (void);
 GtkRecentManager *gtk_recent_manager_get_default    (void);
-
-#ifndef GTK_DISABLE_DEPRECATED
-GtkRecentManager *gtk_recent_manager_get_for_screen (GdkScreen            *screen);
-void              gtk_recent_manager_set_screen     (GtkRecentManager     *manager,
-						     GdkScreen            *screen);
-#endif
 
 gboolean          gtk_recent_manager_add_item       (GtkRecentManager     *manager,
 						     const gchar          *uri);
@@ -163,9 +180,6 @@ gboolean          gtk_recent_manager_move_item      (GtkRecentManager     *manag
 						     const gchar          *uri,
 						     const gchar          *new_uri,
 						     GError              **error);
-void              gtk_recent_manager_set_limit      (GtkRecentManager     *manager,
-						     gint                  limit);
-gint              gtk_recent_manager_get_limit      (GtkRecentManager     *manager);
 GList *           gtk_recent_manager_get_items      (GtkRecentManager     *manager);
 gint              gtk_recent_manager_purge_items    (GtkRecentManager     *manager,
 						     GError              **error);
@@ -189,6 +203,9 @@ gboolean              gtk_recent_info_get_application_info (GtkRecentInfo  *info
 							    const gchar   **app_exec,
 							    guint          *count,
 							    time_t         *time_);
+GAppInfo *            gtk_recent_info_create_app_info      (GtkRecentInfo  *info,
+                                                            const gchar    *app_name,
+                                                            GError        **error);
 gchar **              gtk_recent_info_get_applications     (GtkRecentInfo  *info,
 							    gsize          *length) G_GNUC_MALLOC;
 gchar *               gtk_recent_info_last_application     (GtkRecentInfo  *info) G_GNUC_MALLOC;
@@ -200,6 +217,7 @@ gboolean              gtk_recent_info_has_group            (GtkRecentInfo  *info
 							    const gchar    *group_name);
 GdkPixbuf *           gtk_recent_info_get_icon             (GtkRecentInfo  *info,
 							    gint            size);
+GIcon *               gtk_recent_info_get_gicon            (GtkRecentInfo  *info);
 gchar *               gtk_recent_info_get_short_name       (GtkRecentInfo  *info) G_GNUC_MALLOC;
 gchar *               gtk_recent_info_get_uri_display      (GtkRecentInfo  *info) G_GNUC_MALLOC;
 gint                  gtk_recent_info_get_age              (GtkRecentInfo  *info);

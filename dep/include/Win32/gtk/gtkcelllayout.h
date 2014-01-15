@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -25,7 +23,7 @@
 #define __GTK_CELL_LAYOUT_H__
 
 #include <gtk/gtkcellrenderer.h>
-#include <gtk/gtktreeviewcolumn.h>
+#include <gtk/gtkcellarea.h>
 #include <gtk/gtkbuildable.h>
 #include <gtk/gtkbuilder.h>
 
@@ -40,6 +38,17 @@ typedef struct _GtkCellLayout           GtkCellLayout; /* dummy typedef */
 typedef struct _GtkCellLayoutIface      GtkCellLayoutIface;
 
 /* keep in sync with GtkTreeCellDataFunc */
+/**
+ * GtkCellLayoutDataFunc:
+ * @cell_layout: a #GtkCellLayout
+ * @cell: the cell renderer whose value is to be set
+ * @tree_model: the model
+ * @iter: a #GtkTreeIter indicating the row to set the value for
+ * @data: user data passed to gtk_cell_layout_set_cell_data_func()
+ *
+ * A function which should set the value of @cell_layout's cell renderer(s)
+ * as appropriate. 
+ */
 typedef void (* GtkCellLayoutDataFunc) (GtkCellLayout   *cell_layout,
                                         GtkCellRenderer *cell,
                                         GtkTreeModel    *tree_model,
@@ -73,6 +82,8 @@ struct _GtkCellLayoutIface
                                GtkCellRenderer       *cell,
                                gint                   position);
   GList* (* get_cells)        (GtkCellLayout         *cell_layout);
+
+  GtkCellArea *(* get_area)   (GtkCellLayout         *cell_layout);
 };
 
 GType gtk_cell_layout_get_type           (void) G_GNUC_CONST;
@@ -101,13 +112,15 @@ void  gtk_cell_layout_clear_attributes   (GtkCellLayout         *cell_layout,
 void  gtk_cell_layout_reorder            (GtkCellLayout         *cell_layout,
                                           GtkCellRenderer       *cell,
                                           gint                   position);
+GtkCellArea *gtk_cell_layout_get_area    (GtkCellLayout         *cell_layout);
+
 gboolean _gtk_cell_layout_buildable_custom_tag_start (GtkBuildable  *buildable,
 						      GtkBuilder    *builder,
 						      GObject       *child,
 						      const gchar   *tagname,
 						      GMarkupParser *parser,
 						      gpointer      *data);
-void _gtk_cell_layout_buildable_custom_tag_end       (GtkBuildable  *buildable,
+gboolean _gtk_cell_layout_buildable_custom_tag_end   (GtkBuildable  *buildable,
 						      GtkBuilder    *builder,
 						      GObject       *child,
 						      const gchar   *tagname,

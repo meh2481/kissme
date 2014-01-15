@@ -21,9 +21,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -33,7 +31,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -59,11 +57,8 @@ struct _GtkScaleButton
 {
   GtkButton parent;
 
-  GtkWidget *GSEAL (plus_button);
-  GtkWidget *GSEAL (minus_button);
-
   /*< private >*/
-  GtkScaleButtonPrivate *GSEAL (priv);
+  GtkScaleButtonPrivate *priv;
 };
 
 struct _GtkScaleButtonClass
@@ -98,14 +93,6 @@ void             gtk_scale_button_set_adjustment   (GtkScaleButton  *button,
 GtkWidget *      gtk_scale_button_get_plus_button  (GtkScaleButton  *button);
 GtkWidget *      gtk_scale_button_get_minus_button (GtkScaleButton  *button);
 GtkWidget *      gtk_scale_button_get_popup        (GtkScaleButton  *button);
-
-#ifndef GTK_DISABLE_DEPRECATED
-
-GtkOrientation   gtk_scale_button_get_orientation  (GtkScaleButton  *button);
-void             gtk_scale_button_set_orientation  (GtkScaleButton  *button,
-                                                    GtkOrientation   orientation);
-
-#endif /* GTK_DISABLE_DEPRECATED */
 
 G_END_DECLS
 

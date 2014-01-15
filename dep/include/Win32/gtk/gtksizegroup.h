@@ -13,12 +13,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -37,23 +35,16 @@ G_BEGIN_DECLS
 #define GTK_SIZE_GROUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GTK_TYPE_SIZE_GROUP, GtkSizeGroupClass))
 
 
-typedef struct _GtkSizeGroup       GtkSizeGroup;
-typedef struct _GtkSizeGroupClass  GtkSizeGroupClass;
+typedef struct _GtkSizeGroup              GtkSizeGroup;
+typedef struct _GtkSizeGroupPrivate       GtkSizeGroupPrivate;
+typedef struct _GtkSizeGroupClass         GtkSizeGroupClass;
 
 struct _GtkSizeGroup
 {
   GObject parent_instance;
 
-  /* <private> */
-  GSList *GSEAL (widgets);
-
-  guint8 GSEAL (mode);
-
-  guint GSEAL (have_width) : 1;
-  guint GSEAL (have_height) : 1;
-  guint GSEAL (ignore_hidden) : 1;
-
-  GtkRequisition GSEAL (requisition);
+  /*< private >*/
+  GtkSizeGroupPrivate *priv;
 };
 
 struct _GtkSizeGroupClass
@@ -98,13 +89,6 @@ void             gtk_size_group_add_widget    (GtkSizeGroup     *size_group,
 void             gtk_size_group_remove_widget (GtkSizeGroup     *size_group,
 					       GtkWidget        *widget);
 GSList *         gtk_size_group_get_widgets   (GtkSizeGroup     *size_group);
-
-
-void _gtk_size_group_get_child_requisition (GtkWidget      *widget,
-					    GtkRequisition *requisition);
-void _gtk_size_group_compute_requisition   (GtkWidget      *widget,
-					    GtkRequisition *requisition);
-void _gtk_size_group_queue_resize          (GtkWidget      *widget);
 
 G_END_DECLS
 

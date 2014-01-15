@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,7 +22,7 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -33,9 +31,22 @@
 
 
 #include <gdk/gdk.h>
-#include <gtk/gtktypeutils.h> /* for GtkTranslateFunc */
 
 G_BEGIN_DECLS
+
+/*
+ * GtkTranslateFunc:
+ * @path: The id of the message. In #GtkActionGroup this will be a label
+ *   or tooltip from a #GtkActionEntry.
+ * @func_data: user data passed in when registering the function
+ *
+ * The function used to translate messages in e.g. #GtkIconFactory
+ * and #GtkActionGroup.
+ *
+ * Returns: the translated message
+ */
+typedef gchar * (*GtkTranslateFunc) (const gchar  *path,
+                                     gpointer      func_data);
 
 typedef struct _GtkStockItem GtkStockItem;
 
@@ -305,8 +316,10 @@ void          gtk_stock_set_translate_func (const gchar      *domain,
 /**
  * GTK_STOCK_FILE:
  *
- * The "File" icon.
- * <inlinegraphic fileref="document-x-generic.png" format="PNG"></inlinegraphic>
+ * The "File" item.
+ * <inlinegraphic fileref="text-x-generic.png" format="PNG"></inlinegraphic>
+ *
+ * Since 3.0, this item has a label, before it only had an icon.
  *
  * Since: 2.6
  */
@@ -456,9 +469,9 @@ void          gtk_stock_set_translate_func (const gchar      *domain,
  * GTK_STOCK_INDENT:
  *
  * The "Indent" item.
- * <inlinegraphic fileref="gtk-indent-ltr.png" format="PNG"></inlinegraphic>
+ * <inlinegraphic fileref="format-indent-more-ltr.png" format="PNG"></inlinegraphic>
  * RTL variant
- * <inlinegraphic fileref="gtk-indent-rtl.png" format="PNG"></inlinegraphic>
+ * <inlinegraphic fileref="format-indent-more-rtl.png" format="PNG"></inlinegraphic>
  *
  * Since: 2.4
  */

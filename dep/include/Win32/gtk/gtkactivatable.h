@@ -12,12 +12,10 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(GTK_DISABLE_SINGLE_INCLUDES) && !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
@@ -25,7 +23,6 @@
 #define __GTK_ACTIVATABLE_H__
 
 #include <gtk/gtkaction.h>
-#include <gtk/gtktypeutils.h>
 
 G_BEGIN_DECLS
 
@@ -46,8 +43,8 @@ typedef struct _GtkActivatableIface GtkActivatableIface;
  * You must check the #GtkActivatable:use-action-appearance property only apply action
  * properties that are meant to effect the appearance accordingly.
  * @sync_action_properties: Called to update the activatable completely, this is called internally when
- * #GtkActivatable::related-action property is set or unset and by the implementor when
- * #GtkActivatable::use-action-appearance changes.<note><para>This method can be called
+ * #GtkActivatable:related-action property is set or unset and by the implementor when
+ * #GtkActivatable:use-action-appearance changes.<note><para>This method can be called
  * with a %NULL action at times</para></note>
  *
  * Since: 2.16

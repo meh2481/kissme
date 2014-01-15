@@ -9,6 +9,7 @@
 #include <cmath>
 #include <iomanip>
 #include <string.h>
+#include <gdk/gdkkeysyms.h>
 
 extern GtkBuilder *builder;
 volatile bool bPaused = true;

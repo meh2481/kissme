@@ -1,6 +1,6 @@
 /***************************************************************************
-    copyright            : (C) 2002 - 2008 by Scott Wheeler
-    email                : wheeler@kde.org
+    copyright            : (C) 2013 by Tsuda Kageyu
+    email                : tsuda.kageyu@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -23,48 +23,52 @@
  *   http://www.mozilla.org/MPL/                                           *
  ***************************************************************************/
 
-#ifndef TAGLIB_ID3V2SYNCHDATA_H
-#define TAGLIB_ID3V2SYNCHDATA_H
+#ifndef TAGLIB_DEBUGLISTENER_H
+#define TAGLIB_DEBUGLISTENER_H
 
-#include "tbytevector.h"
-#include "taglib.h"
+#include "taglib_export.h"
+#include "tstring.h"
 
-namespace TagLib {
+namespace TagLib 
+{
+  //! An abstraction for the listener to the debug messages.
 
-  namespace ID3v2 {
-
-    //! A few functions for ID3v2 synch safe integer conversion
+  /*!
+   * This class enables you to handle the debug messages in your preferred 
+   * way by subclassing this class, reimplementing printMessage() and setting 
+   * your reimplementation as the default with setDebugListener().
+   *
+   * \see setDebugListener()
+   */  
+  class TAGLIB_EXPORT DebugListener
+  {
+  public:
+    DebugListener();
+    virtual ~DebugListener();
 
     /*!
-     * In the ID3v2.4 standard most integer values are encoded as "synch safe"
-     * integers which are encoded in such a way that they will not give false
-     * MPEG syncs and confuse MPEG decoders.  This namespace provides some
-     * methods for converting to and from these values to ByteVectors for
-     * things rendering and parsing ID3v2 data.
+     * When overridden in a derived class, redirects \a msg to your preferred
+     * channel such as stderr, Windows debugger or so forth.
      */
+    virtual void printMessage(const String &msg) = 0;
 
-    namespace SynchData
-    {
-      /*!
-       * This returns the unsigned integer value of \a data where \a data is a
-       * ByteVector that contains a \e synchsafe integer (Structure,
-       * <a href="id3v2-structure.html#6.2">6.2</a>).  The default \a length of
-       * 4 is used if another value is not specified.
-       */
-      TAGLIB_EXPORT uint toUInt(const ByteVector &data);
+  private:
+    // Noncopyable
+    DebugListener(const DebugListener &);
+    DebugListener &operator=(const DebugListener &);
+  };
 
-      /*!
-       * Returns a 4 byte (32 bit) synchsafe integer based on \a value.
-       */
-      TAGLIB_EXPORT ByteVector fromUInt(uint value);
-
-      /*!
-       * Convert the data from unsynchronized data to its original format.
-       */
-      TAGLIB_EXPORT ByteVector decode(const ByteVector &input);
-    }
-
-  }
+  /*!
+   * Sets the listener that decides how the debug messages are redirected.
+   * If the parameter \a listener is null, the previous listener is released 
+   * and default stderr listener is restored.   
+   *
+   * \note The caller is responsible for deleting the previous listener
+   * as needed after it is released.
+   *
+   * \see DebugListener
+   */
+  TAGLIB_EXPORT void setDebugListener(DebugListener *listener);
 }
 
 #endif

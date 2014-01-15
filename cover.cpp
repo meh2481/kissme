@@ -58,8 +58,8 @@ std::string get_album_art(std::string sAudioFile)
         //M4A parsing thanks to http://stackoverflow.com/questions/6542465/c-taglib-cover-art-from-mpeg-4-files
         TagLib::MP4::File f(sAudioFile.c_str());
         TagLib::MP4::Tag* tag = f.tag();
-        TagLib::MP4::ItemListMap* itemsListMap = tag->itemListMap();
-        TagLib::MP4::Item coverItem = (*itemsListMap)["covr"];
+        TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
+        TagLib::MP4::Item coverItem = itemsListMap["covr"];
         TagLib::MP4::CoverArtList coverArtList = coverItem.toCoverArtList();
         if(coverArtList.size())
         {
@@ -95,9 +95,11 @@ std::string get_album_art(std::string sAudioFile)
     {
         TagLib::MPEG::File audioFile(sAudioFile.c_str());
 
-        TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
-
-        TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+        TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag();
+		if(!tag) return sFilename;
+		TagLib::ID3v2::FrameListMap list = tag->frameListMap();
+		if(!list.size()) return sFilename;
+        TagLib::ID3v2::FrameList frames = list["APIC"];
 
         if(!frames.isEmpty())
         {
@@ -273,10 +275,10 @@ bool set_album_art(std::string sSong, std::string sImg)
       TagLib::MP4::Tag *tag = audioFile.tag();
       //TagLib is broken here. It's not returning a proper reference, which makes embedding album art an impossibility.
       //Thus, I hacked it to return a pointer.
-      TagLib::MP4::ItemListMap* itemsListMap = tag->itemListMap();
+      TagLib::MP4::ItemListMap itemsListMap = tag->itemListMap();
       TagLib::MP4::CoverArtList coverArtList;
       coverArtList.prepend(coverArt);
-      itemsListMap->insert("covr", coverArtList);
+      itemsListMap.insert("covr", coverArtList);
 
       //TODO: M4A tagging seems to be broken afterwards in WMP and iTunes. Not sure if cover art or just stupid
       #ifdef BOTCHED_TAGGING

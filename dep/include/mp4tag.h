@@ -65,7 +65,7 @@ namespace TagLib {
         void setYear(uint value);
         void setTrack(uint value);
 
-        ItemListMap *itemListMap();
+        ItemListMap &itemListMap();
 
         PropertyMap properties() const;
         void removeUnsupportedProperties(const StringList& properties);

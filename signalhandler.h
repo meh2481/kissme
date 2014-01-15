@@ -24,6 +24,7 @@ typedef unsigned int uint;
 #define REPEAT_ONE  2
 
 #define NUM_COLUMNS 8
+//In Win32, these are totally different, because GPL
 #define PLAY_ICON   	"media-playback-start"
 #define PLAY_ERR_ICON	"gtk-no"
 

@@ -1,0 +1,10 @@
+[Icon Theme]
+Name=Hicolor
+Comment=Kissme GTK icons for Windows, from alternate sources so that I don't tread on the GPL
+Hidden=true
+Directories=32x32/actions
+
+[32x32/actions]
+Size=32
+Context=Actions
+Type=Threshold

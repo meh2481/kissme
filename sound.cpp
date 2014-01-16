@@ -203,14 +203,14 @@ void song_get_tags(std::string sSongFilename, std::string& sAlbum, std::string& 
   if(f.isNull())
   {
       sAlbum = sArtist = "";
-      sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(sSongFilename.c_str()));
+      sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(ttvfs::FixPath(sSongFilename).c_str()));
       iTrack = iLength = 0;
       return;
   }
   sAlbum = f.tag()->album().to8Bit(true);
   sTitle = f.tag()->title().to8Bit(true);
   if(!sTitle.size())	//At least populate metadata if song filename isn't here
-  	sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(sSongFilename.c_str()));
+  	sTitle = ttvfs::StripFileExtension(ttvfs::PathToFileName(ttvfs::FixPath(sSongFilename).c_str()));
   sArtist = f.tag()->artist().to8Bit(true);
   iTrack = f.tag()->track();
   iLength = f.audioProperties()->length();

@@ -342,6 +342,9 @@ std::list<song> playlist_load_iTunes(std::string sFilename)
   
   //Am I being too harsh about Apple programmers? Oh, wait, what's this? Three nested XML elements, all with the same name? 
   //Nah, I'm not being too harsh.
+  //Oh, and in case you think this is just an export format, take a look at your "Music/iTunes/iTunes Music Library.xml". Open
+  //it in an editor and watch just how often it's modified. Truncate it to 0 bytes, set it to read-only, and watch how iTunes
+  //merrily continues along as if nothing is wrong. Now ask yourself just what these people are thinking.
   for(tinyxml2::XMLElement* dict = root->FirstChildElement("dict"); dict != NULL; dict = dict->NextSiblingElement("dict"))
   {
 		for(tinyxml2::XMLElement* dict2 = dict->FirstChildElement("dict"); dict2 != NULL; dict2 = dict2->NextSiblingElement("dict"))
@@ -630,11 +633,11 @@ std::list<song> convert_to_global(std::list<song> sFilenames, std::string sPath)
 	std::set<std::string> lFileFilters = get_filetypes_supported();
 	for(std::list<song>::iterator i = sFilenames.begin(); i != sFilenames.end(); i++)
 	{
-		std::string s = convert_to_path(i->filename);
+		std::string s = ttvfs::FixPath(convert_to_path(i->filename));
 		if(!ttvfs::IsDirectory(ttvfs::StripLastPath(s).c_str()))	//Relative path
 			i->filename.assign(ttvfs::FixPath(sPath + '/' + s));
 		else																							//Absolute path
-			i->filename.assign(ttvfs::FixPath(s));
+			i->filename.assign(s);
 		
 		//Make sure this file type is supported
 		size_t pos = i->filename.find_last_of('.');

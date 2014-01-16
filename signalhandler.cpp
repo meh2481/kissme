@@ -587,7 +587,7 @@ G_MODULE_EXPORT void button_import_clicked(GtkButton *button, ChData *data)
         for(GSList* i = filenames; i != NULL; i=i->next)
         {
             std::string sFilename = (char*)i->data;
-            std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(sFilename.c_str()));	//Name of our new playlist 
+            std::string sListName = ttvfs::StripFileExtension(ttvfs::PathToFileName(ttvfs::FixPath(sFilename).c_str()));	//Name of our new playlist 
         		if(is_playlist(sListName))	//Don't duplicate playlist names
         		{
         			std::cout << "Discarding duplicate list " << sFilename << std::endl;

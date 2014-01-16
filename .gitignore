@@ -37,6 +37,7 @@ kissme.exe
 # Playlist files
 *.kiss
 *.m3u
+*.m3u8
 *.xml
 *.asx
 *.pls
